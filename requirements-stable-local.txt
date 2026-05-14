@@ -1,0 +1,15 @@
+transformers==4.46.3
+tokenizers==0.20.3
+huggingface-hub==0.26.5
+safetensors==0.4.5
+accelerate==1.1.1
+peft==0.13.2
+datasets==3.1.0
+trl==0.12.2
+fsspec==2024.9.0
+sentencepiece
+protobuf
+pyyaml
+pandas
+scikit-learn
+tensorboard

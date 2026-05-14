@@ -1,0 +1,12 @@
+torch
+transformers
+datasets
+accelerate
+peft
+trl
+sentencepiece
+protobuf
+pyyaml
+pandas
+scikit-learn
+tensorboard
