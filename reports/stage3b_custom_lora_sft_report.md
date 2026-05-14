@@ -137,3 +137,63 @@ Use `reports/compare_outputs_three_way_custom.jsonl` and
 `reports/stage4b_three_way_comparison_report.md` to review base vs public-SFT vs
 custom-SFT. Before DPO, consider one small Stage 2B.2 data patch for the two
 remaining weak prompts.
+
+## Stage 2B.2 Continuation Addendum
+
+Stage 2B.2 was completed on 2026-05-15. It added 8 focused badcase samples and
+regenerated the custom dataset:
+
+```text
+Instruction samples: 140
+Train samples: 126
+Eval samples: 14
+```
+
+The important result was not simply "more data is better." Two scratch v2 runs
+regressed on previously solved prompts:
+
+- `outputs/sft_lora_qwen05b_custom_v2`, 5 epochs, regressed.
+- `outputs/sft_lora_qwen05b_custom_v2_10ep/checkpoint-100`, best-eval
+  checkpoint, still regressed.
+
+The safer run continued from the existing v1 adapter:
+
+```powershell
+D:\conda-envs\qwen-lora-local\python.exe scripts\train_sft_lora.py `
+  --init_adapter_path outputs\sft_lora_qwen05b_custom `
+  --train_file data\processed\custom_sft_train.jsonl `
+  --eval_file data\processed\custom_sft_eval.jsonl `
+  --output_dir outputs\sft_lora_qwen05b_custom_v3_from_v1_patch `
+  --max_length 512 `
+  --batch_size 1 `
+  --grad_accum 4 `
+  --epochs 2 `
+  --lr 5e-5 `
+  --logging_steps 10 `
+  --eval_steps 30 `
+  --save_steps 30 `
+  --report_to none `
+  --local_files_only
+```
+
+Result:
+
+```text
+Output: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+Runtime: about 157.5 seconds
+Final train loss: 0.2873
+Eval loss at epoch 1.90: 0.0348
+Fixed-prompt behavior: preserved or improved 7 / 8 prompts
+```
+
+Code update:
+
+- `scripts/train_sft_lora.py` now supports `--init_adapter_path` so a LoRA
+  adapter can be continued instead of always training a fresh adapter.
+
+Current recommendation:
+
+- Use `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the current best
+  local custom adapter for learning and comparison.
+- Do not start DPO yet; do a Stage 2B.3 loss-vs-behavior patch with replay
+  samples first.

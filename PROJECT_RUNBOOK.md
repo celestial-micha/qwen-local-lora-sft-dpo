@@ -230,9 +230,9 @@ Important rule:
 - Do this after the public-data SFT loop is trainable end to end. Otherwise,
   dirty-data issues and training issues become hard to separate.
 
-Status: completed and revised after Stage 3B feedback.
+Status: completed, revised after Stage 3B feedback, and patched in Stage 2B.2.
 
-Current Stage 2B result:
+Current Stage 2B.2 result:
 
 - Script: `scripts/prepare_custom_technical_data.py`
 - Raw sources: `data/raw/custom_sources.jsonl`
@@ -240,9 +240,10 @@ Current Stage 2B result:
 - Instruction seeds: `data/raw/custom_instruction_seed.jsonl`
 - Train file: `data/processed/custom_sft_train.jsonl`
 - Eval file: `data/processed/custom_sft_eval.jsonl`
-- Train rows: 119
-- Eval rows: 13
+- Train rows: 126
+- Eval rows: 14
 - Report: `reports/stage2b_custom_technical_data_report.md`
+- Patch report: `reports/stage2b2_badcase_patch_report.md`
 
 Stage 2B uses project-owned technical notes plus curated LoRA/SFT/DPO concept
 seeds. The script also supports optional URL collection for later crawling
@@ -254,6 +255,8 @@ Important feedback:
   answers. That version had too many generic project-record summary samples.
 - The revised dataset reduces `project_record_summary` samples and adds direct
   targeted QA for the fixed technical prompts.
+- Stage 2B.2 adds 8 focused badcase samples for public-SFT motivation and
+  loss-vs-behavior evaluation.
 - This is a useful project story: badcases from comparison drive the next data
   revision.
 
@@ -266,7 +269,8 @@ Goal:
   `outputs/sft_lora_qwen05b_mixed`.
 - Compare behavior against both the base model and the public-data adapter.
 
-Status: completed for custom-only data.
+Status: completed for custom-only data, then followed by a Stage 2B.2
+continuation run.
 
 Output:
 
@@ -290,6 +294,9 @@ Important finding:
 - The custom adapter improved most target technical prompts.
 - Mild overfitting risk appeared after the best eval checkpoint.
 - Loss alone was not enough; fixed-prompt behavior was the main judge.
+- After Stage 2B.2, training a new v2 adapter from scratch regressed on
+  previously solved prompts. Continuing from v1 with `--init_adapter_path` and
+  a low learning rate was safer.
 
 Command used:
 
@@ -334,7 +341,44 @@ Result:
 
 Recommended next step:
 
-- Do a small Stage 2B.2 targeted data patch before DPO.
+- Review the Stage 2B.2 patch result and do one more focused Stage 2B.3 patch
+  for the loss-vs-behavior prompt before DPO.
+
+### Stage 2B.2 / Stage 3B.2 / Stage 4B.2: Badcase Patch Loop
+
+Goal:
+
+- Patch the two remaining Stage 4B weak prompts.
+- Avoid losing the good behavior already learned by the v1 custom adapter.
+- Treat fixed-prompt comparison as a regression suite.
+
+Status: completed.
+
+Artifacts:
+
+- Data/report: `reports/stage2b2_badcase_patch_report.md`
+- Scratch v2 comparison: `reports/compare_outputs_three_way_custom_v2.jsonl`
+- Scratch v2 best-checkpoint comparison:
+  `reports/compare_outputs_three_way_custom_v2_checkpoint100.jsonl`
+- Low-LR continuation comparison:
+  `reports/compare_outputs_three_way_custom_v3_from_v1_patch.jsonl`
+- Current best local adapter:
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+
+Result:
+
+- v2 trained from scratch for 5 epochs regressed on core LoRA/SFT prompts.
+- v2 trained from scratch for 10 epochs and evaluated at checkpoint 100 still
+  regressed despite lower loss.
+- v3 continued from `outputs/sft_lora_qwen05b_custom` with `--lr 5e-5` for 2
+  epochs and preserved or improved 7/8 fixed prompts.
+- The remaining weak prompt is now mainly: why loss alone is insufficient.
+
+Lesson:
+
+- Small badcase patches can cause regressions if retrained from scratch.
+- A safer small-data workflow is: start from the best adapter, use lower LR,
+  train briefly, then rerun the fixed-prompt regression suite.
 
 ### Stage 5: DPO
 
@@ -352,6 +396,8 @@ VRAM note:
   `batch_size=1`, short `max_length`, short `max_prompt_length`, minimal eval,
   and PEFT/reference-model sharing where possible.
 - See `reports/vram_and_dpo_plan.md`.
+- Do not start DPO until the remaining Stage 2B.3 loss-vs-behavior prompt is
+  reviewed or patched.
 
 ### Stage 6: Final Interview Package
 

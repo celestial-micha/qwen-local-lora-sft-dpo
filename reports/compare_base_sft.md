@@ -55,3 +55,33 @@ Stage 4B conclusion:
 The custom technical LoRA SFT adapter improved 6 of 8 fixed prompts, proving
 that the self-collected/curated data loop is useful. The remaining 2 prompts are
 not failures to hide; they are the next data-improvement targets.
+
+## Stage 4B.2 Patch Comparison
+
+Stage 2B.2 added 8 badcase samples and tested whether the two weak prompts could
+be improved without breaking the six prompts that already worked.
+
+Raw outputs:
+
+```text
+reports/compare_outputs_three_way_custom_v2.jsonl
+reports/compare_outputs_three_way_custom_v2_checkpoint100.jsonl
+reports/compare_outputs_three_way_custom_v3_from_v1_patch.jsonl
+```
+
+Result:
+
+| Adapter Variant | Summary | Use? |
+|---|---|---|
+| `outputs/sft_lora_qwen05b_custom_v2` | From-scratch 5-epoch run regressed on core LoRA/SFT prompts | No |
+| `outputs/sft_lora_qwen05b_custom_v2_10ep/checkpoint-100` | Best-eval checkpoint still regressed despite lower loss | No |
+| `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` | Low-LR continuation from v1 preserved or improved 7/8 prompts | Current best |
+
+Updated conclusion:
+
+```text
+The Stage 2B.2 patch improved the public-SFT motivation prompt only when trained
+as a low-learning-rate continuation from the existing custom adapter. The
+loss-vs-behavior prompt is still weak, so Stage 2B.3 should patch that one
+before DPO.
+```

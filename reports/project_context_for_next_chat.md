@@ -137,7 +137,7 @@ public-SFT 训练成功，但没有修正 LoRA/SFT/DPO 技术概念误解。
 
 ### Stage 2B: 自采集/自整理技术数据
 
-已完成并修订。
+已完成、修订，并在 Stage 2B.2 做了 badcase patch。
 
 脚本：
 
@@ -160,14 +160,14 @@ data/samples/custom_technical_prompts.jsonl
 
 ```text
 Sources: 10
-Accepted cleaned chunks: 85
-Rejected chunks: 9
-Instruction-answer seed samples: 132
-Train samples: 119
-Eval samples: 13
+Accepted cleaned chunks: 90
+Rejected chunks: 12
+Instruction-answer seed samples: 140
+Train samples: 126
+Eval samples: 14
 Duplicate instruction samples: 0
-Train max tokens before truncation: 486
-Eval max tokens before truncation: 238
+Train max tokens before truncation: 323
+Eval max tokens before truncation: 277
 ```
 
 重要迭代：
@@ -176,12 +176,14 @@ Eval max tokens before truncation: 238
 第一版 Stage 2B 生成 160 条 instruction 样本，Stage 3B 初跑能训练但输出仍有幻觉。
 原因是 project_record_summary 样本过多、太泛，容易让模型复制项目记录模板。
 后来把 max_doc_samples 从 60 降到 20，并加入 12 条直接命中固定 prompt 的 targeted QA。
+Stage 2B.2 又加入 8 条 badcase patch 样本，专门补 public-SFT motivation 和 loss-vs-behavior。
 ```
 
 报告：
 
 ```text
 reports/stage2b_custom_technical_data_report.md
+reports/stage2b2_badcase_patch_report.md
 ```
 
 ### Stage 3B: Custom LoRA SFT
@@ -257,6 +259,47 @@ custom-SFT 明显改善 6 / 8 个固定技术 prompt。
 
 下一轮数据应该围绕这两个 badcase 做小补丁。
 
+### Stage 2B.2 / Stage 3B.2 / Stage 4B.2: Badcase Patch Loop
+
+已完成。
+
+Stage 2B.2 加入 8 条 focused badcase 样本后，做了三次验证：
+
+```text
+1. outputs/sft_lora_qwen05b_custom_v2
+   从头训练 5 epoch，final train loss 1.0496，行为回归，不推荐。
+
+2. outputs/sft_lora_qwen05b_custom_v2_10ep/checkpoint-100
+   从头训练 10 epoch，并选 best-eval checkpoint，仍然回归，不推荐。
+
+3. outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+   从 outputs/sft_lora_qwen05b_custom 低学习率续训 2 epoch，当前最好。
+```
+
+v3 结果：
+
+```text
+Runtime: about 157.5 seconds
+Final train loss: 0.2873
+Eval loss at epoch 1.90: 0.0348
+Fixed-prompt behavior: preserved or improved 7 / 8 prompts
+```
+
+重要结论：
+
+```text
+小 badcase patch 如果从头训练，可能破坏旧 adapter 已经学会的好行为。
+更稳的做法是从当前最好 adapter 低学习率续训，并把固定 prompt 当作回归测试集。
+```
+
+当前仍然弱的 prompt：
+
+```text
+为什么不能只看 loss 判断一次 SFT 是否成功？
+```
+
+下一轮建议叫 Stage 2B.3：围绕 loss-vs-behavior 做更小的数据补丁，同时 replay 已经修好的 7 个 prompt。
+
 ## Notebook
 
 主 notebook：
@@ -268,7 +311,7 @@ notebooks/04_full_pipeline_learning.ipynb
 作用：
 
 ```text
-把环境检查、base 推理、公开数据、public LoRA SFT、Stage 4A、Stage 2B、Stage 3B、Stage 4B 和 DPO 显存计划串成可逐格运行的学习路线。
+把环境检查、base 推理、公开数据、public LoRA SFT、Stage 4A、Stage 2B、Stage 3B、Stage 4B、Stage 2B.2 badcase patch 和 DPO 显存计划串成可逐格运行的学习路线。
 ```
 
 耗时训练 cell 默认用布尔开关关闭，避免误运行。
@@ -285,6 +328,7 @@ reports/vram_and_dpo_plan.md
 
 ```text
 8GB 可以尝试 tiny DPO smoke test，但朴素 DPO 风险较高。
+当前不建议立刻 DPO，先处理 Stage 2B.3 loss-vs-behavior badcase。
 ```
 
 原因：
@@ -306,8 +350,8 @@ reports/vram_and_dpo_plan.md
 用户现在会以检查和理解为主。下一次如果继续推进，推荐顺序：
 
 ```text
-1. 阅读 Stage 3B 和 Stage 4B 报告，确认 custom-SFT 改善点和 remaining badcase。
-2. 做 Stage 2B.2 小数据补丁，只补 prompt 4 和 prompt 7。
-3. 可选：短训 custom adapter 或选择 epoch 5 左右最佳 checkpoint。
-4. 再进入 tiny DPO smoke test。
+1. 阅读 Stage 2B.2 报告，理解为什么 v2 从头训练回归、v3 低学习率续训更稳。
+2. 检查 reports/compare_outputs_three_way_custom_v3_from_v1_patch.jsonl。
+3. 做 Stage 2B.3 小数据补丁，只补 loss-vs-behavior，同时 replay 已经修好的 7 个 prompt。
+4. 固定 prompt 稳定后，再进入 tiny DPO smoke test。
 ```

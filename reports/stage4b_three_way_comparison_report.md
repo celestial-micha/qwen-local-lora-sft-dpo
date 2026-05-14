@@ -128,3 +128,46 @@ Stage 2B.2 small targeted data patch
   -> optionally retrain a shorter custom adapter or select best checkpoint
   -> only then run tiny DPO smoke test
 ```
+
+## Stage 4B.2 Addendum: Patch Regression Suite
+
+Stage 2B.2 has now been run. It added 8 focused samples for the two remaining
+badcases and tested three custom adapters:
+
+| Variant | Compared Output | Result |
+|---|---|---|
+| v2 from scratch, 5 epochs | `reports/compare_outputs_three_way_custom_v2.jsonl` | Regressed on core concept prompts |
+| v2 from scratch, 10 epochs checkpoint 100 | `reports/compare_outputs_three_way_custom_v2_checkpoint100.jsonl` | Still regressed despite lower loss |
+| v3 continued from v1, 2 epochs, low LR | `reports/compare_outputs_three_way_custom_v3_from_v1_patch.jsonl` | Preserved or improved 7/8 prompts |
+
+Current best local adapter:
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+Updated behavior summary:
+
+| Prompt Focus | v3 Result |
+|---|---|
+| LoRA concept | Correct |
+| SFT and LoRA relation | Correct |
+| DPO vs SFT | Correct |
+| Why public-SFT failure motivates Stage 2B | Improved; concise but correct direction |
+| Custom data pipeline | Correct |
+| 8GB DPO memory risk | Correct |
+| Why loss alone is insufficient | Still weak |
+| Interview data pipeline | Correct |
+
+Updated recommendation:
+
+```text
+Stage 2B.3 loss-vs-behavior patch
+  -> include replay samples for the seven stable prompts
+  -> continue from the best adapter with low LR
+  -> rerun the same fixed-prompt comparison
+  -> then consider tiny DPO smoke test
+```
+
+The main lesson is that the fixed prompt set should be treated as a regression
+suite. Lower loss alone did not guarantee better behavior.

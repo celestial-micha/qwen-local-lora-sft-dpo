@@ -134,7 +134,7 @@ Finding:
 
 ## Stage 2B: Self-Collected Data Pipeline
 
-Status: completed and revised after Stage 3B feedback.
+Status: completed, revised after Stage 3B feedback, and patched in Stage 2B.2.
 
 Purpose:
 
@@ -170,12 +170,13 @@ Current result:
 
 - Script: `scripts/prepare_custom_technical_data.py`
 - Sources: 10 project-owned technical notes
-- Accepted cleaned chunks: 85
-- Rejected chunks: 9
-- Instruction-answer seed samples: 132
-- Train samples: 119
-- Eval samples: 13
+- Accepted cleaned chunks: 90
+- Rejected chunks: 12
+- Instruction-answer seed samples: 140
+- Train samples: 126
+- Eval samples: 14
 - Report: `reports/stage2b_custom_technical_data_report.md`
+- Patch report: `reports/stage2b2_badcase_patch_report.md`
 
 The first pass uses project-owned notes plus curated LoRA/SFT/DPO concept seeds.
 This keeps the dataset reproducible and avoids copying long external web pages.
@@ -187,6 +188,10 @@ Stage 3B feedback:
   answers after training.
 - The revised version reduces generic project-record summaries and adds targeted
   QA samples for the exact badcases.
+- Stage 2B.2 adds 8 focused badcase samples for public-SFT motivation and
+  loss-vs-behavior. It also teaches an important engineering lesson: data
+  patches need regression testing because a small patch can still break old
+  behavior if retrained from scratch.
 - This demonstrates the real data loop: train, compare fixed prompts, find
   badcases, then patch the dataset.
 
@@ -214,6 +219,9 @@ Important note:
 
 - The 10-epoch run improved target behavior, but eval loss started drifting up
   after the best checkpoint. This is a small-data overfitting signal.
+- Stage 2B.2 then tested three variants. The current best local adapter is
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`, produced by continuing
+  from the v1 custom adapter with a lower learning rate.
 
 ## Stage 4B: Three-Way Comparison
 
@@ -230,8 +238,30 @@ Finding:
 - Custom-SFT strongly improved 6 of 8 fixed technical prompts.
 - Two prompts remain weak: the Stage 2B motivation explanation and the
   loss-vs-behavior explanation.
-- This means the next useful work is a small targeted data patch, not a blind
-  jump to large DPO.
+- Stage 2B.2 improved the Stage 2B motivation prompt when the model was
+  continued from v1, but the loss-vs-behavior prompt remains weak.
+- This means the next useful work is a smaller Stage 2B.3 targeted patch, not a
+  blind jump to DPO.
+
+## Stage 2B.2 Result: Patch, Retrain, Regression Test
+
+Stage 2B.2 was intentionally small: 8 new samples targeting the two remaining
+badcases. The results were useful because they showed both a failure mode and a
+safer workflow.
+
+| Variant | Output | Result |
+|---|---|---|
+| v2 scratch, 5 epochs | `outputs/sft_lora_qwen05b_custom_v2` | Regressed on core LoRA/SFT prompts |
+| v2 scratch, 10 epochs checkpoint 100 | `outputs/sft_lora_qwen05b_custom_v2_10ep/checkpoint-100` | Still regressed despite better loss |
+| v3 continue from v1, 2 epochs, low LR | `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` | Preserved or improved 7/8 prompts |
+
+The data lesson:
+
+```text
+Do not judge a patch only by loss.
+Use the fixed prompts as a regression suite.
+Prefer low-learning-rate continuation or replay when preserving old behavior matters.
+```
 
 ## Cleaning Rules
 
@@ -289,8 +319,9 @@ Current Stage 4B answer:
 - Public-data SFT proved the training pipeline but did not fix target concepts.
 - Custom-data SFT fixed most target concepts, especially LoRA/SFT/DPO and DPO
   VRAM-risk prompts.
-- Custom-data SFT also introduced small-data overfitting risk and two remaining
-  badcases, which should guide the next data iteration.
+- Stage 2B.2 showed that badcase patches can regress if trained from scratch.
+- The current remaining badcase is loss-vs-behavior, which should guide the
+  next Stage 2B.3 iteration.
 
 ## Interview Talking Points
 

@@ -52,8 +52,8 @@ D:\conda-envs\qwen-lora-local\python.exe scripts\prepare_custom_technical_data.p
 Note: the first generated dataset used `--max_doc_samples 60` and produced 160
 instruction samples. Stage 3B showed that this version was too noisy: the custom
 adapter trained successfully, but still hallucinated and sometimes copied
-project-record wording. The current dataset is the revised version with fewer
-generic project-record samples and more direct targeted QA samples.
+project-record wording. The dataset was revised to 132 samples, then Stage 2B.2
+added 8 focused badcase samples. The current generated dataset has 140 samples.
 
 ## Sources
 
@@ -77,11 +77,11 @@ data strategy.
 ## Pipeline Result
 
 - Source records: 10
-- Accepted cleaned chunks: 85
-- Rejected chunks: 9
-- Instruction-answer seed samples: 132
-- Train samples: 119
-- Eval samples: 13
+- Accepted cleaned chunks: 90
+- Rejected chunks: 12
+- Instruction-answer seed samples: 140
+- Train samples: 126
+- Eval samples: 14
 - Duplicate instruction samples: 0
 
 Sample types:
@@ -93,6 +93,7 @@ Sample types:
 | interview answer | 25 |
 | beginner friendly | 25 |
 | targeted technical QA | 12 |
+| Stage 2B.2 badcase patch | 8 |
 | project record summary | 20 |
 
 ## Output Files
@@ -119,17 +120,17 @@ The script and this report make the data reproducible.
 
 JSONL validation:
 
-- Train rows: 119
-- Eval rows: 13
+- Train rows: 126
+- Eval rows: 14
 - Role order: all rows use `system -> user -> assistant`
-- Unique prompts: 119 train, 13 eval
+- Unique prompts: 126 train, 14 eval
 
 Qwen tokenizer length check before truncation:
 
 | Split | Min | Avg | P95 | Max | Over 512 |
 |---|---:|---:|---:|---:|---:|
-| Train | 111 | 166.2 | 277 | 486 | 0 |
-| Eval | 120 | 157.5 | 174 | 238 | 0 |
+| Train | 111 | 161.5 | 273 | 323 | 0 |
+| Eval | 117 | 170.0 | 247 | 277 | 0 |
 
 The processed files were loaded through `ChatSFTDataset` with `max_length=512`
 and encoded successfully.
@@ -152,8 +153,9 @@ This is the project turning a badcase into a data-improvement loop.
 
 ## Stage 3B Feedback
 
-Stage 3B has now been run. The revised data improved the custom adapter on 6 of
-8 fixed technical prompts. It also exposed two remaining weak spots:
+Stage 3B has now been run. The 132-sample revised data improved the custom
+adapter on 6 of 8 fixed technical prompts. It also exposed two remaining weak
+spots:
 
 - The model still needs cleaner examples for explaining why public-SFT failure
   motivates Stage 2B.
@@ -163,13 +165,29 @@ Stage 3B has now been run. The revised data improved the custom adapter on 6 of
 This is the intended data loop: use fixed-prompt badcases to decide exactly what
 to collect or write next.
 
+## Stage 2B.2 Feedback
+
+Stage 2B.2 added 8 focused badcase samples and regenerated the current 140-sample
+dataset. The follow-up training results were instructive:
+
+- Training v2 from scratch for 5 epochs regressed on previously solved prompts.
+- Training v2 from scratch for 10 epochs and comparing the best-eval checkpoint
+  still regressed.
+- Continuing from `outputs/sft_lora_qwen05b_custom` with low learning rate
+  produced `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`, which preserved
+  or improved 7 of 8 fixed prompts.
+
+This shows that the data pipeline needs regression testing, not just more rows.
+The remaining weak prompt is now mainly the loss-vs-behavior explanation.
+
 ## Next Step
 
-Review Stage 4B and consider a small Stage 2B.2 patch:
+Review Stage 2B.2 and consider a smaller Stage 2B.3 patch:
 
 ```text
-add targeted samples for remaining badcases
-  -> optionally retrain/select best custom checkpoint
+add focused loss-vs-behavior samples
+  -> replay the seven prompts already working
+  -> continue from the best current adapter with low learning rate
   -> then move to tiny DPO smoke testing
 ```
 

@@ -574,6 +574,88 @@ def targeted_qa_samples() -> list[dict[str, Any]]:
     return samples
 
 
+def badcase_patch_samples() -> list[dict[str, Any]]:
+    """Stage 2B.2 samples for the two remaining Stage 4B badcases."""
+    rows = [
+        {
+            "instruction": "为什么 public-SFT 没有修正 LoRA/SFT/DPO 概念误解，反而说明 Stage 2B 有必要？",
+            "output": (
+                "因为 public-SFT 的主要价值是验证工程链路：数据转换、LoRA 训练、adapter 保存和加载都能跑通。"
+                "但公开通用 instruction 数据不一定覆盖本项目关心的 LoRA、SFT、DPO 技术概念。"
+                "所以当固定 prompt 仍然答错时，结论不是项目失败，而是需要 Stage 2B 用自采集技术数据做定向补强。"
+            ),
+        },
+        {
+            "instruction": "请把 public-SFT 失败和 Stage 2B 数据补丁之间的关系讲清楚。",
+            "output": (
+                "public-SFT 失败指的是目标行为失败，不是训练流程失败。它已经证明训练流程可复现，"
+                "但没有学会本项目需要的技术解释。Stage 2B 的作用就是把这些 badcase 变成数据需求，"
+                "围绕错误概念补充更干净、更直接的 instruction-answer 样本。"
+            ),
+        },
+        {
+            "instruction": "面试时怎样解释：公开数据集跑通了，但模型还是误解 LoRA/SFT/DPO？",
+            "output": (
+                "我会说公开数据集先用于建立 baseline，证明本地 LoRA SFT 链路稳定。"
+                "后来固定 prompt 评测发现模型仍误解 LoRA/SFT/DPO，说明通用数据没有覆盖目标知识。"
+                "于是我进入自采集数据阶段，清洗项目技术资料并写 targeted QA，再训练 custom-SFT 做三方对比。"
+            ),
+        },
+        {
+            "instruction": "public-SFT、Stage 4A、Stage 2B 三者在项目闭环中分别是什么角色？",
+            "output": (
+                "public-SFT 是工程 baseline，用来证明训练、保存、加载 adapter 可行。"
+                "Stage 4A 是行为评测，用固定 prompt 暴露 public-SFT 仍然答错的 badcase。"
+                "Stage 2B 是数据改进阶段，把 badcase 转成自采集、清洗、去重和 instruction-answer 样本。"
+            ),
+        },
+        {
+            "instruction": "为什么不能只凭训练 loss 说一次 SFT 已经成功？",
+            "output": (
+                "loss 只衡量模型在训练目标上的拟合程度，不等于目标 prompt 一定回答正确。"
+                "例如 public-SFT 的 loss 可以正常下降，但 Stage 4A 仍显示它误解 LoRA/SFT/DPO。"
+                "因此 SFT 是否成功要同时看训练 loss、eval loss、固定 prompt 对比、badcase 和是否出现过拟合。"
+            ),
+        },
+        {
+            "instruction": "训练 loss 下降了，但固定 prompt 仍然答错，应该怎么理解？",
+            "output": (
+                "这说明模型学会了部分训练分布，但没有学会项目真正关心的目标行为。"
+                "下一步不应该只继续堆 epoch，而应该回到数据侧检查样本是否覆盖 badcase、是否有噪声、是否过于模板化。"
+                "本项目就是这样从 Stage 4A 的错误进入 Stage 2B 和 Stage 2B.2 数据补丁的。"
+            ),
+        },
+        {
+            "instruction": "请区分 train loss、eval loss、固定 prompt 对比和 badcase review。",
+            "output": (
+                "train loss 看训练集拟合情况，eval loss 看留出集上的平均泛化趋势。"
+                "固定 prompt 对比看模型在项目目标问题上的实际回答质量。"
+                "badcase review 则把答错的例子整理成下一轮数据清洗、补样本和训练设置调整的依据。"
+            ),
+        },
+        {
+            "instruction": "为什么 Stage 3B 训练后还要做 Stage 4B 三方对比，而不是只汇报 loss？",
+            "output": (
+                "因为这个项目的目标是修正 LoRA/SFT/DPO 技术概念误解，而不是只让平均 loss 变低。"
+                "Stage 4B 用同一组 prompt 比较 base、public-SFT 和 custom-SFT，能看出哪些行为真的改善、哪些仍然失败。"
+                "这种对比能直接指导下一轮 Stage 2B.2 数据补丁。"
+            ),
+        },
+    ]
+    samples = []
+    for index, row in enumerate(rows, start=1):
+        samples.append(
+            {
+                "instruction": row["instruction"],
+                "input": "",
+                "output": row["output"],
+                "source_id": f"stage2b2_badcase::{index:03d}",
+                "sample_type": "badcase_patch_stage2b2",
+            }
+        )
+    return samples
+
+
 def doc_chunk_samples(chunks: list[dict[str, Any]], max_samples: int) -> list[dict[str, Any]]:
     samples = []
     for chunk in chunks[:max_samples]:
@@ -653,7 +735,12 @@ def main() -> None:
     chunks.sort(key=lambda row: (row["title"], row["chunk_id"]))
     write_jsonl(Path(args.cleaned_chunks_file), chunks)
 
-    samples = concept_samples() + targeted_qa_samples() + doc_chunk_samples(chunks, args.max_doc_samples)
+    samples = (
+        concept_samples()
+        + targeted_qa_samples()
+        + badcase_patch_samples()
+        + doc_chunk_samples(chunks, args.max_doc_samples)
+    )
     samples, duplicate_samples = dedupe_samples(samples)
     random.Random(args.seed).shuffle(samples)
     write_jsonl(Path(args.instruction_seed_file), samples)

@@ -23,7 +23,9 @@ Planned Stage 2B custom-data files:
 
 Current Stage 2B custom-data files:
 
-- `custom_sft_train.jsonl`: 119 rows
-- `custom_sft_eval.jsonl`: 13 rows
-- Token check before truncation: max train length 486, max eval length 238
-- This is the revised Stage 2B dataset used for Stage 3B custom LoRA SFT.
+- `custom_sft_train.jsonl`: 126 rows
+- `custom_sft_eval.jsonl`: 14 rows
+- Token check before truncation: max train length 323, max eval length 277
+- This is the Stage 2B.2 dataset used for the badcase patch loop. The current
+  best local adapter was produced by continuing the previous custom adapter with
+  a lower learning rate, not by retraining v2 from scratch.

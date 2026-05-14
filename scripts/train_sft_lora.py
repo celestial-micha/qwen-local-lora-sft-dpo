@@ -111,6 +111,11 @@ class DataCollatorForChatSFT:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train Qwen LoRA SFT locally.")
     parser.add_argument("--model_name", default="Qwen/Qwen2.5-0.5B-Instruct")
+    parser.add_argument(
+        "--init_adapter_path",
+        default=None,
+        help="Optional LoRA adapter to continue training from.",
+    )
     parser.add_argument("--train_file", default="data/processed/sft_train.jsonl")
     parser.add_argument("--eval_file", default="data/processed/sft_eval.jsonl")
     parser.add_argument("--output_dir", default="outputs/sft_lora_qwen05b")
@@ -149,14 +154,23 @@ def load_model(args: argparse.Namespace) -> torch.nn.Module:
     )
     model.config.use_cache = False
 
-    lora_config = LoraConfig(
-        task_type=TaskType.CAUSAL_LM,
-        r=args.lora_r,
-        lora_alpha=args.lora_alpha,
-        lora_dropout=args.lora_dropout,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-    )
-    model = get_peft_model(model, lora_config)
+    if args.init_adapter_path:
+        from peft import PeftModel
+
+        model = PeftModel.from_pretrained(
+            model,
+            args.init_adapter_path,
+            is_trainable=True,
+        )
+    else:
+        lora_config = LoraConfig(
+            task_type=TaskType.CAUSAL_LM,
+            r=args.lora_r,
+            lora_alpha=args.lora_alpha,
+            lora_dropout=args.lora_dropout,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        )
+        model = get_peft_model(model, lora_config)
     if args.gradient_checkpointing and hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
     return model

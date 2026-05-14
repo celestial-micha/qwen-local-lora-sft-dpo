@@ -44,10 +44,18 @@ For this project:
 
 - DPO is probably feasible as a small smoke test.
 - DPO is risky if implemented naively with two full model copies.
-- DPO should wait until the remaining Stage 4B custom-SFT badcases are reviewed
-  or patched.
+- DPO should wait until the remaining Stage 2B.3 loss-vs-behavior badcase is
+  reviewed or patched.
 - The first DPO run should be deliberately tiny: 20 to 50 pairs, short lengths,
   batch size 1, and no large eval loop.
+
+Current SFT gate:
+
+```text
+Stage 2B.2 improved the custom adapter only when continued from v1 with low LR.
+The current best local adapter is outputs/sft_lora_qwen05b_custom_v3_from_v1_patch.
+Do not start DPO until the final loss-vs-behavior prompt is stable enough.
+```
 
 ## Memory Reduction Playbook
 
@@ -103,6 +111,8 @@ configs/dpo_qwen05b.yaml
 Important config choices:
 
 - `sft_adapter_path: outputs/sft_lora_qwen05b_custom`
+- If Stage 2B.3 confirms v3 or a later adapter is stable, update the DPO config
+  to that adapter path before training.
 - `max_length: 256`
 - `max_prompt_length: 128`
 - `per_device_train_batch_size: 1`

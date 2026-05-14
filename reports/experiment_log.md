@@ -124,3 +124,60 @@
 - Result: custom-SFT strongly improved 6 of 8 fixed technical prompts.
 - Remaining weak prompts: explaining why public-SFT failure motivates Stage 2B; explaining why loss alone is insufficient.
 - Next action: review and understand results, then optionally run a small Stage 2B.2 data patch before DPO.
+
+## Stage 2B.2: Badcase Patch Data Preparation
+
+- Date: 2026-05-15
+- Script: `scripts/prepare_custom_technical_data.py`
+- Main code change: added `badcase_patch_samples()` with 8 focused samples.
+- Patch focus: public-SFT as engineering baseline, Stage 4A as behavior evaluation, Stage 2B as data improvement, and loss-vs-behavior evaluation.
+- Sources: 10 project-owned technical notes
+- Accepted chunks: 90
+- Rejected chunks: 12
+- Instruction-answer seed samples: 140
+- Train rows: 126
+- Eval rows: 14
+- Duplicate instruction samples: 0
+- Token validation: train max 323, eval max 277, no rows over 512 before truncation.
+- Report: `reports/stage2b2_badcase_patch_report.md`
+
+## Stage 3B.2 Attempt 1: v2 From Scratch, 5 Epochs
+
+- Date: 2026-05-15
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v2`
+- Train file: `data/processed/custom_sft_train.jsonl`
+- Eval file: `data/processed/custom_sft_eval.jsonl`
+- Runtime: about 415.5 seconds
+- Final train loss: 1.0496
+- Best observed eval loss: 0.8561 at epoch 3.81
+- Raw comparison: `reports/compare_outputs_three_way_custom_v2.jsonl`
+- Result: not recommended. It regressed on previously solved LoRA/SFT prompts.
+
+## Stage 3B.2 Attempt 2: v2 From Scratch, 10 Epochs
+
+- Date: 2026-05-15
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v2_10ep`
+- Best-eval checkpoint compared: `outputs/sft_lora_qwen05b_custom_v2_10ep/checkpoint-100`
+- Runtime: about 776.0 seconds
+- Final train loss: 0.4931
+- Best observed eval loss: 0.8614 at epoch 3.17
+- Later eval loss: 1.1130 at epoch 9.52
+- Raw comparison: `reports/compare_outputs_three_way_custom_v2_checkpoint100.jsonl`
+- Result: not recommended. Lower loss did not prevent behavior regression.
+
+## Stage 3B.2 Attempt 3: v3 Continue From v1 With Low LR
+
+- Date: 2026-05-15
+- Training script update: `scripts/train_sft_lora.py` now supports `--init_adapter_path`.
+- Init adapter: `outputs/sft_lora_qwen05b_custom`
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Learning rate: `5e-5`
+- Epochs: 2
+- Runtime: about 157.5 seconds
+- Final train loss: 0.2873
+- Eval loss at epoch 0.95: 0.0371
+- Eval loss at epoch 1.90: 0.0348
+- Raw comparison: `reports/compare_outputs_three_way_custom_v3_from_v1_patch.jsonl`
+- Result: current best local adapter. It preserved or improved 7/8 fixed prompts.
+- Remaining weak prompt: explaining why loss alone is insufficient to judge SFT success.
+- Next action: Stage 2B.3 small replay-style patch for loss-vs-behavior before DPO.
