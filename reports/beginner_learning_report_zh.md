@@ -237,6 +237,15 @@ torch 2.5.1+cu124
 证明代码、环境、GPU、训练、保存、加载都能工作。
 ```
 
+现在还新增了一个总流程学习 notebook：
+
+```text
+notebooks/04_full_pipeline_learning.ipynb
+```
+
+它的作用是让你按格子一步一步复现环境检查、base 推理、数据准备、LoRA SFT、
+Stage 4A 对比，以及后续自采集数据和 DPO 的计划。
+
 ## 8. 为什么现在还不能说项目完成
 
 因为 smoke test 只是“流程打通”。
@@ -265,26 +274,32 @@ torch 2.5.1+cu124
 下一步只做一件事：
 
 ```text
-用公开真实 SFT 数据训练 LoRA adapter
+自采集技术数据并清洗转换
 ```
 
 不要同时做 DPO、多卡、Gradio。
 
 建议顺序：
 
-1. 先用已经准备好的 `llm-wizard/alpaca-gpt4-data-zh` 子集跑真实 SFT。
-2. 看 loss、训练时间和显存占用。
-3. 用固定 prompt 对比 base 和 public-SFT。
-4. 如果训练链路稳定，再开始 Stage 2B 自采集数据。
-5. 自采集数据先做 100-300 条，不要一开始追求数量。
-6. 对自采集数据做清洗、去重、筛选和 instruction-answer 改写。
-7. 再训练 custom 或 mixed adapter，并做三方对比。
+1. 公开数据 SFT 已经跑通，Stage 4A 也已经确认 public-SFT 没修正 LoRA/SFT/DPO 概念误解。
+2. 接下来开始 Stage 2B，自采集数据先做 100-300 条，不要一开始追求数量。
+3. 对自采集数据做清洗、去重、筛选和 instruction-answer 改写。
+4. 再训练 custom 或 mixed adapter，并做三方对比。
+5. DPO 放到最后，因为它更吃显存，也更依赖前面的 SFT 数据质量。
+
+显存上也要有概念：
+
+```text
+LoRA SFT 训练约 5.5GB / 8GB
+adapter 推理约 1.2GB / 8GB
+DPO 可能更高，第一版只能小样本、短序列、batch_size=1 做 smoke test
+```
 
 ## 10. 面试时可以怎么讲
 
 可以这样讲：
 
-> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线，然后计划做自采集数据的爬取、清洗、去重、筛选和 instruction-answer 转换，再比较 public-SFT 和 custom-SFT 的效果。SFT 稳定后，再构造 preference pair 做 DPO。
+> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线；这个 public-SFT adapter 能训练成功，但固定 prompt 发现它仍然误解 LoRA/SFT/DPO，所以我再做自采集技术数据的爬取、清洗、去重、筛选和 instruction-answer 转换，并比较 public-SFT 和 custom-SFT 的效果。显存方面，LoRA SFT 约占 5.5GB/8GB，DPO 更吃显存，所以我计划先用短序列、小 batch、小样本做 DPO smoke test。
 
 这段话的重点是：
 
@@ -293,4 +308,6 @@ torch 2.5.1+cu124
 - 你遇到过真实环境问题。
 - 你有排查和收敛能力。
 - 你不只是下载数据，还能讲清楚数据采集、清洗和转换。
+- 你能解释为什么 public-SFT 没解决目标问题，以及下一步怎么用数据修正。
+- 你对显存和 DPO 风险有预案。
 - 你知道下一步怎么迭代。

@@ -64,6 +64,12 @@ Comparison output:
 reports/compare_outputs_public_sft.jsonl
 ```
 
+Full Stage 4A report:
+
+```text
+reports/stage4a_public_sft_comparison_report.md
+```
+
 Prompts tested:
 
 - `请用三点解释什么是LoRA微调。`

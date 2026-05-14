@@ -38,6 +38,13 @@ conda environment: qwen-lora-local
 GPU: NVIDIA GeForce RTX 4060 Laptop GPU
 ```
 
+Observed memory:
+
+- Public LoRA SFT training: about 5.5 GB / 8 GB VRAM
+- Adapter inference: about 1.2 GB / 8 GB VRAM
+- DPO is expected to be more memory-sensitive than SFT and should start as a
+  tiny smoke test only.
+
 Confirmed by user:
 
 ```text
@@ -175,6 +182,20 @@ Goal:
 - Compare fixed prompts before and after SFT.
 - Record results in `reports/compare_base_sft.md`.
 
+Status: completed.
+
+Outputs:
+
+- Raw JSONL: `reports/compare_outputs_public_sft.jsonl`
+- Summary table: `reports/compare_base_sft.md`
+- Report: `reports/stage4a_public_sft_comparison_report.md`
+
+Finding:
+
+- Public-data LoRA SFT trained successfully, but fixed-prompt testing showed it
+  did not fix LoRA/SFT/DPO concept confusion.
+- This validates the Stage 2B plan: targeted technical data is needed.
+
 ### Stage 2B: Self-Collected Data Pipeline
 
 Goal:
@@ -234,6 +255,15 @@ Goal:
 - Run minimal DPO after SFT behavior is stable.
 - Save adapter to `outputs/dpo_lora_qwen05b`.
 
+VRAM note:
+
+- Naive DPO can require more memory than SFT because it compares chosen and
+  rejected answers and usually needs reference-policy scoring.
+- On 8 GB VRAM, start with a tiny DPO smoke test only: 20 to 50 pairs,
+  `batch_size=1`, short `max_length`, short `max_prompt_length`, minimal eval,
+  and PEFT/reference-model sharing where possible.
+- See `reports/vram_and_dpo_plan.md`.
+
 ### Stage 6: Final Interview Package
 
 Goal:
@@ -244,6 +274,7 @@ Goal:
 - Before/after examples.
 - Data pipeline report covering public download, custom crawling, cleaning, and
   conversion.
+- Learning notebook: `notebooks/04_full_pipeline_learning.ipynb`.
 - DPO notes.
 - Resume-ready summary.
 

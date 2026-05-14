@@ -29,6 +29,8 @@ Completed:
 - Base vs SFT comparison output is generated.
 - Real Stage 2 SFT data is prepared from `llm-wizard/alpaca-gpt4-data-zh`.
 - Stage 3A public-data LoRA SFT completed and saved `outputs/sft_lora_qwen05b_public`.
+- Stage 4A base vs public-SFT comparison completed.
+- Learning notebook added: `notebooks/04_full_pipeline_learning.ipynb`.
 
 Not completed yet:
 
@@ -168,6 +170,31 @@ python scripts/compare_outputs.py `
   --max_new_tokens 48
 ```
 
+Run Stage 4A public-SFT comparison:
+
+```powershell
+python scripts\compare_outputs.py `
+  --prompt_file data\samples\smoke_prompts.jsonl `
+  --adapter_path outputs\sft_lora_qwen05b_public `
+  --output_file reports\compare_outputs_public_sft.jsonl `
+  --max_new_tokens 96 `
+  --local_files_only
+```
+
+## Learning Notebook
+
+The main step-by-step notebook is:
+
+```text
+notebooks/04_full_pipeline_learning.ipynb
+```
+
+It is designed as a guided learning map for this whole project. It currently
+covers environment checks, base inference, public SFT data preparation, public
+LoRA SFT, Stage 4A comparison, the Stage 2B custom-data plan, and DPO VRAM
+notes. Heavy cells are guarded by Boolean switches so the notebook can be read
+and run gradually.
+
 ## Important Reports
 
 - [Project context for next chat](reports/project_context_for_next_chat.md)
@@ -177,6 +204,8 @@ python scripts/compare_outputs.py `
 - [Data pipeline plan](reports/data_pipeline_plan.md)
 - [Stage 2 SFT data report](reports/stage2_sft_data_report.md)
 - [Stage 3A public LoRA SFT report](reports/stage3a_public_lora_sft_report.md)
+- [Stage 4A public-SFT comparison report](reports/stage4a_public_sft_comparison_report.md)
+- [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 

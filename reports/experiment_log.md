@@ -49,4 +49,25 @@
 - Comparison output: `reports/compare_outputs_public_sft.jsonl`
 - Report: `reports/stage3a_public_lora_sft_report.md`
 - Main finding: public-data LoRA SFT trained successfully, but did not fix LoRA/SFT/DPO concept confusion.
-- Next action: Stage 2B custom technical data collection and cleaning.
+- Observed training VRAM: about `5.5 GB / 8 GB`.
+- Observed adapter-inference VRAM: about `1.2 GB / 8 GB`.
+- Next action: Stage 4A fixed-prompt comparison report, then Stage 2B custom technical data collection and cleaning.
+
+## Stage 4A: Base vs Public-SFT Comparison
+
+- Date: 2026-05-14
+- Prompt file: `data/samples/smoke_prompts.jsonl`
+- Adapter: `outputs/sft_lora_qwen05b_public`
+- Raw output: `reports/compare_outputs_public_sft.jsonl`
+- Summary table: `reports/compare_base_sft.md`
+- Report: `reports/stage4a_public_sft_comparison_report.md`
+- Result: public-SFT did not fix the target LoRA/SFT/DPO concept mistakes.
+- Interpretation: this is useful negative evidence for Stage 2B targeted technical data.
+- Next action: build a self-collected technical-data pipeline before custom/mixed SFT.
+
+## DPO VRAM Planning
+
+- Date: 2026-05-14
+- Report: `reports/vram_and_dpo_plan.md`
+- Judgment: 8 GB VRAM may support a tiny DPO smoke test, but naive DPO is risky.
+- First DPO target: 20-50 pairs, short sequence lengths, `batch_size=1`, gradient accumulation, minimal eval, and PEFT/reference sharing where possible.

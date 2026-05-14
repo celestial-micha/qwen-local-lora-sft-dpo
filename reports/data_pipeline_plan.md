@@ -33,7 +33,8 @@ Use the current `llm-wizard/alpaca-gpt4-data-zh` dataset as the first real SFT
 baseline. Do not discard it.
 
 The public-data LoRA SFT adapter has now been trained, loaded, and compared.
-Next, add the self-collected data pipeline.
+Stage 4A showed that it did not fix LoRA/SFT/DPO concept confusion. Next, add
+the self-collected technical-data pipeline.
 
 Terminology note:
 
@@ -113,6 +114,23 @@ D:\conda-envs\qwen-lora-local\python.exe scripts\train_sft_lora.py `
   --report_to none `
   --local_files_only
 ```
+
+## Stage 4A: Public-SFT Comparison
+
+Status: completed.
+
+Artifacts:
+
+- `reports/compare_outputs_public_sft.jsonl`
+- `reports/compare_base_sft.md`
+- `reports/stage4a_public_sft_comparison_report.md`
+
+Finding:
+
+- The public-data adapter did not fix the project-specific LoRA/SFT/DPO concept
+  mistakes.
+- This is useful negative evidence. It shows why a targeted custom technical
+  dataset is necessary.
 
 ## Stage 2B: Self-Collected Data Pipeline
 
