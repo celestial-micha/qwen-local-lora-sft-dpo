@@ -28,6 +28,8 @@ First DPO should be a smoke test:
 
 Detailed plan: `reports/vram_and_dpo_plan.md`
 
+Conservative local config: `configs/dpo_qwen05b.yaml`
+
 ## Preference Data
 
 - Number of pairs:

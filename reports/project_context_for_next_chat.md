@@ -405,6 +405,54 @@ reports/vram_and_dpo_plan.md
 优先使用 LoRA/PEFT 和 reference 共享，避免加载两份完整模型。
 ```
 
+### 13. Stage 2B 自采集技术数据
+
+已完成第一版 Stage 2B：
+
+```text
+scripts/prepare_custom_technical_data.py
+```
+
+这版没有直接抓取外部长网页，而是先用项目自有技术报告和手工概念种子构建数据。
+原因：
+
+```text
+1. 可复现，不依赖外网。
+2. 避免复制受版权保护长文章。
+3. 仍然完整覆盖采集、清洗、筛选、去重、转 instruction-answer。
+4. 脚本保留 --url_file，后续可以接入你选定的网页来源继续爬取。
+```
+
+输出：
+
+```text
+data/raw/custom_sources.jsonl
+data/raw/custom_cleaned_chunks.jsonl
+data/raw/custom_instruction_seed.jsonl
+data/processed/custom_sft_train.jsonl
+data/processed/custom_sft_eval.jsonl
+data/samples/custom_technical_prompts.jsonl
+```
+
+统计：
+
+```text
+Sources: 10
+Accepted cleaned chunks: 81
+Rejected chunks: 9
+Instruction-answer seed samples: 160
+Train samples: 144
+Eval samples: 16
+Duplicate instruction samples: 0
+Token length before truncation: train max 510, eval max 391, no rows over 512
+```
+
+报告：
+
+```text
+reports/stage2b_custom_technical_data_report.md
+```
+
 ## 遇到的问题和解决方案
 
 详细见：
@@ -439,17 +487,16 @@ reports/windows_debug_report.md
 下一步是：
 
 ```text
-Stage 2B: 自采集技术数据，清洗并转成 instruction-answer
+Stage 3B: 用自采集技术数据训练 custom LoRA SFT adapter
 ```
 
 建议目标：
 
-1. 先收集 100-300 条中文技术学习内容。
-2. 主题围绕 LoRA、SFT、DPO、Hugging Face、CUDA/Windows 调试、实验记录、面试讲述。
-3. 清洗网页噪声、重复文本和无关内容。
-4. 转成 instruction-answer 样本。
-5. 训练 custom 或 mixed LoRA SFT adapter。
-6. 做 base vs public-SFT vs custom-SFT 三方对比。
+1. 使用 `data/processed/custom_sft_train.jsonl` 和 `data/processed/custom_sft_eval.jsonl`。
+2. 输出目录用 `outputs/sft_lora_qwen05b_custom`。
+3. 先用 `epochs=3`、`batch_size=1`、`grad_accum=4` 做小数据训练。
+4. 用 `data/samples/custom_technical_prompts.jsonl` 做 base vs public-SFT vs custom-SFT 三方对比。
+5. 重点看 LoRA/SFT/DPO 概念是否被修正，不要只看 loss。
 
 只有 public-SFT 和 custom/mixed-SFT 两个闭环都稳了，再进入：
 

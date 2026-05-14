@@ -91,6 +91,21 @@ eval: disabled or tiny
 save_steps: high enough to avoid frequent checkpoint writes
 ```
 
+The conservative config has been reflected in:
+
+```text
+configs/dpo_qwen05b.yaml
+```
+
+Important config choices:
+
+- `sft_adapter_path: outputs/sft_lora_qwen05b_custom`
+- `max_length: 256`
+- `max_prompt_length: 128`
+- `per_device_train_batch_size: 1`
+- `gradient_accumulation_steps: 8`
+- `report_to: none`
+
 Success criteria:
 
 - No CUDA out-of-memory error.

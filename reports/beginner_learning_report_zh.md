@@ -244,7 +244,7 @@ notebooks/04_full_pipeline_learning.ipynb
 ```
 
 它的作用是让你按格子一步一步复现环境检查、base 推理、数据准备、LoRA SFT、
-Stage 4A 对比，以及后续自采集数据和 DPO 的计划。
+Stage 4A 对比、Stage 2B 自采集技术数据，以及后续 DPO 的计划。
 
 ## 8. 为什么现在还不能说项目完成
 
@@ -264,8 +264,9 @@ Stage 4A 对比，以及后续自采集数据和 DPO 的计划。
 1. 爬取或收集自己喜欢的中文技术学习内容。
 2. 清洗网页噪声、导航栏、广告、重复文本和无关内容。
 3. 把清洗后的内容改写成 instruction-answer 样本。
-4. 训练 custom 或 mixed adapter。
-5. 对比 base、public-SFT、custom-SFT 三种输出。
+4. 当前第一版已经生成 144 条 train 和 16 条 eval。
+5. 下一步训练 custom 或 mixed adapter。
+6. 对比 base、public-SFT、custom-SFT 三种输出。
 
 最后再写 badcase、改进分析，并在 SFT 稳定后进入 DPO。
 
@@ -274,7 +275,7 @@ Stage 4A 对比，以及后续自采集数据和 DPO 的计划。
 下一步只做一件事：
 
 ```text
-自采集技术数据并清洗转换
+用自采集技术数据训练 custom LoRA SFT adapter
 ```
 
 不要同时做 DPO、多卡、Gradio。
@@ -282,9 +283,9 @@ Stage 4A 对比，以及后续自采集数据和 DPO 的计划。
 建议顺序：
 
 1. 公开数据 SFT 已经跑通，Stage 4A 也已经确认 public-SFT 没修正 LoRA/SFT/DPO 概念误解。
-2. 接下来开始 Stage 2B，自采集数据先做 100-300 条，不要一开始追求数量。
-3. 对自采集数据做清洗、去重、筛选和 instruction-answer 改写。
-4. 再训练 custom 或 mixed adapter，并做三方对比。
+2. Stage 2B 已经完成第一版：160 条 seed，切成 144 条 train 和 16 条 eval。
+3. 接下来训练 custom 或 mixed adapter，并做三方对比。
+4. 对比时重点看 LoRA/SFT/DPO 概念是否被修正，不要只看 loss。
 5. DPO 放到最后，因为它更吃显存，也更依赖前面的 SFT 数据质量。
 
 显存上也要有概念：
@@ -299,7 +300,7 @@ DPO 可能更高，第一版只能小样本、短序列、batch_size=1 做 smoke
 
 可以这样讲：
 
-> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线；这个 public-SFT adapter 能训练成功，但固定 prompt 发现它仍然误解 LoRA/SFT/DPO，所以我再做自采集技术数据的爬取、清洗、去重、筛选和 instruction-answer 转换，并比较 public-SFT 和 custom-SFT 的效果。显存方面，LoRA SFT 约占 5.5GB/8GB，DPO 更吃显存，所以我计划先用短序列、小 batch、小样本做 DPO smoke test。
+> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线；这个 public-SFT adapter 能训练成功，但固定 prompt 发现它仍然误解 LoRA/SFT/DPO。于是我做了 Stage 2B 自采集技术数据：从项目技术报告和概念种子中采集、清洗、去重、筛选并转成 instruction-answer，生成 144 条 train 和 16 条 eval，下一步用它训练 custom-SFT。显存方面，LoRA SFT 约占 5.5GB/8GB，DPO 更吃显存，所以我计划先用短序列、小 batch、小样本做 DPO smoke test。
 
 这段话的重点是：
 

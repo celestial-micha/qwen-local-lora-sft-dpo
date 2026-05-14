@@ -134,7 +134,7 @@ Finding:
 
 ## Stage 2B: Self-Collected Data Pipeline
 
-Next immediate task.
+Status: completed for the first local custom technical dataset.
 
 Purpose:
 
@@ -165,6 +165,32 @@ Planned processed files:
 - `data/processed/custom_sft_train.jsonl`
 - `data/processed/custom_sft_eval.jsonl`
 - optional mixed dataset: `data/processed/mixed_sft_train.jsonl`
+
+Current result:
+
+- Script: `scripts/prepare_custom_technical_data.py`
+- Sources: 10 project-owned technical notes
+- Accepted cleaned chunks: 81
+- Rejected chunks: 9
+- Instruction-answer seed samples: 160
+- Train samples: 144
+- Eval samples: 16
+- Report: `reports/stage2b_custom_technical_data_report.md`
+
+The first pass uses project-owned notes plus curated LoRA/SFT/DPO concept seeds.
+This keeps the dataset reproducible and avoids copying long external web pages.
+The script keeps an optional URL input path for future crawling iterations.
+
+## Stage 3B: Custom-Data SFT
+
+Next immediate task.
+
+Goal:
+
+- Train `outputs/sft_lora_qwen05b_custom`.
+- Compare it against the base model and `outputs/sft_lora_qwen05b_public`.
+- Use `data/samples/custom_technical_prompts.jsonl` as the fixed technical
+  prompt set.
 
 ## Cleaning Rules
 

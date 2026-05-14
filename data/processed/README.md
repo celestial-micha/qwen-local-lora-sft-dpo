@@ -20,3 +20,9 @@ Planned Stage 2B custom-data files:
 - `custom_sft_eval.jsonl`
 - optional `mixed_sft_train.jsonl`
 - optional `mixed_sft_eval.jsonl`
+
+Current Stage 2B custom-data files:
+
+- `custom_sft_train.jsonl`: 144 rows
+- `custom_sft_eval.jsonl`: 16 rows
+- Token check before truncation: max train length 510, max eval length 391

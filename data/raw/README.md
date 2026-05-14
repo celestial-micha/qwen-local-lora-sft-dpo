@@ -17,3 +17,9 @@ Planned Stage 2B custom-data raw files:
 - `custom_sources.jsonl`: crawled or manually collected source records
 - `custom_cleaned_chunks.jsonl`: cleaned, deduplicated text chunks
 - `custom_instruction_seed.jsonl`: candidate instruction-answer samples before final conversion
+
+Current Stage 2B local custom-data snapshot:
+
+- `custom_sources.jsonl`: 10 self-collected project-note sources
+- `custom_cleaned_chunks.jsonl`: 81 accepted cleaned chunks
+- `custom_instruction_seed.jsonl`: 160 targeted instruction-answer seed samples

@@ -31,11 +31,11 @@ Completed:
 - Stage 3A public-data LoRA SFT completed and saved `outputs/sft_lora_qwen05b_public`.
 - Stage 4A base vs public-SFT comparison completed.
 - Learning notebook added: `notebooks/04_full_pipeline_learning.ipynb`.
+- Stage 2B custom technical data prepared with 144 train and 16 eval samples.
 
 Not completed yet:
 
-- Custom technical data to fix LoRA/SFT/DPO concept confusion.
-- Self-collected data crawling, cleaning, and custom-data SFT.
+- Stage 3B custom-data LoRA SFT training.
 - DPO dataset and DPO training.
 - Multi-GPU notes or experiments.
 
@@ -181,6 +181,20 @@ python scripts\compare_outputs.py `
   --local_files_only
 ```
 
+Prepare Stage 2B custom technical data:
+
+```powershell
+python scripts\prepare_custom_technical_data.py `
+  --raw_sources_file data\raw\custom_sources.jsonl `
+  --cleaned_chunks_file data\raw\custom_cleaned_chunks.jsonl `
+  --instruction_seed_file data\raw\custom_instruction_seed.jsonl `
+  --train_file data\processed\custom_sft_train.jsonl `
+  --eval_file data\processed\custom_sft_eval.jsonl `
+  --eval_ratio 0.1 `
+  --max_doc_samples 60 `
+  --seed 42
+```
+
 ## Learning Notebook
 
 The main step-by-step notebook is:
@@ -191,9 +205,9 @@ notebooks/04_full_pipeline_learning.ipynb
 
 It is designed as a guided learning map for this whole project. It currently
 covers environment checks, base inference, public SFT data preparation, public
-LoRA SFT, Stage 4A comparison, the Stage 2B custom-data plan, and DPO VRAM
-notes. Heavy cells are guarded by Boolean switches so the notebook can be read
-and run gradually.
+LoRA SFT, Stage 4A comparison, Stage 2B custom technical data preparation, and
+DPO VRAM notes. Heavy cells are guarded by Boolean switches so the notebook can
+be read and run gradually.
 
 ## Important Reports
 
@@ -205,15 +219,15 @@ and run gradually.
 - [Stage 2 SFT data report](reports/stage2_sft_data_report.md)
 - [Stage 3A public LoRA SFT report](reports/stage3a_public_lora_sft_report.md)
 - [Stage 4A public-SFT comparison report](reports/stage4a_public_sft_comparison_report.md)
+- [Stage 2B custom technical data report](reports/stage2b_custom_technical_data_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-The next meaningful stage is Stage 2B, the custom technical-data loop:
+The next meaningful stage is Stage 3B, custom-data LoRA SFT:
 
-1. Collect 100-300 Chinese technical-learning samples.
-2. Clean boilerplate, duplicates, noisy text, and off-topic content.
-3. Convert accepted content into instruction-answer samples.
-4. Train a custom or mixed LoRA SFT adapter.
-5. Compare base vs public-SFT vs custom-SFT.
-6. Only after the SFT loops are stable, move to DPO.
+1. Train on `data/processed/custom_sft_train.jsonl`.
+2. Evaluate on `data/processed/custom_sft_eval.jsonl`.
+3. Save to `outputs/sft_lora_qwen05b_custom`.
+4. Compare base vs public-SFT vs custom-SFT using `data/samples/custom_technical_prompts.jsonl`.
+5. Only after the SFT loops are stable, move to tiny DPO smoke testing.

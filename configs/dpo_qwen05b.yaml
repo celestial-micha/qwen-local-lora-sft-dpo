@@ -1,14 +1,17 @@
 model_name: Qwen/Qwen2.5-0.5B-Instruct
-sft_adapter_path: outputs/sft_lora_qwen05b
+sft_adapter_path: outputs/sft_lora_qwen05b_custom
 dpo_file: data/processed/dpo_train.jsonl
 output_dir: outputs/dpo_lora_qwen05b
-max_length: 512
-max_prompt_length: 256
+max_length: 256
+max_prompt_length: 128
 per_device_train_batch_size: 1
 gradient_accumulation_steps: 8
 learning_rate: 5.0e-5
 num_train_epochs: 1
 beta: 0.1
 logging_steps: 10
-save_steps: 100
-report_to: tensorboard
+save_steps: 200
+report_to: none
+# 8GB VRAM note:
+# Start DPO only after custom/mixed SFT is stable. Naive DPO can load or score
+# both policy and reference behavior, so keep the first run tiny and short.

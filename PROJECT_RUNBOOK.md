@@ -230,6 +230,24 @@ Important rule:
 - Do this after the public-data SFT loop is trainable end to end. Otherwise,
   dirty-data issues and training issues become hard to separate.
 
+Status: completed for the first local custom technical dataset.
+
+Current Stage 2B result:
+
+- Script: `scripts/prepare_custom_technical_data.py`
+- Raw sources: `data/raw/custom_sources.jsonl`
+- Cleaned chunks: `data/raw/custom_cleaned_chunks.jsonl`
+- Instruction seeds: `data/raw/custom_instruction_seed.jsonl`
+- Train file: `data/processed/custom_sft_train.jsonl`
+- Eval file: `data/processed/custom_sft_eval.jsonl`
+- Train rows: 144
+- Eval rows: 16
+- Report: `reports/stage2b_custom_technical_data_report.md`
+
+Stage 2B uses project-owned technical notes plus curated LoRA/SFT/DPO concept
+seeds. The script also supports optional URL collection for later crawling
+iterations, but the first pass avoids copying external copyrighted articles.
+
 ### Stage 3B: LoRA SFT on Custom or Mixed Data
 
 Goal:
@@ -238,6 +256,24 @@ Goal:
 - Save adapter to `outputs/sft_lora_qwen05b_custom` or
   `outputs/sft_lora_qwen05b_mixed`.
 - Compare behavior against both the base model and the public-data adapter.
+
+Recommended first command:
+
+```powershell
+python scripts\train_sft_lora.py `
+  --train_file data\processed\custom_sft_train.jsonl `
+  --eval_file data\processed\custom_sft_eval.jsonl `
+  --output_dir outputs\sft_lora_qwen05b_custom `
+  --max_length 512 `
+  --batch_size 1 `
+  --grad_accum 4 `
+  --epochs 3 `
+  --logging_steps 5 `
+  --eval_steps 20 `
+  --save_steps 20 `
+  --report_to none `
+  --local_files_only
+```
 
 ### Stage 4B: Three-Way Comparison
 

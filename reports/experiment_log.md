@@ -71,3 +71,24 @@
 - Report: `reports/vram_and_dpo_plan.md`
 - Judgment: 8 GB VRAM may support a tiny DPO smoke test, but naive DPO is risky.
 - First DPO target: 20-50 pairs, short sequence lengths, `batch_size=1`, gradient accumulation, minimal eval, and PEFT/reference sharing where possible.
+
+## Stage 2B: Custom Technical Data Preparation
+
+- Date: 2026-05-14
+- Script: `scripts/prepare_custom_technical_data.py`
+- Sources: 10 project-owned technical notes
+- Raw sources file: `data/raw/custom_sources.jsonl`
+- Cleaned chunks file: `data/raw/custom_cleaned_chunks.jsonl`
+- Instruction seed file: `data/raw/custom_instruction_seed.jsonl`
+- Processed train file: `data/processed/custom_sft_train.jsonl`
+- Processed eval file: `data/processed/custom_sft_eval.jsonl`
+- Accepted chunks: 81
+- Rejected chunks: 9
+- Instruction-answer seed samples: 160
+- Train rows: 144
+- Eval rows: 16
+- Duplicate instruction samples: 0
+- Token validation: train max 510, eval max 391, no rows over 512 before truncation.
+- Dataset focus: LoRA/SFT/DPO concept correction, data cleaning, fixed-prompt comparison, 8GB VRAM and DPO risk, interview explanation.
+- Report: `reports/stage2b_custom_technical_data_report.md`
+- Next action: Stage 3B custom-data LoRA SFT.
