@@ -5,6 +5,10 @@
 这是一个用本地 RTX 4060 Laptop GPU 学习和展示 Qwen 小模型 LoRA 微调、
 SFT 有监督微调，以及后续 DPO 偏好优化的最小可复现项目。
 
+这里的关系是：SFT 是训练目标和数据形式，LoRA 是参数高效微调方法。
+所以当前核心训练不是“只做 SFT 没做 LoRA”，而是“用 LoRA adapter 来做 SFT”，
+也就是 LoRA SFT。
+
 项目第一版使用：
 
 ```text
@@ -12,7 +16,9 @@ Qwen/Qwen2.5-0.5B-Instruct
 ```
 
 核心目标不是一开始做很大的领域模型，而是先把一条真正能讲清楚、能复现、
-能写进简历和面试讲述的训练链路跑通。
+能写进简历和面试讲述的训练链路跑通。数据路线分成两个闭环：先用公开中文
+instruction 数据集跑通可复现基线，再做自采集数据的爬取、清洗、筛选、
+转换和二次 SFT 对比。
 
 ## 当前状态
 
@@ -25,11 +31,13 @@ Qwen/Qwen2.5-0.5B-Instruct
 - 最小 LoRA SFT smoke test 跑通。
 - LoRA adapter 保存和加载跑通。
 - base vs SFT 对比结果已经生成。
+- 已从 `llm-wizard/alpaca-gpt4-data-zh` 准备真实 Stage 2A SFT 数据。
+- Stage 3A 公开数据 LoRA SFT 已跑通，adapter 保存到 `outputs/sft_lora_qwen05b_public`。
 
 还没有完成：
 
-- 500-2000 条真实 SFT 数据准备。
-- 有实际效果的 SFT 训练。
+- 自采集技术数据修正 LoRA/SFT/DPO 概念误解。
+- 自采集数据的爬取、清洗、转换和 custom/mixed SFT。
 - DPO 数据和 DPO 训练。
 - 多卡训练说明或实验。
 
@@ -43,14 +51,20 @@ Qwen/Qwen2.5-0.5B-Instruct
 ```text
 环境检查
   -> Qwen base 推理
-  -> SFT 数据准备
-  -> LoRA SFT
-  -> adapter 加载
-  -> base vs SFT 对比
+  -> 公开 SFT 数据准备
+  -> 公开数据 LoRA SFT
+  -> base vs public-SFT 对比
+  -> 自采集数据爬取和清洗
+  -> custom/mixed LoRA SFT
+  -> base vs public-SFT vs custom-SFT 对比
   -> 后续 DPO
 ```
 
 这样项目更容易完成，也更容易在面试里讲清楚。
+
+为什么不直接先做爬虫数据：公开数据集先跑通，可以把训练链路和数据工程问题拆开。
+等公开数据 SFT 能训练、保存、加载和对比之后，再引入自采集数据，面试时就能讲清楚
+“先建立稳定基线，再做数据清洗和定制化改进”。
 
 ## 稳定环境版本
 
@@ -98,6 +112,26 @@ python scripts/infer.py --prompt "请用三点解释什么是LoRA微调。" --ma
 python scripts/prepare_data.py --demo --train_file data\processed\sft_train.jsonl --eval_file data\processed\sft_eval.jsonl
 ```
 
+准备真实 Stage 2A 公开 SFT 数据：
+
+```powershell
+python scripts\download_hf_sft_data.py `
+  --dataset_name llm-wizard/alpaca-gpt4-data-zh `
+  --split train `
+  --output_file data\raw\alpaca_gpt4_data_zh_1200.jsonl `
+  --max_samples 1200 `
+  --seed 42
+
+python scripts\prepare_data.py `
+  --input_file data\raw\alpaca_gpt4_data_zh_1200.jsonl `
+  --train_file data\processed\sft_train.jsonl `
+  --eval_file data\processed\sft_eval.jsonl `
+  --eval_ratio 0.1 `
+  --max_samples 1200 `
+  --min_answer_chars 20 `
+  --seed 42
+```
+
 运行最小 LoRA SFT smoke test：
 
 ```powershell
@@ -131,14 +165,17 @@ python scripts/compare_outputs.py `
 - [Windows 环境问题排查报告](reports/windows_debug_report.md)
 - [给初学者看的中文学习报告](reports/beginner_learning_report_zh.md)
 - [base vs SFT demo 输出](reports/compare_outputs_demo.jsonl)
+- [数据管线计划](reports/data_pipeline_plan.md)
+- [Stage 2A SFT 数据报告](reports/stage2_sft_data_report.md)
+- [Stage 3A public LoRA SFT 报告](reports/stage3a_public_lora_sft_report.md)
 
 ## 下一步
 
-下一步不是 DPO，也不是多卡，而是准备真正的 SFT 数据：
+下一步不是 DPO，也不是多卡，而是 Stage 2B：自采集技术数据并清洗转换。
 
-1. 选择一个常见中文 instruction 数据集。
-2. 取 500-2000 条样本。
-3. 转成 Qwen chat JSONL 格式。
-4. 跑一次有意义的 LoRA SFT。
-5. 用固定 prompt 对比 base 和 SFT。
-6. 等 SFT 稳了，再进入 DPO。
+1. 先收集 100-300 条中文技术学习内容。
+2. 清洗网页噪声、重复文本和无关内容。
+3. 转成 instruction-answer 样本。
+4. 训练 custom 或 mixed LoRA SFT adapter。
+5. 做 base vs public-SFT vs custom-SFT 三方对比。
+6. 等 SFT 两个闭环都稳定了，再进入 DPO。

@@ -21,7 +21,7 @@ Qwen/Qwen2.5-0.5B-Instruct
 目标：
 
 ```text
-先跑通 LoRA SFT，再做真实数据训练，之后再做 DPO。
+先跑通 LoRA SFT，再用公开数据训练，再做自采集数据清洗和训练，之后再做 DPO。
 ```
 
 这不是为了马上训练出很强的模型，而是为了真正理解：
@@ -32,6 +32,8 @@ Qwen/Qwen2.5-0.5B-Instruct
 - adapter 怎么保存和加载。
 - SFT 前后怎么对比。
 - 遇到环境问题时怎么排查。
+- 公开数据和自采集数据分别解决什么问题。
+- 爬取来的文本如何清洗、筛选并变成 instruction-answer 数据。
 
 面试时，这比“我跑过一个别人的 demo”更有说服力。
 
@@ -80,6 +82,20 @@ trainable%: 0.8826
 ```
 
 这说明我们只训练了不到 1% 的参数。
+
+这里很容易混淆一点：
+
+```text
+LoRA 不是和 SFT 并列的训练目标。
+LoRA 是“怎么训练”：只训练少量 adapter 参数。
+SFT 是“用什么目标训练”：用 instruction-answer 数据做有监督学习。
+```
+
+所以我们现在做的不是“只做 SFT，没做 LoRA”，而是：
+
+```text
+用 LoRA 方法做 SFT 微调，也就是 LoRA SFT。
+```
 
 ## 4. 什么是 SFT
 
@@ -225,40 +241,50 @@ torch 2.5.1+cu124
 
 因为 smoke test 只是“流程打通”。
 
-真正的项目还需要：
+真正的项目还需要两个数据闭环：
+
+第一个闭环是公开数据集：
 
 1. 准备 500-2000 条干净 SFT 数据。
 2. 跑一次真实 LoRA SFT。
-3. 固定 prompt 对比 base 和 SFT。
+3. 固定 prompt 对比 base 和 public-SFT。
 4. 记录 loss、训练时间、显存占用。
-5. 写 badcase 和改进分析。
-6. 再做 DPO。
+
+第二个闭环是自采集数据：
+
+1. 爬取或收集自己喜欢的中文技术学习内容。
+2. 清洗网页噪声、导航栏、广告、重复文本和无关内容。
+3. 把清洗后的内容改写成 instruction-answer 样本。
+4. 训练 custom 或 mixed adapter。
+5. 对比 base、public-SFT、custom-SFT 三种输出。
+
+最后再写 badcase、改进分析，并在 SFT 稳定后进入 DPO。
 
 ## 9. 下一步怎么学
 
 下一步只做一件事：
 
 ```text
-准备真实 SFT 数据
+用公开真实 SFT 数据训练 LoRA adapter
 ```
 
 不要同时做 DPO、多卡、Gradio。
 
 建议顺序：
 
-1. 找一个常见中文 instruction 数据集。
-2. 先取 500 条。
-3. 清洗成 Qwen chat 格式。
-4. 跑 LoRA SFT。
-5. 看 loss。
-6. 用固定 prompt 对比效果。
-7. 再扩大到 2000 条。
+1. 先用已经准备好的 `llm-wizard/alpaca-gpt4-data-zh` 子集跑真实 SFT。
+2. 看 loss、训练时间和显存占用。
+3. 用固定 prompt 对比 base 和 public-SFT。
+4. 如果训练链路稳定，再开始 Stage 2B 自采集数据。
+5. 自采集数据先做 100-300 条，不要一开始追求数量。
+6. 对自采集数据做清洗、去重、筛选和 instruction-answer 改写。
+7. 再训练 custom 或 mixed adapter，并做三方对比。
 
 ## 10. 面试时可以怎么讲
 
 可以这样讲：
 
-> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。之后我计划用 500-2000 条中文 instruction 数据做正式 SFT，再构造 preference pair 做 DPO。
+> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线，然后计划做自采集数据的爬取、清洗、去重、筛选和 instruction-answer 转换，再比较 public-SFT 和 custom-SFT 的效果。SFT 稳定后，再构造 preference pair 做 DPO。
 
 这段话的重点是：
 
@@ -266,4 +292,5 @@ torch 2.5.1+cu124
 - 你知道 LoRA/SFT/DPO 的位置。
 - 你遇到过真实环境问题。
 - 你有排查和收敛能力。
+- 你不只是下载数据，还能讲清楚数据采集、清洗和转换。
 - 你知道下一步怎么迭代。

@@ -5,9 +5,16 @@
 A minimal local post-training project for learning and demonstrating LoRA SFT
 and later DPO with `Qwen/Qwen2.5-0.5B-Instruct` on an RTX 4060 laptop GPU.
 
+Terminology note: SFT is the supervised fine-tuning objective and data format.
+LoRA is the parameter-efficient tuning method. The current training path is
+LoRA SFT: supervised fine-tuning implemented by training LoRA adapters.
+
 This project intentionally starts small. The goal is not to build a large
 domain model first, but to finish a clean, reproducible, explainable training
-pipeline that can be discussed in interviews.
+pipeline that can be discussed in interviews. The data plan has two loops:
+first a public Chinese instruction dataset baseline, then a self-collected data
+pipeline with crawling, cleaning, filtering, instruction conversion, and another
+SFT comparison.
 
 ## Current Status
 
@@ -20,11 +27,13 @@ Completed:
 - Minimal LoRA SFT smoke test runs successfully.
 - LoRA adapter saving and loading works.
 - Base vs SFT comparison output is generated.
+- Real Stage 2 SFT data is prepared from `llm-wizard/alpaca-gpt4-data-zh`.
+- Stage 3A public-data LoRA SFT completed and saved `outputs/sft_lora_qwen05b_public`.
 
 Not completed yet:
 
-- Real 500-2000 sample SFT dataset.
-- Meaningful SFT training run.
+- Custom technical data to fix LoRA/SFT/DPO concept confusion.
+- Self-collected data crawling, cleaning, and custom-data SFT.
 - DPO dataset and DPO training.
 - Multi-GPU notes or experiments.
 
@@ -40,12 +49,19 @@ This version focuses on the smallest useful local workflow:
 ```text
 environment check
   -> base Qwen inference
-  -> SFT data preparation
-  -> LoRA SFT
-  -> adapter loading
-  -> base vs SFT comparison
+  -> public SFT data preparation
+  -> public-data LoRA SFT
+  -> base vs public-SFT comparison
+  -> self-collected data crawling and cleaning
+  -> custom or mixed-data LoRA SFT
+  -> base vs public-SFT vs custom-SFT comparison
   -> DPO later
 ```
+
+The public dataset comes first on purpose. It proves that the training pipeline
+works with controlled data. The custom-data loop comes after that, so crawling
+and cleaning issues can be analyzed separately instead of being mixed with
+training bugs.
 
 ## Model
 
@@ -105,6 +121,26 @@ Prepare demo data:
 python scripts/prepare_data.py --demo --train_file data\processed\sft_train.jsonl --eval_file data\processed\sft_eval.jsonl
 ```
 
+Prepare real Stage 2 SFT data:
+
+```powershell
+python scripts\download_hf_sft_data.py `
+  --dataset_name llm-wizard/alpaca-gpt4-data-zh `
+  --split train `
+  --output_file data\raw\alpaca_gpt4_data_zh_1200.jsonl `
+  --max_samples 1200 `
+  --seed 42
+
+python scripts\prepare_data.py `
+  --input_file data\raw\alpaca_gpt4_data_zh_1200.jsonl `
+  --train_file data\processed\sft_train.jsonl `
+  --eval_file data\processed\sft_eval.jsonl `
+  --eval_ratio 0.1 `
+  --max_samples 1200 `
+  --min_answer_chars 20 `
+  --seed 42
+```
+
 Run LoRA SFT smoke test:
 
 ```powershell
@@ -138,13 +174,17 @@ python scripts/compare_outputs.py `
 - [Windows debug report](reports/windows_debug_report.md)
 - [Beginner learning report in Chinese](reports/beginner_learning_report_zh.md)
 - [Base vs SFT demo outputs](reports/compare_outputs_demo.jsonl)
+- [Data pipeline plan](reports/data_pipeline_plan.md)
+- [Stage 2 SFT data report](reports/stage2_sft_data_report.md)
+- [Stage 3A public LoRA SFT report](reports/stage3a_public_lora_sft_report.md)
 
 ## Next Step
 
-The next meaningful stage is real SFT data preparation:
+The next meaningful stage is Stage 2B, the custom technical-data loop:
 
-1. Choose a common Chinese instruction dataset.
-2. Convert 500-2000 samples into Qwen chat JSONL.
-3. Run LoRA SFT with a small but real dataset.
-4. Compare base vs SFT behavior on fixed prompts.
-5. Only then move to DPO.
+1. Collect 100-300 Chinese technical-learning samples.
+2. Clean boilerplate, duplicates, noisy text, and off-topic content.
+3. Convert accepted content into instruction-answer samples.
+4. Train a custom or mixed LoRA SFT adapter.
+5. Compare base vs public-SFT vs custom-SFT.
+6. Only after the SFT loops are stable, move to DPO.

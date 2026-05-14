@@ -19,7 +19,7 @@ qwen-local-lora-sft-dpo
 当前目标：
 
 > 在本地 RTX 4060 Laptop GPU 上，用 Qwen2.5-0.5B-Instruct 跑通 LoRA SFT，
-> 再逐步扩展到真实 SFT 数据、DPO、多卡训练说明。
+> 再逐步扩展到公开数据 SFT、自采集数据清洗与 SFT、DPO、多卡训练说明。
 
 旧方向已经废弃：
 
@@ -30,6 +30,24 @@ Colab-first workflow
 ```
 
 现在不追求一开始做很大的垂直领域模型，而是用最小步子把完整训练链路做精。
+数据路线不要停在“下载一个数据集”。当前决策是：
+
+```text
+先用公开中文 instruction 数据集跑通可复现 SFT 基线
+再做自采集/爬虫数据的清洗、筛选、转换和 custom/mixed SFT
+最后比较 base、public-SFT、custom-SFT
+```
+
+原因：公开数据集先跑通可以控制变量，证明训练链路稳定；自采集数据放在后面，
+可以单独讲清楚数据工程能力，包括爬取、清洗、去重、筛选、转 instruction-answer。
+
+术语说明：
+
+```text
+SFT = 有监督微调目标和数据形式
+LoRA = 参数高效微调方法
+当前训练 = 用 LoRA adapter 做 SFT，也就是 LoRA SFT
+```
 
 ## 当前保留文件
 
@@ -204,6 +222,132 @@ python scripts/compare_outputs.py `
 reports\compare_outputs_demo.jsonl
 ```
 
+### 7. Stage 2 真实 SFT 数据准备
+
+已选择常见中文 instruction 数据集：
+
+```text
+llm-wizard/alpaca-gpt4-data-zh
+```
+
+已新增下载脚本：
+
+```text
+scripts/download_hf_sft_data.py
+```
+
+已生成本地 raw 快照：
+
+```text
+data/raw/alpaca_gpt4_data_zh_1200.jsonl
+```
+
+已转换成 Qwen chat JSONL：
+
+```text
+data/processed/sft_train.jsonl
+data/processed/sft_eval.jsonl
+```
+
+转换结果：
+
+```text
+Raw samples: 1200
+Valid samples: 1114
+Train samples: 1003
+Eval samples: 111
+Dropped samples: 86
+Duplicate prompts: 0
+```
+
+校验结果：
+
+```text
+Role order: system -> user -> assistant
+Qwen tokenizer encoding: passed
+Train token length before truncation: min 47, avg 177.5, p95 314, max 531
+Eval token length before truncation: min 50, avg 179.2, p95 319, max 555
+```
+
+报告：
+
+```text
+reports/stage2_sft_data_report.md
+```
+
+### 8. 数据管线新计划
+
+新增计划文档：
+
+```text
+reports/data_pipeline_plan.md
+```
+
+后续阶段调整为：
+
+```text
+Stage 3A: 用公开数据集训练 LoRA adapter
+Stage 4A: base vs public-SFT 对比
+Stage 2B: 自采集数据爬取和清洗
+Stage 3B: 用 custom 或 mixed 数据训练 LoRA adapter
+Stage 4B: base vs public-SFT vs custom-SFT 三方对比
+Stage 5: SFT 稳定后再做 DPO
+```
+
+Stage 2B 初始建议：
+
+```text
+先做 100-300 条高质量自采集样本
+主题优先选择中文技术学习内容：LoRA、SFT、DPO、Hugging Face、CUDA/Windows 调试、实验记录、面试讲述
+不要直接复制大段受版权保护文章，优先用公开文档、自己的笔记、摘要和短摘录
+```
+
+### 9. Stage 3A 公开数据 LoRA SFT
+
+已完成真实 LoRA SFT 训练：
+
+```text
+outputs/sft_lora_qwen05b_public
+```
+
+训练结果：
+
+```text
+Train samples: 1003
+Eval samples: 111
+Trainable params: 4,399,104
+Trainable%: 0.8826
+Runtime: about 24.4 minutes
+Final train loss: 1.7558
+Eval loss at step 100: 1.8263
+```
+
+已生成对比：
+
+```text
+reports/compare_outputs_public_sft.jsonl
+```
+
+报告：
+
+```text
+reports/stage3a_public_lora_sft_report.md
+```
+
+重要观察：
+
+```text
+public-SFT adapter 能训练、保存、加载，但仍然把 LoRA/SFT/DPO 误解成无线通信、
+软件功能、防火墙、灾备计划等无关概念。
+```
+
+结论：
+
+```text
+公开通用 instruction 数据集可以证明训练链路，但不能解决目标技术概念。
+这正好说明 Stage 2B 自采集技术数据是必要的。
+```
+
 ## 遇到的问题和解决方案
 
 详细见：
@@ -238,19 +382,19 @@ reports/windows_debug_report.md
 下一步是：
 
 ```text
-Stage 2: 准备真实 SFT 数据
+Stage 2B: 自采集技术数据，清洗并转成 instruction-answer
 ```
 
 建议目标：
 
-1. 选择常见中文 instruction 数据集。
-2. 取 500-2000 条。
-3. 转成 Qwen chat JSONL。
-4. 训练一次真实 LoRA SFT。
-5. 固定 20 个 prompt 做 base vs SFT 对比。
-6. 写一份初版实验报告。
+1. 先收集 100-300 条中文技术学习内容。
+2. 主题围绕 LoRA、SFT、DPO、Hugging Face、CUDA/Windows 调试、实验记录、面试讲述。
+3. 清洗网页噪声、重复文本和无关内容。
+4. 转成 instruction-answer 样本。
+5. 训练 custom 或 mixed LoRA SFT adapter。
+6. 做 base vs public-SFT vs custom-SFT 三方对比。
 
-只有真实 SFT 稳了，再进入：
+只有 public-SFT 和 custom/mixed-SFT 两个闭环都稳了，再进入：
 
 ```text
 DPO
