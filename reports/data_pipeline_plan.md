@@ -51,7 +51,7 @@ Stage 2A: public SFT dataset baseline
 Stage 3A: real LoRA SFT on public data
 Stage 4A: base vs public-SFT comparison
 Stage 2B: self-collected data crawling and cleaning
-Stage 3B: LoRA SFT using custom or mixed data
+Stage 3B: LoRA SFT using custom technical data
 Stage 4B: compare base vs public-SFT vs custom-SFT
 Stage 5: DPO after SFT behavior is stable
 Stage 6: interview package
@@ -134,7 +134,7 @@ Finding:
 
 ## Stage 2B: Self-Collected Data Pipeline
 
-Status: completed for the first local custom technical dataset.
+Status: completed and revised after Stage 3B feedback.
 
 Purpose:
 
@@ -170,20 +170,29 @@ Current result:
 
 - Script: `scripts/prepare_custom_technical_data.py`
 - Sources: 10 project-owned technical notes
-- Accepted cleaned chunks: 81
+- Accepted cleaned chunks: 85
 - Rejected chunks: 9
-- Instruction-answer seed samples: 160
-- Train samples: 144
-- Eval samples: 16
+- Instruction-answer seed samples: 132
+- Train samples: 119
+- Eval samples: 13
 - Report: `reports/stage2b_custom_technical_data_report.md`
 
 The first pass uses project-owned notes plus curated LoRA/SFT/DPO concept seeds.
 This keeps the dataset reproducible and avoids copying long external web pages.
 The script keeps an optional URL input path for future crawling iterations.
 
+Stage 3B feedback:
+
+- The initial 160-sample version was too generic and produced hallucinated
+  answers after training.
+- The revised version reduces generic project-record summaries and adds targeted
+  QA samples for the exact badcases.
+- This demonstrates the real data loop: train, compare fixed prompts, find
+  badcases, then patch the dataset.
+
 ## Stage 3B: Custom-Data SFT
 
-Next immediate task.
+Status: completed for the custom-only adapter.
 
 Goal:
 
@@ -191,6 +200,38 @@ Goal:
 - Compare it against the base model and `outputs/sft_lora_qwen05b_public`.
 - Use `data/samples/custom_technical_prompts.jsonl` as the fixed technical
   prompt set.
+
+Result:
+
+- Adapter: `outputs/sft_lora_qwen05b_custom`
+- Trainable params: 4,399,104
+- Final train loss: 0.4656
+- Best observed eval loss: 0.8311 around epoch 5
+- Runtime: about 12.3 minutes
+- Report: `reports/stage3b_custom_lora_sft_report.md`
+
+Important note:
+
+- The 10-epoch run improved target behavior, but eval loss started drifting up
+  after the best checkpoint. This is a small-data overfitting signal.
+
+## Stage 4B: Three-Way Comparison
+
+Status: completed.
+
+Artifacts:
+
+- `scripts/compare_three_outputs.py`
+- `reports/compare_outputs_three_way_custom.jsonl`
+- `reports/stage4b_three_way_comparison_report.md`
+
+Finding:
+
+- Custom-SFT strongly improved 6 of 8 fixed technical prompts.
+- Two prompts remain weak: the Stage 2B motivation explanation and the
+  loss-vs-behavior explanation.
+- This means the next useful work is a small targeted data patch, not a blind
+  jump to large DPO.
 
 ## Cleaning Rules
 
@@ -242,6 +283,14 @@ The final report should answer:
 - Did custom data improve the target style or topic accuracy?
 - Did custom data introduce overfitting, verbosity, or hallucination?
 - Which examples became better, worse, or unchanged?
+
+Current Stage 4B answer:
+
+- Public-data SFT proved the training pipeline but did not fix target concepts.
+- Custom-data SFT fixed most target concepts, especially LoRA/SFT/DPO and DPO
+  VRAM-risk prompts.
+- Custom-data SFT also introduced small-data overfitting risk and two remaining
+  badcases, which should guide the next data iteration.
 
 ## Interview Talking Points
 

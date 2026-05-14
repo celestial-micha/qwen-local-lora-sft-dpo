@@ -265,7 +265,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--train_file", default="data/processed/custom_sft_train.jsonl")
     parser.add_argument("--eval_file", default="data/processed/custom_sft_eval.jsonl")
     parser.add_argument("--eval_ratio", type=float, default=0.1)
-    parser.add_argument("--max_doc_samples", type=int, default=60)
+    parser.add_argument("--max_doc_samples", type=int, default=20)
     parser.add_argument("--system_prompt", default=DEFAULT_SYSTEM_PROMPT)
     parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
@@ -466,6 +466,114 @@ def concept_samples() -> list[dict[str, Any]]:
     return samples
 
 
+def targeted_qa_samples() -> list[dict[str, Any]]:
+    rows = [
+        {
+            "instruction": "请用三点解释机器学习里的 LoRA 微调，不要解释成无线通信 LoRa。",
+            "output": (
+                "第一，机器学习里的 LoRA 是参数高效微调方法，全称常解释为低秩适配，"
+                "不是无线通信 LoRa。第二，它冻结基础模型大部分参数，只在部分线性层旁边训练低秩 adapter 矩阵。"
+                "第三，它适合个人 GPU 学习，因为训练参数少、显存压力低、adapter 文件也更小。"
+            ),
+        },
+        {
+            "instruction": "SFT 是什么？它和 LoRA 是什么关系？",
+            "output": (
+                "SFT 是 supervised fine-tuning，也就是有监督微调，描述的是训练目标和数据形式。"
+                "LoRA 是参数高效微调方法，描述的是怎样少量更新模型参数。"
+                "所以 LoRA SFT 的意思是：用 LoRA adapter 来执行 SFT，二者不是互斥关系。"
+            ),
+        },
+        {
+            "instruction": "DPO 和 SFT 的区别是什么？为什么通常先做 SFT 再做 DPO？",
+            "output": (
+                "SFT 使用 instruction-answer 数据教模型模仿目标回答，是打基础。"
+                "DPO 使用 chosen/rejected 偏好对，让模型更偏向人类更喜欢的回答。"
+                "通常先做 SFT，因为如果模型基础回答能力还不稳定，DPO 会放大混乱而不是稳定改进。"
+            ),
+        },
+        {
+            "instruction": "为什么 public-SFT adapter 没修正 LoRA/SFT/DPO 概念误解，反而说明 Stage 2B 有必要？",
+            "output": (
+                "public-SFT 证明了训练、保存和加载链路能跑通，但公开通用数据不一定覆盖本项目关心的技术概念。"
+                "固定 prompt 显示它仍会把 LoRA、SFT、DPO 解释成无关缩写或通信概念。"
+                "因此 Stage 2B 要围绕这些 badcase 自采集并清洗技术数据，做有目标的数据改进。"
+            ),
+        },
+        {
+            "instruction": "请解释自采集技术数据从采集、清洗、去重、筛选到 instruction-answer 转换的流程。",
+            "output": (
+                "第一步采集来源，保留 source_id、标题、路径或 URL。第二步清洗网页噪声、导航栏、广告、重复空白和无关内容。"
+                "第三步去重和筛选，只保留和 LoRA/SFT/DPO、显存、实验复盘相关的高质量文本。"
+                "最后把资料改写成 instruction-answer 样本，再转换成 Qwen chat JSONL。"
+            ),
+        },
+        {
+            "instruction": "8GB 显存下做 DPO 有什么风险？应该怎样降低显存压力？",
+            "output": (
+                "DPO 比 SFT 更吃显存，因为它要比较 chosen/rejected，并通常需要 reference policy 评分。"
+                "8GB 下朴素双模型 DPO 可能爆显存或落到共享内存导致很慢。"
+                "降低压力的方法是小模型、LoRA、batch_size=1、短 max_length、短 max_prompt_length、少量 pair、少 eval，并尽量共享 reference。"
+            ),
+        },
+        {
+            "instruction": "为什么不能只看 loss 判断一次 SFT 是否成功？",
+            "output": (
+                "loss 只说明训练目标上的优化情况，不直接等于目标问题回答正确。"
+                "Stage 3A 的 public-SFT loss 能正常下降，但 Stage 4A 固定 prompt 仍显示 LoRA/SFT/DPO 概念错误。"
+                "所以要同时看 loss、固定 prompt 对比、badcase、过拟合迹象和输出是否符合项目目标。"
+            ),
+        },
+        {
+            "instruction": "如果面试官问你这个项目的数据管线，你会怎么讲？",
+            "output": (
+                "我会先说公开数据集用来建立可复现基线，证明 LoRA SFT 链路能训练、保存和加载。"
+                "然后说 Stage 4A 发现 public-SFT 没修正 LoRA/SFT/DPO 概念误解，所以进入 Stage 2B。"
+                "Stage 2B 做自采集技术数据：采集、清洗、去重、筛选、转 instruction-answer，再训练 custom-SFT 并做三方对比。"
+            ),
+        },
+        {
+            "instruction": "请用一句话区分 LoRA、SFT、DPO。",
+            "output": "LoRA 是省显存训练 adapter 的方法，SFT 是用标准答案做有监督微调的目标，DPO 是用 chosen/rejected 偏好对继续优化模型偏好的方法。",
+        },
+        {
+            "instruction": "public-SFT 和 custom-SFT 在这个项目里分别解决什么问题？",
+            "output": (
+                "public-SFT 解决工程闭环问题：确认公开数据、训练脚本、LoRA adapter、保存加载都能工作。"
+                "custom-SFT 解决目标行为问题：针对 LoRA/SFT/DPO 概念误解、显存解释和数据管线讲述做定向训练。"
+            ),
+        },
+        {
+            "instruction": "请解释为什么 Stage 2B 不应该盲目爬很多网页。",
+            "output": (
+                "Stage 2B 的目标不是堆数量，而是围绕 Stage 4A 暴露的 badcase 做数据改进。"
+                "盲目爬很多网页会带来版权、噪声、重复和主题漂移问题。"
+                "第一版应该小而干净，保留来源，人工抽查，并把资料改写成明确的 instruction-answer 样本。"
+            ),
+        },
+        {
+            "instruction": "请说明 adapter 文件和完整模型有什么区别。",
+            "output": (
+                "adapter 文件只保存 LoRA 训练得到的小矩阵参数，不包含完整基础模型。"
+                "推理时仍然需要先加载 Qwen2.5-0.5B-Instruct，再加载对应 adapter。"
+                "这样文件更小、训练更省显存，也方便比较 demo、public 和 custom adapter。"
+            ),
+        },
+    ]
+    samples = []
+    for index, row in enumerate(rows, start=1):
+        samples.append(
+            {
+                "instruction": row["instruction"],
+                "input": "",
+                "output": row["output"],
+                "source_id": f"targeted::{index:03d}",
+                "sample_type": "targeted_technical_qa",
+            }
+        )
+    return samples
+
+
 def doc_chunk_samples(chunks: list[dict[str, Any]], max_samples: int) -> list[dict[str, Any]]:
     samples = []
     for chunk in chunks[:max_samples]:
@@ -545,7 +653,7 @@ def main() -> None:
     chunks.sort(key=lambda row: (row["title"], row["chunk_id"]))
     write_jsonl(Path(args.cleaned_chunks_file), chunks)
 
-    samples = concept_samples() + doc_chunk_samples(chunks, args.max_doc_samples)
+    samples = concept_samples() + targeted_qa_samples() + doc_chunk_samples(chunks, args.max_doc_samples)
     samples, duplicate_samples = dedupe_samples(samples)
     random.Random(args.seed).shuffle(samples)
     write_jsonl(Path(args.instruction_seed_file), samples)

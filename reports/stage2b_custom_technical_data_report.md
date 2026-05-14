@@ -45,9 +45,15 @@ D:\conda-envs\qwen-lora-local\python.exe scripts\prepare_custom_technical_data.p
   --train_file data\processed\custom_sft_train.jsonl `
   --eval_file data\processed\custom_sft_eval.jsonl `
   --eval_ratio 0.1 `
-  --max_doc_samples 60 `
+  --max_doc_samples 20 `
   --seed 42
 ```
+
+Note: the first generated dataset used `--max_doc_samples 60` and produced 160
+instruction samples. Stage 3B showed that this version was too noisy: the custom
+adapter trained successfully, but still hallucinated and sometimes copied
+project-record wording. The current dataset is the revised version with fewer
+generic project-record samples and more direct targeted QA samples.
 
 ## Sources
 
@@ -71,11 +77,11 @@ data strategy.
 ## Pipeline Result
 
 - Source records: 10
-- Accepted cleaned chunks: 81
+- Accepted cleaned chunks: 85
 - Rejected chunks: 9
-- Instruction-answer seed samples: 160
-- Train samples: 144
-- Eval samples: 16
+- Instruction-answer seed samples: 132
+- Train samples: 119
+- Eval samples: 13
 - Duplicate instruction samples: 0
 
 Sample types:
@@ -86,7 +92,8 @@ Sample types:
 | misconception fix | 25 |
 | interview answer | 25 |
 | beginner friendly | 25 |
-| project record summary | 60 |
+| targeted technical QA | 12 |
+| project record summary | 20 |
 
 ## Output Files
 
@@ -112,17 +119,17 @@ The script and this report make the data reproducible.
 
 JSONL validation:
 
-- Train rows: 144
-- Eval rows: 16
+- Train rows: 119
+- Eval rows: 13
 - Role order: all rows use `system -> user -> assistant`
-- Unique prompts: 144 train, 16 eval
+- Unique prompts: 119 train, 13 eval
 
 Qwen tokenizer length check before truncation:
 
 | Split | Min | Avg | P95 | Max | Over 512 |
 |---|---:|---:|---:|---:|---:|
-| Train | 117 | 208.4 | 454 | 510 | 0 |
-| Eval | 123 | 209.6 | 370 | 391 | 0 |
+| Train | 111 | 166.2 | 277 | 486 | 0 |
+| Eval | 120 | 157.5 | 174 | 238 | 0 |
 
 The processed files were loaded through `ChatSFTDataset` with `max_length=512`
 and encoded successfully.
@@ -143,14 +150,27 @@ failure cases observed in Stage 4A:
 
 This is the project turning a badcase into a data-improvement loop.
 
+## Stage 3B Feedback
+
+Stage 3B has now been run. The revised data improved the custom adapter on 6 of
+8 fixed technical prompts. It also exposed two remaining weak spots:
+
+- The model still needs cleaner examples for explaining why public-SFT failure
+  motivates Stage 2B.
+- The model still needs cleaner examples for explaining why loss alone is not
+  enough to judge SFT success.
+
+This is the intended data loop: use fixed-prompt badcases to decide exactly what
+to collect or write next.
+
 ## Next Step
 
-Proceed to Stage 3B:
+Review Stage 4B and consider a small Stage 2B.2 patch:
 
 ```text
-train custom or mixed LoRA SFT adapter
-  -> likely output: outputs/sft_lora_qwen05b_custom
-  -> compare with base and public-SFT using data/samples/custom_technical_prompts.jsonl
+add targeted samples for remaining badcases
+  -> optionally retrain/select best custom checkpoint
+  -> then move to tiny DPO smoke testing
 ```
 
 Recommended first Stage 3B training command:
@@ -163,14 +183,15 @@ D:\conda-envs\qwen-lora-local\python.exe scripts\train_sft_lora.py `
   --max_length 512 `
   --batch_size 1 `
   --grad_accum 4 `
-  --epochs 3 `
-  --logging_steps 5 `
-  --eval_steps 20 `
-  --save_steps 20 `
+  --epochs 10 `
+  --logging_steps 10 `
+  --eval_steps 50 `
+  --save_steps 50 `
   --report_to none `
   --local_files_only
 ```
 
-This custom dataset is small, so `epochs=3` is reasonable for a first experiment.
-Watch for overfitting and compare behavior with fixed prompts instead of relying
-only on loss.
+The first `epochs=3` run was useful as a smoke test, but the revised 10-epoch
+run made the target behavior clearer. Eval loss was best around epoch 5, so the
+next version should consider best-checkpoint selection instead of relying only
+on the final saved adapter.

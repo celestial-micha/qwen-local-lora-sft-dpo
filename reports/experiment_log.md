@@ -82,13 +82,45 @@
 - Instruction seed file: `data/raw/custom_instruction_seed.jsonl`
 - Processed train file: `data/processed/custom_sft_train.jsonl`
 - Processed eval file: `data/processed/custom_sft_eval.jsonl`
-- Accepted chunks: 81
+- Accepted chunks: 85
 - Rejected chunks: 9
-- Instruction-answer seed samples: 160
-- Train rows: 144
-- Eval rows: 16
+- Instruction-answer seed samples: 132
+- Train rows: 119
+- Eval rows: 13
 - Duplicate instruction samples: 0
-- Token validation: train max 510, eval max 391, no rows over 512 before truncation.
+- Token validation: train max 486, eval max 238, no rows over 512 before truncation.
 - Dataset focus: LoRA/SFT/DPO concept correction, data cleaning, fixed-prompt comparison, 8GB VRAM and DPO risk, interview explanation.
 - Report: `reports/stage2b_custom_technical_data_report.md`
-- Next action: Stage 3B custom-data LoRA SFT.
+- Revision note: the first 160-sample version trained but still hallucinated; the current version reduces generic project-record summaries and adds targeted QA badcase samples.
+- Follow-up: Stage 3B custom-data LoRA SFT, recorded below.
+
+## Stage 3B: Custom Technical LoRA SFT
+
+- Date: 2026-05-14
+- Method: LoRA SFT on the revised Stage 2B custom technical dataset.
+- Train file: `data/processed/custom_sft_train.jsonl`
+- Eval file: `data/processed/custom_sft_eval.jsonl`
+- Output adapter: `outputs/sft_lora_qwen05b_custom`
+- Train rows: 119
+- Eval rows: 13
+- Trainable params: 4,399,104
+- Trainable ratio: 0.8826%
+- Runtime: about 12.3 minutes
+- Final train loss: 0.4656
+- Best observed eval loss: 0.8311 around epoch 5.04
+- Later eval loss: 0.8669 at epoch 8.40, suggesting mild overfitting risk.
+- Report: `reports/stage3b_custom_lora_sft_report.md`
+- Main finding: custom technical data fixed many target LoRA/SFT/DPO prompts, but not all.
+
+## Stage 4B: Base vs Public-SFT vs Custom-SFT Comparison
+
+- Date: 2026-05-14
+- Prompt file: `data/samples/custom_technical_prompts.jsonl`
+- Public adapter: `outputs/sft_lora_qwen05b_public`
+- Custom adapter: `outputs/sft_lora_qwen05b_custom`
+- Script: `scripts/compare_three_outputs.py`
+- Raw output: `reports/compare_outputs_three_way_custom.jsonl`
+- Report: `reports/stage4b_three_way_comparison_report.md`
+- Result: custom-SFT strongly improved 6 of 8 fixed technical prompts.
+- Remaining weak prompts: explaining why public-SFT failure motivates Stage 2B; explaining why loss alone is insufficient.
+- Next action: review and understand results, then optionally run a small Stage 2B.2 data patch before DPO.

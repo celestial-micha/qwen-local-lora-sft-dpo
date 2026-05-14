@@ -23,6 +23,7 @@ Planned Stage 2B custom-data files:
 
 Current Stage 2B custom-data files:
 
-- `custom_sft_train.jsonl`: 144 rows
-- `custom_sft_eval.jsonl`: 16 rows
-- Token check before truncation: max train length 510, max eval length 391
+- `custom_sft_train.jsonl`: 119 rows
+- `custom_sft_eval.jsonl`: 13 rows
+- Token check before truncation: max train length 486, max eval length 238
+- This is the revised Stage 2B dataset used for Stage 3B custom LoRA SFT.

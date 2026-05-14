@@ -15,8 +15,10 @@ Observed memory use:
 
 - LoRA SFT training on Qwen2.5-0.5B: about `5.5 GB / 8 GB`
 - Adapter inference test: about `1.2 GB / 8 GB`
+- Stage 3B custom LoRA SFT also completed on the same 8 GB GPU with
+  `batch_size=1`, `grad_accum=4`, and `max_length=512`.
 
-This is a healthy result for Stage 3A, but it does not mean naive DPO will fit
+This is a healthy result for SFT, but it does not mean naive DPO will fit
 comfortably.
 
 ## Why DPO Uses More Memory
@@ -42,7 +44,8 @@ For this project:
 
 - DPO is probably feasible as a small smoke test.
 - DPO is risky if implemented naively with two full model copies.
-- DPO should wait until Stage 2B/3B custom SFT is stable.
+- DPO should wait until the remaining Stage 4B custom-SFT badcases are reviewed
+  or patched.
 - The first DPO run should be deliberately tiny: 20 to 50 pairs, short lengths,
   batch size 1, and no large eval loop.
 

@@ -230,7 +230,7 @@ Important rule:
 - Do this after the public-data SFT loop is trainable end to end. Otherwise,
   dirty-data issues and training issues become hard to separate.
 
-Status: completed for the first local custom technical dataset.
+Status: completed and revised after Stage 3B feedback.
 
 Current Stage 2B result:
 
@@ -240,13 +240,22 @@ Current Stage 2B result:
 - Instruction seeds: `data/raw/custom_instruction_seed.jsonl`
 - Train file: `data/processed/custom_sft_train.jsonl`
 - Eval file: `data/processed/custom_sft_eval.jsonl`
-- Train rows: 144
-- Eval rows: 16
+- Train rows: 119
+- Eval rows: 13
 - Report: `reports/stage2b_custom_technical_data_report.md`
 
 Stage 2B uses project-owned technical notes plus curated LoRA/SFT/DPO concept
 seeds. The script also supports optional URL collection for later crawling
 iterations, but the first pass avoids copying external copyrighted articles.
+
+Important feedback:
+
+- The initial 160-sample dataset trained but still produced hallucinated
+  answers. That version had too many generic project-record summary samples.
+- The revised dataset reduces `project_record_summary` samples and adds direct
+  targeted QA for the fixed technical prompts.
+- This is a useful project story: badcases from comparison drive the next data
+  revision.
 
 ### Stage 3B: LoRA SFT on Custom or Mixed Data
 
@@ -257,7 +266,32 @@ Goal:
   `outputs/sft_lora_qwen05b_mixed`.
 - Compare behavior against both the base model and the public-data adapter.
 
-Recommended first command:
+Status: completed for custom-only data.
+
+Output:
+
+```text
+outputs/sft_lora_qwen05b_custom
+```
+
+Result:
+
+- Train rows: 119
+- Eval rows: 13
+- Trainable params: 4,399,104
+- Trainable ratio: 0.8826%
+- Runtime: about 12.3 minutes
+- Final train loss: 0.4656
+- Best observed eval loss: 0.8311 around epoch 5
+- Report: `reports/stage3b_custom_lora_sft_report.md`
+
+Important finding:
+
+- The custom adapter improved most target technical prompts.
+- Mild overfitting risk appeared after the best eval checkpoint.
+- Loss alone was not enough; fixed-prompt behavior was the main judge.
+
+Command used:
 
 ```powershell
 python scripts\train_sft_lora.py `
@@ -267,10 +301,10 @@ python scripts\train_sft_lora.py `
   --max_length 512 `
   --batch_size 1 `
   --grad_accum 4 `
-  --epochs 3 `
-  --logging_steps 5 `
-  --eval_steps 20 `
-  --save_steps 20 `
+  --epochs 10 `
+  --logging_steps 10 `
+  --eval_steps 50 `
+  --save_steps 50 `
   --report_to none `
   --local_files_only
 ```
@@ -282,6 +316,25 @@ Goal:
 - Compare base, public-SFT, and custom/mixed-SFT on the same fixed prompt set.
 - Record wins, regressions, overfitting signs, and bad cases.
 - Turn the result into an interview-ready data pipeline narrative.
+
+Status: completed.
+
+Artifacts:
+
+- Script: `scripts/compare_three_outputs.py`
+- Raw output: `reports/compare_outputs_three_way_custom.jsonl`
+- Report: `reports/stage4b_three_way_comparison_report.md`
+
+Result:
+
+- Custom-SFT strongly improved 6 of 8 fixed technical prompts.
+- Remaining weak prompts:
+  - why public-SFT failure motivates Stage 2B
+  - why loss alone is not enough
+
+Recommended next step:
+
+- Do a small Stage 2B.2 targeted data patch before DPO.
 
 ### Stage 5: DPO
 
