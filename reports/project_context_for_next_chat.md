@@ -452,6 +452,69 @@ Stage 5C 说明当前 tiny DPO 数据/训练还没有通过行为 gate。
 下一步应修 Stage 5A preference 数据，尤其 prompt 4 和 prompt 7，再重新 tiny DPO。
 ```
 
+### Stage 5A.2 / 5B.2 / 5C.2 and Stage 5A.3 / 5B.3 / 5C.3
+
+已完成，详见：
+
+```text
+reports/stage5_dpo_revision_loop_report.md
+```
+
+v2 修订：
+
+```text
+Data: data/processed/dpo_tiny_v2_train.jsonl
+Config: configs/dpo_qwen05b_v2.yaml
+Output adapter: outputs/dpo_lora_qwen05b_tiny_v2
+Rows: 47
+Optimizer steps: 5
+Runtime: 43.9 seconds
+Train loss: 0.8345
+torch max allocated: 2.180 GB
+Adapter reload: passed
+Raw compare: reports/compare_outputs_four_way_dpo_tiny_v2.jsonl
+```
+
+v2 结论：
+
+```text
+没有 OOM/崩溃，但 prompt 7 仍弱，并再次出现“三到六个月”等无依据说法。
+不通过行为 gate。
+```
+
+v3 修订：
+
+```text
+Data: data/processed/dpo_tiny_v3_train.jsonl
+Config: configs/dpo_qwen05b_v3.yaml
+Output adapter: outputs/dpo_lora_qwen05b_tiny_v3
+Rows: 57
+Epochs: 2
+Optimizer steps: 14
+Runtime: 64.7 seconds
+Train loss: 1.1842
+torch max allocated: 2.191 GB
+Adapter reload: passed
+Raw compare: reports/compare_outputs_four_way_dpo_tiny_v3.jsonl
+```
+
+v3 结论：
+
+```text
+没有 OOM/崩溃，但 DPO 更新过强，多个原本稳定的 prompt 回归。
+prompt 7 话题更接近，但仍没有清楚表达 loss 是必要不充分、固定 prompt 行为是 gate。
+不通过行为 gate。
+```
+
+最终建议：
+
+```text
+Stage 5D larger DPO 继续阻塞。
+当前推荐 checkpoint 仍是 outputs/sft_lora_qwen05b_custom_v3_from_v1_patch。
+DPO 系列 adapter 只作为实验产物保留，不推荐替代 v3 SFT。
+硬件不是当前瓶颈；行为稳定性和 preference 数据设计才是瓶颈。
+```
+
 ## Notebook
 
 主 notebook：
@@ -479,8 +542,8 @@ reports/vram_and_dpo_plan.md
 判断：
 
 ```text
-8GB 已跑通 Stage 5B tiny DPO smoke test，但朴素/扩大 DPO 风险仍然较高。
-Stage 5C 固定 prompt 行为对比没有通过，因此不能扩大 DPO。
+8GB 已跑通多轮 tiny DPO smoke test，57 pair / 2 epoch 也没有 OOM。
+但 Stage 5C / 5C.2 / 5C.3 行为 gate 都没有通过，因此不能扩大 DPO。
 ```
 
 原因：
@@ -508,5 +571,6 @@ Stage 5C 固定 prompt 行为对比没有通过，因此不能扩大 DPO。
 2. Stage 5A 已完成：data/processed/dpo_tiny_train.jsonl，33 个 preference pair。
 3. Stage 5B 已完成：outputs/dpo_lora_qwen05b_tiny，未 OOM/崩溃，adapter 可加载。
 4. Stage 5C 已完成：行为 gate 未通过。
-5. 下一步不是扩大 DPO，而是修 preference 数据后重新 tiny DPO / Stage 5C。
+5. v2/v3 修订循环也已完成：硬件通过，行为仍不过 gate。
+6. 下一步不是扩大 DPO，而是重新设计更干净的 preference 数据和自动评分；推荐 checkpoint 仍是 SFT v3。
 ```

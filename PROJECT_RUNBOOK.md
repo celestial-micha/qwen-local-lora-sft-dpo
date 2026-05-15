@@ -433,9 +433,8 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A data preparation, Stage 5B tiny DPO smoke test, and Stage 5C
-behavior comparison are complete. Stage 5D larger DPO is blocked because Stage
-5C did not pass.
+Status: Stage 5A/B/C and follow-up A.2/B.2/C.2 plus A.3/B.3/C.3 are complete.
+Stage 5D larger DPO is blocked because the behavior gate did not pass.
 
 Report:
 
@@ -444,6 +443,7 @@ reports/stage5_dpo_plan.md
 reports/stage5a_dpo_tiny_data_report.md
 reports/stage5b_tiny_dpo_smoke_report.md
 reports/stage5c_tiny_dpo_behavior_report.md
+reports/stage5_dpo_revision_loop_report.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -562,6 +562,15 @@ VRAM note:
   and PEFT/reference-model sharing where possible.
 - See `reports/vram_and_dpo_plan.md`.
 - See `reports/stage5_dpo_plan.md`.
+
+Current decision:
+
+- Do not run larger DPO yet.
+- The machine handled 33-row, 47-row, and 57-row tiny DPO runs without OOM.
+- Behavior did not pass: v2 still failed the loss-vs-behavior prompt, and v3
+  regressed several previously stable prompts.
+- Current recommended checkpoint remains
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 
 ### Stage 6: Final Interview Package
 

@@ -47,3 +47,13 @@ Stage 5B consumed `dpo_tiny_train.jsonl` and saved the tiny smoke-test adapter t
 Stage 5C found that the tiny-DPO behavior gate did not pass. The next data step
 should revise preference pairs for the public-SFT motivation and
 loss-vs-behavior prompts before any larger DPO.
+
+Follow-up data files:
+
+- `dpo_tiny_v2_train.jsonl`: 47 pairs. Focused public-SFT motivation and
+  loss-vs-behavior revision.
+- `dpo_tiny_v3_train.jsonl`: 57 pairs. Exact-bad-output revision using failed
+  DPO outputs as rejected answers.
+
+Both v2 and v3 DPO runs completed without OOM, but neither passed the behavior
+gate. See `reports/stage5_dpo_revision_loop_report.md`.

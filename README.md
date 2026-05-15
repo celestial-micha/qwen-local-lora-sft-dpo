@@ -39,6 +39,7 @@ Completed:
 - Stage 5A tiny DPO preference data completed: `data/processed/dpo_tiny_train.jsonl` with 33 pairs. The Stage 5B start adapter remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 - Stage 5B tiny DPO smoke test completed and saved `outputs/dpo_lora_qwen05b_tiny`. It ran 4 optimizer steps in about 32.8 seconds, with no OOM/native crash, and the adapter reload check passed.
 - Stage 5C fixed-prompt behavior comparison completed, but the behavior gate did not pass. DPO-tiny clearly preserved 5/8 prompts, had 1 watch prompt, and failed 2/8 prompts.
+- Stage 5 follow-up revision loop completed. DPO v2 and v3 both ran without OOM, but v2 still failed the loss-vs-behavior prompt and v3 regressed several stable prompts.
 
 Not completed yet:
 
@@ -317,13 +318,15 @@ gradually.
 - [Stage 5A tiny DPO data report](reports/stage5a_dpo_tiny_data_report.md)
 - [Stage 5B tiny DPO smoke report](reports/stage5b_tiny_dpo_smoke_report.md)
 - [Stage 5C tiny DPO behavior report](reports/stage5c_tiny_dpo_behavior_report.md)
+- [Stage 5 DPO revision loop report](reports/stage5_dpo_revision_loop_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-Stage 5A/5B/5C are complete, but DPO behavior did not pass the gate:
+Stage 5A/B/C plus the v2/v3 DPO revision loop are complete, but DPO behavior did
+not pass the gate:
 
-1. Review `reports/stage5c_tiny_dpo_behavior_report.md`.
-2. Revise Stage 5A preference data for prompt 4 and prompt 7.
-3. Rerun tiny DPO only after the preference data is improved.
-4. Keep Stage 5D larger DPO blocked until Stage 5C passes.
+1. Review `reports/stage5_dpo_revision_loop_report.md`.
+2. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the recommended checkpoint.
+3. Do not expand DPO until a cleaner preference-data/evaluation design is ready.
+4. Treat the DPO adapters as experiment artifacts, not recommended replacements.
