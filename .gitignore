@@ -31,6 +31,7 @@ data/raw/*
 data/processed/*
 !data/raw/README.md
 !data/processed/README.md
+!data/processed/dpo_tiny_train.jsonl
 !data/samples/*.jsonl
 
 .env

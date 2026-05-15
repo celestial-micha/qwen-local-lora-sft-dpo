@@ -433,12 +433,14 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: planned and split, not run yet.
+Status: Stage 5A data preparation is complete. DPO training has not been run
+yet.
 
 Report:
 
 ```text
 reports/stage5_dpo_plan.md
+reports/stage5a_dpo_tiny_data_report.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -450,6 +452,29 @@ Goal:
 - Include the exact loss-vs-behavior prompt, public-SFT motivation, and replay
   prompts for LoRA/SFT/DPO, data pipeline, DPO VRAM, and interview narrative.
 - Prefer rejected answers that resemble real bad outputs from base/public/v4/v5/v6.
+
+Status: completed.
+
+Artifacts:
+
+```text
+scripts/prepare_tiny_dpo_data.py
+data/processed/dpo_tiny_train.jsonl
+reports/stage5a_dpo_tiny_data_report.md
+```
+
+Result:
+
+- Preference pairs: 33
+- Unique prompts: 33
+- Exact loss-vs-behavior prompt included.
+- Repair pairs cover loss-vs-behavior and public-SFT motivation.
+- Replay pairs cover LoRA/SFT/DPO concepts, data pipeline, DPO VRAM risk, and
+  interview narrative.
+- Tokenizer spot check with the current v3 adapter tokenizer:
+  max prompt tokens 29, max prompt+chosen tokens 100, max prompt+rejected tokens
+  69.
+- No DPO training was run in Stage 5A.
 
 ### Stage 5B: Tiny DPO Smoke Test
 

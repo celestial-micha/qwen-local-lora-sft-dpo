@@ -87,6 +87,12 @@ Future fix:
 
 ### Stage 5A: DPO Data Preparation
 
+Status:
+
+```text
+completed on 2026-05-15
+```
+
 Goal:
 
 - Build a tiny preference dataset before any DPO training.
@@ -101,6 +107,16 @@ Initial file:
 
 ```text
 data/processed/dpo_tiny_train.jsonl
+```
+
+Current result:
+
+```text
+Rows: 33
+Unique prompts: 33
+Generator: scripts/prepare_tiny_dpo_data.py
+Report: reports/stage5a_dpo_tiny_data_report.md
+DPO training: not run yet
 ```
 
 Pair design:
