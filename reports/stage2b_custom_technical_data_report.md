@@ -52,8 +52,9 @@ D:\conda-envs\qwen-lora-local\python.exe scripts\prepare_custom_technical_data.p
 Note: the first generated dataset used `--max_doc_samples 60` and produced 160
 instruction samples. Stage 3B showed that this version was too noisy: the custom
 adapter trained successfully, but still hallucinated and sometimes copied
-project-record wording. The dataset was revised to 132 samples, then Stage 2B.2
-added 8 focused badcase samples. The current generated dataset has 140 samples.
+project-record wording. The dataset was revised to 132 samples, Stage 2B.2
+added 8 focused badcase samples, and Stage 2B.3 added loss-vs-behavior plus
+replay samples. The current generated dataset has 157 samples.
 
 ## Sources
 
@@ -77,11 +78,12 @@ data strategy.
 ## Pipeline Result
 
 - Source records: 10
-- Accepted cleaned chunks: 90
+- Accepted cleaned chunks: 96
 - Rejected chunks: 12
-- Instruction-answer seed samples: 140
-- Train samples: 126
-- Eval samples: 14
+- Instruction-answer seed samples: 157
+- Train samples: 142
+- Eval samples: 15
+- Focused Stage 2B.3 patch train samples: 28
 - Duplicate instruction samples: 0
 
 Sample types:
@@ -94,6 +96,7 @@ Sample types:
 | beginner friendly | 25 |
 | targeted technical QA | 12 |
 | Stage 2B.2 badcase patch | 8 |
+| Stage 2B.3 loss/replay patch | 17 |
 | project record summary | 20 |
 
 ## Output Files
@@ -120,17 +123,18 @@ The script and this report make the data reproducible.
 
 JSONL validation:
 
-- Train rows: 126
-- Eval rows: 14
+- Train rows: 142
+- Eval rows: 15
 - Role order: all rows use `system -> user -> assistant`
-- Unique prompts: 126 train, 14 eval
+- Unique prompts: 134 train, 15 eval
+- Duplicate train prompts: 8 intentional replay/exact-badcase repeats
 
 Qwen tokenizer length check before truncation:
 
 | Split | Min | Avg | P95 | Max | Over 512 |
 |---|---:|---:|---:|---:|---:|
-| Train | 111 | 161.5 | 273 | 323 | 0 |
-| Eval | 117 | 170.0 | 247 | 277 | 0 |
+| Train | 111 | 160.6 | 267 | 323 | 0 |
+| Eval | 120 | 166.7 | 276 | 291 | 0 |
 
 The processed files were loaded through `ChatSFTDataset` with `max_length=512`
 and encoded successfully.
@@ -180,15 +184,32 @@ dataset. The follow-up training results were instructive:
 This shows that the data pipeline needs regression testing, not just more rows.
 The remaining weak prompt is now mainly the loss-vs-behavior explanation.
 
-## Next Step
+## Stage 2B.3 Feedback
 
-Review Stage 2B.2 and consider a smaller Stage 2B.3 patch:
+Stage 2B.3 added 10 loss-vs-behavior samples and 7 replay samples, then tested
+several ways to patch the final prompt before DPO:
+
+- v4 full-data continuation mostly preserved old behavior but did not fix the
+  final loss-vs-behavior prompt.
+- v5 focused patch fixed that prompt but regressed several older prompts.
+- v6 reduced update strength but remained unstable.
+- adapter interpolation between v3 and v5 did not fix the prompt in spot checks.
+
+Current recommendation:
 
 ```text
-add focused loss-vs-behavior samples
-  -> replay the seven prompts already working
-  -> continue from the best current adapter with low learning rate
-  -> then move to tiny DPO smoke testing
+Keep outputs/sft_lora_qwen05b_custom_v3_from_v1_patch as the current best adapter.
+Pause before DPO and review the tradeoff with the user.
+```
+
+## Next Step
+
+Review Stage 2B.3 before DPO:
+
+```text
+read reports/stage2b3_sft_stability_gate_report.md
+  -> decide whether v3 is acceptable as the SFT checkpoint
+  -> only then move to tiny DPO smoke testing
 ```
 
 Recommended first Stage 3B training command:

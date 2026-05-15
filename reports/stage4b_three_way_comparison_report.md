@@ -171,3 +171,39 @@ Stage 2B.3 loss-vs-behavior patch
 
 The main lesson is that the fixed prompt set should be treated as a regression
 suite. Lower loss alone did not guarantee better behavior.
+
+## Stage 4B.3 Addendum: SFT Stability Gate Before DPO
+
+Stage 2B.3 tested whether the final loss-vs-behavior badcase could be patched
+without regressing the rest of the suite.
+
+Raw outputs:
+
+```text
+reports/compare_outputs_three_way_custom_v4_stage2b3_loss_patch.jsonl
+reports/compare_outputs_three_way_custom_v5_stage2b3_focused_patch.jsonl
+reports/compare_outputs_three_way_custom_v6_stage2b3_balanced_patch.jsonl
+```
+
+Summary:
+
+| Variant | Behavior |
+|---|---|
+| v4 full-data continuation | Mostly preserved old prompts, but prompt 7 still weak and prompt 4 got wordier |
+| v5 focused patch | Prompt 7 fixed, but prompts 2/3/5/6/8 regressed |
+| v6 balanced patch | Lower update strength, but still unstable |
+| v7 interpolation probe | Spot-checks did not fix prompt 7 |
+
+Gate conclusion:
+
+```text
+Do not start DPO automatically.
+Keep v3 as the current best SFT adapter.
+Review the tradeoff with the user before Stage 5.
+```
+
+Current best local adapter:
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```

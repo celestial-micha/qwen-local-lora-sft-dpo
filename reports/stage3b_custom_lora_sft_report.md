@@ -195,5 +195,40 @@ Current recommendation:
 
 - Use `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the current best
   local custom adapter for learning and comparison.
-- Do not start DPO yet; do a Stage 2B.3 loss-vs-behavior patch with replay
-  samples first.
+- Do not start DPO yet; Stage 2B.3 should be reviewed first.
+
+## Stage 2B.3 Stability Gate Addendum
+
+Stage 2B.3 has now been completed as a DPO-before gate. The data script was
+expanded with:
+
+- `stage2b3_loss_behavior_samples()`
+- force-train split logic for targeted/patch/replay samples
+- optional `--stage2b3_patch_train_file`
+- optional `--stage2b3_loss_repeats`
+
+Three additional continuation runs were tested:
+
+| Variant | Output | Result |
+|---|---|---|
+| v4 full-data continuation | `outputs/sft_lora_qwen05b_custom_v4_stage2b3_loss_patch` | Did not fix prompt 7; mild prompt 4 regression |
+| v5 focused patch | `outputs/sft_lora_qwen05b_custom_v5_stage2b3_focused_patch` | Fixed prompt 7 but regressed old prompts |
+| v6 balanced patch | `outputs/sft_lora_qwen05b_custom_v6_stage2b3_balanced_patch` | Still unstable |
+
+An interpolation helper was also added:
+
+```text
+scripts/interpolate_lora_adapters.py
+```
+
+Interpolation spot checks with alpha 0.15, 0.25, and 0.40 did not fix the loss
+prompt, so no interpolated adapter is recommended.
+
+Updated recommendation:
+
+- Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the current best
+  SFT adapter.
+- Pause before Stage 5 DPO.
+- Review `reports/stage2b3_sft_stability_gate_report.md` with the user before
+  deciding whether to accept v3 for tiny DPO or do another broader SFT replay
+  pass.

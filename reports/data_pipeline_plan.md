@@ -134,7 +134,8 @@ Finding:
 
 ## Stage 2B: Self-Collected Data Pipeline
 
-Status: completed, revised after Stage 3B feedback, and patched in Stage 2B.2.
+Status: completed, revised after Stage 3B feedback, patched in Stage 2B.2, and
+expanded in Stage 2B.3 for the DPO-before stability gate.
 
 Purpose:
 
@@ -170,13 +171,15 @@ Current result:
 
 - Script: `scripts/prepare_custom_technical_data.py`
 - Sources: 10 project-owned technical notes
-- Accepted cleaned chunks: 90
+- Accepted cleaned chunks: 96
 - Rejected chunks: 12
-- Instruction-answer seed samples: 140
-- Train samples: 126
-- Eval samples: 14
+- Instruction-answer seed samples: 157
+- Train samples: 142
+- Eval samples: 15
+- Stage 2B.3 focused patch train samples: 28
 - Report: `reports/stage2b_custom_technical_data_report.md`
 - Patch report: `reports/stage2b2_badcase_patch_report.md`
+- Stability gate report: `reports/stage2b3_sft_stability_gate_report.md`
 
 The first pass uses project-owned notes plus curated LoRA/SFT/DPO concept seeds.
 This keeps the dataset reproducible and avoids copying long external web pages.
@@ -192,6 +195,8 @@ Stage 3B feedback:
   loss-vs-behavior. It also teaches an important engineering lesson: data
   patches need regression testing because a small patch can still break old
   behavior if retrained from scratch.
+- Stage 2B.3 adds a narrower loss-vs-behavior patch plus replay samples, and
+  confirms that "fix one prompt without regressions" is the real DPO gate.
 - This demonstrates the real data loop: train, compare fixed prompts, find
   badcases, then patch the dataset.
 
@@ -219,9 +224,9 @@ Important note:
 
 - The 10-epoch run improved target behavior, but eval loss started drifting up
   after the best checkpoint. This is a small-data overfitting signal.
-- Stage 2B.2 then tested three variants. The current best local adapter is
-  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`, produced by continuing
-  from the v1 custom adapter with a lower learning rate.
+- Stage 2B.2 then tested three variants. Stage 2B.3 tested additional v4/v5/v6
+  patch attempts. The current best local adapter remains
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 
 ## Stage 4B: Three-Way Comparison
 
@@ -239,9 +244,9 @@ Finding:
 - Two prompts remain weak: the Stage 2B motivation explanation and the
   loss-vs-behavior explanation.
 - Stage 2B.2 improved the Stage 2B motivation prompt when the model was
-  continued from v1, but the loss-vs-behavior prompt remains weak.
-- This means the next useful work is a smaller Stage 2B.3 targeted patch, not a
-  blind jump to DPO.
+  continued from v1, but the loss-vs-behavior prompt remained weak.
+- Stage 2B.3 fixed the loss prompt only in an overfit focused run that broke old
+  prompts, so the gate result is: pause before DPO and review.
 
 ## Stage 2B.2 Result: Patch, Retrain, Regression Test
 
@@ -261,6 +266,25 @@ The data lesson:
 Do not judge a patch only by loss.
 Use the fixed prompts as a regression suite.
 Prefer low-learning-rate continuation or replay when preserving old behavior matters.
+```
+
+## Stage 2B.3 Result: SFT Gate Before DPO
+
+Stage 2B.3 tried to fix the final loss-vs-behavior prompt while preserving the
+other seven fixed prompts.
+
+| Variant | Output | Result |
+|---|---|---|
+| v4 full Stage 2B.3 data | `outputs/sft_lora_qwen05b_custom_v4_stage2b3_loss_patch` | Mostly preserved old behavior but did not fix prompt 7 |
+| v5 focused patch | `outputs/sft_lora_qwen05b_custom_v5_stage2b3_focused_patch` | Fixed prompt 7 but regressed several old prompts |
+| v6 lower-strength focused patch | `outputs/sft_lora_qwen05b_custom_v6_stage2b3_balanced_patch` | Still unstable |
+| v7 interpolation probe | local alpha 0.15/0.25/0.40 adapters | Spot-check did not fix prompt 7 |
+
+The gate decision:
+
+```text
+Do not start DPO automatically.
+Review v3 vs the failed v4/v5/v6 attempts with the user first.
 ```
 
 ## Cleaning Rules
@@ -320,8 +344,8 @@ Current Stage 4B answer:
 - Custom-data SFT fixed most target concepts, especially LoRA/SFT/DPO and DPO
   VRAM-risk prompts.
 - Stage 2B.2 showed that badcase patches can regress if trained from scratch.
-- The current remaining badcase is loss-vs-behavior, which should guide the
-  next Stage 2B.3 iteration.
+- Stage 2B.3 shows the remaining loss-vs-behavior badcase is hard to patch with
+  tiny SFT updates without regression, which should be discussed before DPO.
 
 ## Interview Talking Points
 

@@ -181,3 +181,78 @@
 - Result: current best local adapter. It preserved or improved 7/8 fixed prompts.
 - Remaining weak prompt: explaining why loss alone is insufficient to judge SFT success.
 - Next action: Stage 2B.3 small replay-style patch for loss-vs-behavior before DPO.
+
+## Stage 2B.3: SFT Stability Gate Data Preparation
+
+- Date: 2026-05-15
+- Script: `scripts/prepare_custom_technical_data.py`
+- Main code changes: added `stage2b3_loss_behavior_samples()`, force-train split logic for targeted/patch/replay rows, and optional focused patch export.
+- Added helper script: `scripts/interpolate_lora_adapters.py`
+- Sources: 10 project-owned technical notes
+- Accepted chunks: 96
+- Rejected chunks: 12
+- Instruction-answer seed samples: 157
+- Train rows: 142
+- Eval rows: 15
+- Focused patch train rows: 28
+- Exact loss prompt repeats in focused patch: 12
+- Token validation: train max 323, eval max 291, no rows over 512 before truncation.
+- Report: `reports/stage2b3_sft_stability_gate_report.md`
+
+## Stage 3B.3 Attempt 1: v4 Full Stage 2B.3 Data
+
+- Date: 2026-05-15
+- Init adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Train file: `data/processed/custom_sft_train.jsonl`
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v4_stage2b3_loss_patch`
+- Learning rate: `3e-5`
+- Epochs: 2
+- Runtime: about 244.2 seconds
+- Final train loss: 0.5474
+- Eval loss: 0.0160 then 0.0173
+- Raw comparison: `reports/compare_outputs_three_way_custom_v4_stage2b3_loss_patch.jsonl`
+- Result: not recommended. Prompt 7 remained weak and prompt 4 mildly regressed.
+
+## Stage 3B.3 Attempt 2: v5 Focused Patch
+
+- Date: 2026-05-15
+- Init adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Train file: `data/processed/custom_sft_stage2b3_patch_train.jsonl`
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v5_stage2b3_focused_patch`
+- Learning rate: `8e-5`
+- Epochs: 4
+- Runtime: about 120.2 seconds
+- Final train loss: 1.2324
+- Best observed eval loss: 0.0997
+- Raw comparison: `reports/compare_outputs_three_way_custom_v5_stage2b3_focused_patch.jsonl`
+- Result: not recommended. Prompt 7 was fixed, but several previously stable prompts regressed.
+
+## Stage 3B.3 Attempt 3: v6 Balanced Focused Patch
+
+- Date: 2026-05-15
+- Init adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Train file: `data/processed/custom_sft_stage2b3_patch_train.jsonl`
+- Output adapter: `outputs/sft_lora_qwen05b_custom_v6_stage2b3_balanced_patch`
+- Learning rate: `3e-5`
+- Epochs: 1
+- Runtime: about 23.3 seconds
+- Final train loss: 3.1996
+- Raw comparison: `reports/compare_outputs_three_way_custom_v6_stage2b3_balanced_patch.jsonl`
+- Result: not recommended. The update was weaker than v5 but still destabilized old prompts.
+
+## Stage 3B.3 Attempt 4: Adapter Interpolation Probe
+
+- Date: 2026-05-15
+- Script: `scripts/interpolate_lora_adapters.py`
+- Base adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Patch adapter: `outputs/sft_lora_qwen05b_custom_v5_stage2b3_focused_patch`
+- Tested alphas: 0.15, 0.25, 0.40
+- Result: not recommended. Spot-checks did not fix the loss-vs-behavior prompt.
+
+## Stage 5 Gate: Pause Before DPO
+
+- Date: 2026-05-15
+- Decision: do not start DPO yet.
+- Current best local adapter remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+- Reason: v3 preserves 7/8 prompts; later attempts either failed to fix prompt 7 or fixed it with unacceptable regressions.
+- Next action: review Stage 2B.3 with the user before choosing DPO or another SFT replay pass.

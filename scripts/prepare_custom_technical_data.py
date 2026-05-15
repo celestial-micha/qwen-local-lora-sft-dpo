@@ -264,6 +264,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--instruction_seed_file", default="data/raw/custom_instruction_seed.jsonl")
     parser.add_argument("--train_file", default="data/processed/custom_sft_train.jsonl")
     parser.add_argument("--eval_file", default="data/processed/custom_sft_eval.jsonl")
+    parser.add_argument("--stage2b3_patch_train_file", default=None)
+    parser.add_argument("--stage2b3_loss_repeats", type=int, default=8)
     parser.add_argument("--eval_ratio", type=float, default=0.1)
     parser.add_argument("--max_doc_samples", type=int, default=20)
     parser.add_argument("--system_prompt", default=DEFAULT_SYSTEM_PROMPT)
@@ -656,6 +658,178 @@ def badcase_patch_samples() -> list[dict[str, Any]]:
     return samples
 
 
+def stage2b3_loss_behavior_samples() -> list[dict[str, Any]]:
+    """Stage 2B.3 patch for loss-vs-behavior plus replay prompts."""
+    rows = [
+        {
+            "instruction": "为什么不能只看 loss 判断一次 SFT 是否成功？",
+            "output": (
+                "不能只看 loss，因为 loss 是平均训练目标上的拟合信号，不等于目标 prompt 的实际回答已经正确。"
+                "本项目里 public-SFT 能正常训练，但 Stage 4A 仍然误解 LoRA/SFT/DPO；Stage 2B.2 的 v2 甚至 loss 更低却出现行为回归。"
+                "所以 SFT 是否成功要同时看 train loss、eval loss、固定 prompt 对比、badcase review 和是否引入旧能力回归。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "训练 loss 降低了，为什么还可能说明模型没有真的变好？",
+            "output": (
+                "训练 loss 降低只说明模型更会拟合训练样本的 token 分布。"
+                "如果固定 prompt 仍然答错，或者原来已经答对的 LoRA/SFT/DPO 概念又回归，那行为上就不能算变好。"
+                "因此要把 loss 当作仪表盘信号，把固定 prompt 和 badcase 当作验收标准。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "请用本项目例子解释：loss 下降但行为回归是什么意思？",
+            "output": (
+                "Stage 2B.2 里 v2 从头训练后 loss 能继续下降，但固定 prompt 对比发现 LoRA、SFT 等原本答好的概念又变差。"
+                "这就叫行为回归：指标看起来变好，用户关心的回答质量却变差。"
+                "所以我们改用从 v1 adapter 低学习率续训，并把 8 个固定 prompt 当作 regression suite。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "train loss、eval loss、固定 prompt、badcase review 在 SFT 验收中分别看什么？",
+            "output": (
+                "train loss 看训练集拟合是否正常，eval loss 看留出集平均泛化趋势。"
+                "固定 prompt 看项目目标问题是否真的回答正确，例如 LoRA/SFT/DPO 是否不再误解。"
+                "badcase review 负责把答错和回归的例子整理成下一轮数据补丁或训练策略调整。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "为什么 fixed prompt regression suite 比单个 loss 数字更适合这个项目？",
+            "output": (
+                "因为这个项目的目标是修正具体技术误解，而不是追求一个抽象的低 loss。"
+                "固定 prompt regression suite 能直接检查 LoRA、SFT、DPO、数据管线、显存和面试叙述是否稳定。"
+                "如果 loss 下降但这些 prompt 变差，就说明训练策略或数据补丁需要调整。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "面试时怎样解释：为什么我没有只汇报 SFT loss？",
+            "output": (
+                "我会说 loss 是必要但不充分的训练指标。我的目标是让模型正确解释 LoRA/SFT/DPO，所以我还做了固定 prompt 对比。"
+                "public-SFT 和 v2 patch 都证明了这一点：训练能跑、loss 能降，不代表目标概念已经修正。"
+                "因此我把 badcase 变成数据补丁，并用三方对比验证行为是否真的改善。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "如果 SFT 后 eval loss 还不错，但第 7 个固定 prompt 仍然答错，下一步应该做什么？",
+            "output": (
+                "下一步不是直接进入 DPO，也不是盲目加 epoch。应该先检查第 7 个 prompt 对应的数据是否足够清楚，"
+                "补充 loss-vs-behavior 的 targeted QA，并加入 replay 样本防止旧能力回归。"
+                "然后从当前最好 adapter 低学习率续训，再重新跑同一组固定 prompt。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "为什么做 DPO 前要先让 SFT 的固定 prompt 行为稳定？",
+            "output": (
+                "DPO 是偏好优化，它会放大模型已有回答倾向。"
+                "如果 SFT 阶段还会误解 loss、LoRA、SFT 或 DPO，DPO 可能只是把混乱回答排得更自信。"
+                "所以做 DPO 前要先让 SFT 在固定 prompt 上稳定，再用 chosen/rejected 去优化偏好。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "请给出一个 SFT 是否成功的最小验收清单。",
+            "output": (
+                "第一，训练过程稳定，没有 CUDA OOM 或 Windows 进程级崩溃。"
+                "第二，train loss 和 eval loss 没有明显异常或过拟合失控。"
+                "第三，固定 prompt 对比显示目标 badcase 被修正，且旧的正确回答没有回归。"
+                "第四，报告能解释数据来源、清洗、训练参数、失败样例和下一步。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "为什么 Stage 2B.3 要做 replay，而不是只添加 loss 相关样本？",
+            "output": (
+                "因为 Stage 2B.2 已经证明，小补丁从头训练可能让原本答好的 prompt 变差。"
+                "replay 样本的作用是提醒模型继续保持 LoRA、SFT、DPO、数据管线和 DPO 显存这些已学会的行为。"
+                "这样补第 7 个 badcase 时，不会轻易牺牲其他 7 个稳定 prompt。"
+            ),
+            "sample_type": "loss_behavior_patch_stage2b3",
+        },
+        {
+            "instruction": "请用三点解释机器学习里的 LoRA 微调，不要解释成无线通信 LoRa。",
+            "output": (
+                "第一，机器学习里的 LoRA 是低秩适配形式的参数高效微调，不是无线通信 LoRa。"
+                "第二，它冻结基础模型大部分参数，只训练插入到线性层旁边的小 adapter 矩阵。"
+                "第三，它适合个人 GPU 学习，因为训练参数少、显存压力低、adapter 文件也更小。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "SFT 是什么？它和 LoRA 是什么关系？",
+            "output": (
+                "SFT 是 supervised fine-tuning，即用标准 instruction-answer 数据做有监督微调。"
+                "LoRA 是参数高效训练方法，用少量 adapter 参数承载更新。"
+                "所以 LoRA SFT 表示用 LoRA adapter 来执行 SFT，二者一个是目标和数据形式，一个是训练方法。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "DPO 和 SFT 的区别是什么？为什么通常先做 SFT 再做 DPO？",
+            "output": (
+                "SFT 用标准答案教模型先形成稳定的基础回答能力。"
+                "DPO 用 chosen/rejected 偏好对，让模型更偏向更好的回答、远离较差回答。"
+                "通常先 SFT 再 DPO，因为基础能力不稳时，DPO 可能放大混乱而不是改进偏好。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "为什么 public-SFT adapter 没修正 LoRA/SFT/DPO 概念误解，反而说明 Stage 2B 有必要？",
+            "output": (
+                "public-SFT 的价值是证明公开数据、训练脚本、adapter 保存和加载这条工程链路可跑。"
+                "但公开通用数据不一定覆盖本项目想修正的 LoRA/SFT/DPO 技术概念。"
+                "所以 Stage 4A 发现它仍然答错时，正好说明需要 Stage 2B 自采集技术数据做定向补强。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "请解释自采集技术数据从采集、清洗、去重、筛选到 instruction-answer 转换的流程。",
+            "output": (
+                "先采集项目相关来源并保留 source_id、标题、路径或 URL。"
+                "再清洗网页噪声、导航栏、广告、重复空白和离题内容，然后去重和筛选高质量技术文本。"
+                "最后把有用内容改写成 instruction-answer 样本，并转换成 Qwen chat JSONL。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "8GB 显存下做 DPO 有什么风险？应该怎样降低显存压力？",
+            "output": (
+                "DPO 比 SFT 更吃显存，因为它要处理 chosen/rejected，并通常需要 reference policy 评分。"
+                "8GB 下朴素双模型 DPO 可能爆显存或掉到共享内存导致很慢。"
+                "降低压力要用小模型、LoRA、batch_size=1、短 max_length、短 max_prompt_length、少 pair、少 eval，并尽量共享 reference。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+        {
+            "instruction": "如果面试官问你这个项目的数据管线，你会怎么讲？",
+            "output": (
+                "我会先讲公开数据集建立 public-SFT 基线，证明本地 LoRA SFT 链路能训练、保存和加载。"
+                "再讲 Stage 4A 暴露 public-SFT 仍误解 LoRA/SFT/DPO，于是进入 Stage 2B。"
+                "Stage 2B 做自采集技术数据，包含采集、清洗、去重、筛选、转 instruction-answer，再训练 custom-SFT 并做三方对比。"
+            ),
+            "sample_type": "replay_stage2b3",
+        },
+    ]
+    samples = []
+    for index, row in enumerate(rows, start=1):
+        samples.append(
+            {
+                "instruction": row["instruction"],
+                "input": "",
+                "output": row["output"],
+                "source_id": f"stage2b3::{index:03d}",
+                "sample_type": row["sample_type"],
+            }
+        )
+    return samples
+
+
 def doc_chunk_samples(chunks: list[dict[str, Any]], max_samples: int) -> list[dict[str, Any]]:
     samples = []
     for chunk in chunks[:max_samples]:
@@ -706,6 +880,26 @@ def to_chat_row(sample: dict[str, Any], system_prompt: str) -> dict[str, Any]:
     }
 
 
+def build_stage2b3_patch_rows(
+    samples: list[dict[str, Any]],
+    system_prompt: str,
+    loss_repeats: int,
+) -> list[dict[str, Any]]:
+    patch_types = {"loss_behavior_patch_stage2b3", "replay_stage2b3"}
+    exact_loss_prompt = "为什么不能只看 loss 判断一次 SFT 是否成功？"
+    patch_samples = []
+    for sample in samples:
+        if sample.get("sample_type") not in patch_types:
+            continue
+        patch_samples.append(sample)
+        if sample["instruction"] == exact_loss_prompt:
+            for repeat_index in range(2, max(1, loss_repeats) + 1):
+                repeated = dict(sample)
+                repeated["source_id"] = f"{sample['source_id']}::repeat-{repeat_index:02d}"
+                patch_samples.append(repeated)
+    return [to_chat_row(sample, system_prompt) for sample in patch_samples]
+
+
 def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
@@ -739,6 +933,7 @@ def main() -> None:
         concept_samples()
         + targeted_qa_samples()
         + badcase_patch_samples()
+        + stage2b3_loss_behavior_samples()
         + doc_chunk_samples(chunks, args.max_doc_samples)
     )
     samples, duplicate_samples = dedupe_samples(samples)
@@ -746,13 +941,36 @@ def main() -> None:
     write_jsonl(Path(args.instruction_seed_file), samples)
 
     eval_size = max(1, int(len(samples) * args.eval_ratio))
-    eval_samples = samples[:eval_size]
-    train_samples = samples[eval_size:]
+    force_train_sample_types = {
+        "targeted_technical_qa",
+        "badcase_patch_stage2b2",
+        "loss_behavior_patch_stage2b3",
+        "replay_stage2b3",
+    }
+    eval_samples = []
+    train_samples = []
+    for sample in samples:
+        if len(eval_samples) < eval_size and sample.get("sample_type") not in force_train_sample_types:
+            eval_samples.append(sample)
+        else:
+            train_samples.append(sample)
+    if len(eval_samples) < eval_size:
+        needed = eval_size - len(eval_samples)
+        eval_samples.extend(train_samples[:needed])
+        train_samples = train_samples[needed:]
 
     train_rows = [to_chat_row(sample, args.system_prompt) for sample in train_samples]
     eval_rows = [to_chat_row(sample, args.system_prompt) for sample in eval_samples]
     write_jsonl(Path(args.train_file), train_rows)
     write_jsonl(Path(args.eval_file), eval_rows)
+
+    if args.stage2b3_patch_train_file:
+        stage2b3_patch_rows = build_stage2b3_patch_rows(
+            samples,
+            args.system_prompt,
+            args.stage2b3_loss_repeats,
+        )
+        write_jsonl(Path(args.stage2b3_patch_train_file), stage2b3_patch_rows)
 
     print("Sources:", len(source_rows))
     print("Accepted chunks:", len(chunks))
@@ -760,6 +978,9 @@ def main() -> None:
     print("Instruction samples:", len(samples))
     print("Train samples:", len(train_rows))
     print("Eval samples:", len(eval_rows))
+    if args.stage2b3_patch_train_file:
+        print("Stage 2B.3 patch train samples:", len(stage2b3_patch_rows))
+        print("Stage 2B.3 patch train file:", args.stage2b3_patch_train_file)
     print("Duplicate instruction samples:", duplicate_samples)
     print("Raw sources file:", args.raw_sources_file)
     print("Cleaned chunks file:", args.cleaned_chunks_file)

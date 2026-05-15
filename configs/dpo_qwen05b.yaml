@@ -1,5 +1,5 @@
 model_name: Qwen/Qwen2.5-0.5B-Instruct
-sft_adapter_path: outputs/sft_lora_qwen05b_custom
+sft_adapter_path: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
 dpo_file: data/processed/dpo_train.jsonl
 output_dir: outputs/dpo_lora_qwen05b
 max_length: 256
@@ -13,5 +13,6 @@ logging_steps: 10
 save_steps: 200
 report_to: none
 # 8GB VRAM note:
-# Start DPO only after custom/mixed SFT is stable. Naive DPO can load or score
-# both policy and reference behavior, so keep the first run tiny and short.
+# Stage 2B.3 is the current pause gate. Do not run DPO until the v3-vs-v4/v5/v6
+# tradeoff has been reviewed. Naive DPO can load or score both policy and
+# reference behavior, so keep the first run tiny and short.

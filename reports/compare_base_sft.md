@@ -85,3 +85,32 @@ as a low-learning-rate continuation from the existing custom adapter. The
 loss-vs-behavior prompt is still weak, so Stage 2B.3 should patch that one
 before DPO.
 ```
+
+## Stage 4B.3 SFT Stability Gate
+
+Stage 2B.3 tried to patch the final loss-vs-behavior prompt before DPO.
+
+Raw outputs:
+
+```text
+reports/compare_outputs_three_way_custom_v4_stage2b3_loss_patch.jsonl
+reports/compare_outputs_three_way_custom_v5_stage2b3_focused_patch.jsonl
+reports/compare_outputs_three_way_custom_v6_stage2b3_balanced_patch.jsonl
+```
+
+Result:
+
+| Variant | Summary | Use? |
+|---|---|---|
+| `outputs/sft_lora_qwen05b_custom_v4_stage2b3_loss_patch` | Prompt 7 still weak; prompt 4 slightly regressed | No |
+| `outputs/sft_lora_qwen05b_custom_v5_stage2b3_focused_patch` | Prompt 7 fixed, but several old prompts regressed | No |
+| `outputs/sft_lora_qwen05b_custom_v6_stage2b3_balanced_patch` | Lower-strength patch but still unstable | No |
+| v7 interpolation probe | Spot-checks did not fix prompt 7 | No |
+
+Current conclusion:
+
+```text
+The current best adapter remains outputs/sft_lora_qwen05b_custom_v3_from_v1_patch.
+The project should pause before DPO and review whether to accept v3 as the SFT
+checkpoint or run another broader replay pass.
+```

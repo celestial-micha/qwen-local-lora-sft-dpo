@@ -225,3 +225,11 @@ outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
 Do not start DPO yet. The next useful step is a focused Stage 2B.3 patch for
 loss-vs-behavior explanation, ideally with replay samples for the seven prompts
 that are already good.
+
+Update after Stage 2B.3:
+
+```text
+Stage 2B.3 has been completed as a DPO-before stability gate.
+The current best adapter still remains v3.
+See reports/stage2b3_sft_stability_gate_report.md.
+```

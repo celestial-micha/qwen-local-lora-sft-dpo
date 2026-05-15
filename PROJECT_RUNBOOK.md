@@ -230,9 +230,10 @@ Important rule:
 - Do this after the public-data SFT loop is trainable end to end. Otherwise,
   dirty-data issues and training issues become hard to separate.
 
-Status: completed, revised after Stage 3B feedback, and patched in Stage 2B.2.
+Status: completed, revised after Stage 3B feedback, patched in Stage 2B.2, and
+expanded in Stage 2B.3 for the DPO-before gate.
 
-Current Stage 2B.2 result:
+Current Stage 2B.3 result:
 
 - Script: `scripts/prepare_custom_technical_data.py`
 - Raw sources: `data/raw/custom_sources.jsonl`
@@ -240,10 +241,12 @@ Current Stage 2B.2 result:
 - Instruction seeds: `data/raw/custom_instruction_seed.jsonl`
 - Train file: `data/processed/custom_sft_train.jsonl`
 - Eval file: `data/processed/custom_sft_eval.jsonl`
-- Train rows: 126
-- Eval rows: 14
+- Train rows: 142
+- Eval rows: 15
+- Focused Stage 2B.3 patch train rows: 28
 - Report: `reports/stage2b_custom_technical_data_report.md`
 - Patch report: `reports/stage2b2_badcase_patch_report.md`
+- Stability gate report: `reports/stage2b3_sft_stability_gate_report.md`
 
 Stage 2B uses project-owned technical notes plus curated LoRA/SFT/DPO concept
 seeds. The script also supports optional URL collection for later crawling
@@ -257,6 +260,9 @@ Important feedback:
   targeted QA for the fixed technical prompts.
 - Stage 2B.2 adds 8 focused badcase samples for public-SFT motivation and
   loss-vs-behavior evaluation.
+- Stage 2B.3 adds loss-vs-behavior samples, replay samples, force-train split
+  logic for targeted rows, and a focused patch export for tiny continuation
+  runs.
 - This is a useful project story: badcases from comparison drive the next data
   revision.
 
@@ -380,6 +386,44 @@ Lesson:
 - A safer small-data workflow is: start from the best adapter, use lower LR,
   train briefly, then rerun the fixed-prompt regression suite.
 
+### Stage 2B.3 / Stage 3B.3 / Stage 4B.3: SFT Stability Gate Before DPO
+
+Goal:
+
+- Try to patch the final loss-vs-behavior badcase.
+- Preserve the seven prompts that v3 already handled well.
+- Stop before DPO and review the tradeoff with the user.
+
+Status: completed as a gate, but not accepted as a replacement adapter.
+
+Artifacts:
+
+- Report: `reports/stage2b3_sft_stability_gate_report.md`
+- Full-data v4 comparison:
+  `reports/compare_outputs_three_way_custom_v4_stage2b3_loss_patch.jsonl`
+- Focused-patch v5 comparison:
+  `reports/compare_outputs_three_way_custom_v5_stage2b3_focused_patch.jsonl`
+- Balanced-patch v6 comparison:
+  `reports/compare_outputs_three_way_custom_v6_stage2b3_balanced_patch.jsonl`
+- Adapter interpolation helper: `scripts/interpolate_lora_adapters.py`
+
+Result:
+
+- v4 preserved most old behavior but still did not fix the loss-vs-behavior
+  prompt.
+- v5 fixed the loss-vs-behavior prompt but overfit and regressed several old
+  prompts.
+- v6 lowered the update strength but still destabilized multiple prompts.
+- Interpolation between v3 and v5 did not fix the loss prompt in spot checks.
+- The current best adapter remains
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+
+DPO gate:
+
+- Do not start Stage 5 DPO automatically.
+- Review whether to accept v3 as the practical SFT checkpoint for tiny DPO or
+  do another broader replay-based SFT pass first.
+
 ### Stage 5: DPO
 
 Goal:
@@ -396,8 +440,8 @@ VRAM note:
   `batch_size=1`, short `max_length`, short `max_prompt_length`, minimal eval,
   and PEFT/reference-model sharing where possible.
 - See `reports/vram_and_dpo_plan.md`.
-- Do not start DPO until the remaining Stage 2B.3 loss-vs-behavior prompt is
-  reviewed or patched.
+- Do not start DPO until the Stage 2B.3 stability report has been reviewed with
+  the user.
 
 ### Stage 6: Final Interview Package
 
