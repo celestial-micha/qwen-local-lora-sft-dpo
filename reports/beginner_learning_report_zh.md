@@ -292,7 +292,7 @@ Stage 4A 对比、Stage 2B 自采集技术数据，以及后续 DPO 的计划。
 6. 这次最重要的经验是：从头训练 v2 反而回归，低学习率从 v1 续训的 v3 更稳，改善或保留了 7/8 个 prompt。
 7. Stage 2B.3 继续尝试修“为什么不能只看 loss”：v4 没修好，v5 修好了但破坏旧能力，v6 仍然不稳。
 8. 当前最好 adapter 仍然是 v3，原因是它整体最稳，虽然不是完美。
-9. DPO 放到最后，因为它更吃显存，也更依赖前面的 SFT 数据质量；现在刚好停在 DPO 前复盘。
+9. Stage 5 已拆分：先准备 tiny DPO 数据，再跑 tiny DPO smoke test，观察显存/内存和速度，再决定是否扩大 DPO。
 
 显存上也要有概念：
 
@@ -302,13 +302,13 @@ adapter 推理约 1.2GB / 8GB
 DPO 可能更高，第一版只能小样本、短序列、batch_size=1 做 smoke test
 ```
 
-这次 Stage 3B/4B/Stage 2B.2/2B.3 的最大收获是：loss 下降只是一个信号，真正要看的还是固定 prompt 行为。第一版 custom 数据训练后仍有幻觉，我们就回到数据侧减少噪声、增加 targeted QA；Stage 2B.2 发现从头重训会破坏旧能力；Stage 2B.3 又发现强行修一个 prompt 会让其他 prompt 回归。这就是一个更真实的数据改进闭环：不仅会加数据，还会做回归测试、训练策略选择和 DPO 前 gate。
+这次 Stage 3B/4B/Stage 2B.2/2B.3 的最大收获是：loss 下降只是一个信号，真正要看的还是固定 prompt 行为。第一版 custom 数据训练后仍有幻觉，我们就回到数据侧减少噪声、增加 targeted QA；Stage 2B.2 发现从头重训会破坏旧能力；Stage 2B.3 又发现强行修一个 prompt 会让其他 prompt 回归。这就是一个更真实的数据改进闭环：不仅会加数据，还会做回归测试、训练策略选择和 DPO 前 gate。接下来的 DPO 也不能一口吃成胖子，要先 tiny smoke test，看 8GB 显存能不能承受。
 
 ## 10. 面试时可以怎么讲
 
 可以这样讲：
 
-> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线；这个 public-SFT adapter 能训练成功，但固定 prompt 发现它仍然误解 LoRA/SFT/DPO。于是我做了 Stage 2B 自采集技术数据：从项目技术报告和概念种子中采集、清洗、去重、筛选并转成 instruction-answer。第一版 custom 数据训练后仍有幻觉，我又根据 badcase 减少泛化项目总结样本、加入 targeted QA，重新训练 custom-SFT。Stage 4B 三方对比显示 custom-SFT 改善了 6/8 个固定技术 prompt；后来 Stage 2B.2 加了 8 条 badcase patch，发现从头训练 v2 会回归，而从 v1 低学习率续训的 v3 能保留或改善 7/8 个 prompt。Stage 2B.3 又尝试修最后的 loss-vs-behavior prompt，结果发现 v5 虽然修好了单点，却破坏多个旧 prompt，所以我把它设为 DPO 前 gate，暂停进入 DPO，先和 reviewer 讨论是否接受 v3 或继续做更宽 replay。显存方面，LoRA SFT 约占 5.5GB/8GB，DPO 更吃显存，所以我会先复盘 SFT 稳定性，再用短序列、小 batch、小样本做 DPO smoke test。
+> 我没有一开始追求大模型规模，而是先用 Qwen2.5-0.5B-Instruct 在本地 RTX 4060 上搭了一条最小 post-training 链路。过程中我完成了环境配置、模型加载、LoRA adapter 训练、adapter 保存和加载、base/SFT 输出对比。最开始 Windows 原生环境里 Hugging Face 高版本栈触发了 python.exe 级别崩溃，我通过版本回退、缓存目录调整和脚本兼容修改，把训练链路稳定下来。数据上我先用公开中文 Alpaca 风格数据集建立可复现基线；这个 public-SFT adapter 能训练成功，但固定 prompt 发现它仍然误解 LoRA/SFT/DPO。于是我做了 Stage 2B 自采集技术数据：从项目技术报告和概念种子中采集、清洗、去重、筛选并转成 instruction-answer。第一版 custom 数据训练后仍有幻觉，我又根据 badcase 减少泛化项目总结样本、加入 targeted QA，重新训练 custom-SFT。Stage 4B 三方对比显示 custom-SFT 改善了 6/8 个固定技术 prompt；后来 Stage 2B.2 加了 8 条 badcase patch，发现从头训练 v2 会回归，而从 v1 低学习率续训的 v3 能保留或改善 7/8 个 prompt。Stage 2B.3 又尝试修最后的 loss-vs-behavior prompt，结果发现 v5 虽然修好了单点，却破坏多个旧 prompt，所以我选择 v3 作为 DPO 起点，并把 Stage 5 拆成 tiny DPO 数据、tiny DPO smoke test、固定 prompt 对比和更大 DPO 四步。显存方面，LoRA SFT 约占 5.5GB/8GB，DPO 更吃显存，所以我会先用短序列、小 batch、小样本验证 8GB 是否能承受，再考虑扩大 DPO。
 
 这段话的重点是：
 

@@ -111,6 +111,7 @@ Current conclusion:
 
 ```text
 The current best adapter remains outputs/sft_lora_qwen05b_custom_v3_from_v1_patch.
-The project should pause before DPO and review whether to accept v3 as the SFT
-checkpoint or run another broader replay pass.
+Stage 5 should start from v3, but only with tiny DPO data and a smoke test first.
 ```
+
+See `reports/stage5_dpo_plan.md`.

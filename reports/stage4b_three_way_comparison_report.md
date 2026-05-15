@@ -197,13 +197,19 @@ Summary:
 Gate conclusion:
 
 ```text
-Do not start DPO automatically.
-Keep v3 as the current best SFT adapter.
-Review the tradeoff with the user before Stage 5.
+Start Stage 5 from v3.
+Prepare tiny DPO data first.
+Run tiny DPO before any larger DPO.
 ```
 
 Current best local adapter:
 
 ```text
 outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+Stage 5 plan:
+
+```text
+reports/stage5_dpo_plan.md
 ```

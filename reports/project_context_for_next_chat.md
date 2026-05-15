@@ -338,9 +338,9 @@ v7 interpolation probe:
 当前推荐：
 
 ```text
-继续把 outputs/sft_lora_qwen05b_custom_v3_from_v1_patch 作为当前 best SFT adapter。
-不要自动开始 DPO。
-下一次先和用户复盘 Stage 2B.3：接受 v3 进 tiny DPO，还是再做一轮更宽的 SFT replay。
+继续把 outputs/sft_lora_qwen05b_custom_v3_from_v1_patch 作为 Stage 5 起点。
+Stage 5 已拆分：先 DPO 数据，再 tiny DPO，再固定 prompt 对比，最后才考虑扩大 DPO。
+见 reports/stage5_dpo_plan.md。
 ```
 
 ## Notebook
@@ -371,7 +371,7 @@ reports/vram_and_dpo_plan.md
 
 ```text
 8GB 可以尝试 tiny DPO smoke test，但朴素 DPO 风险较高。
-当前不建议立刻 DPO，先和用户复盘 Stage 2B.3 稳定性 gate。
+当前建议先做 Stage 5A/5B：准备 tiny DPO 数据并跑 tiny smoke test，再根据显存和行为决定是否扩大。
 ```
 
 原因：
@@ -383,18 +383,21 @@ reports/vram_and_dpo_plan.md
 建议第一版 DPO：
 
 - 20-50 pair。
+- 起点 adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`。
 - `batch_size=1`。
 - 短 `max_length` 和短 `max_prompt_length`。
 - 少 eval。
 - 使用 LoRA/PEFT，并尽量共享 reference。
+- 用户需要记录专用显存、共享显存、系统内存、step 速度和是否 OOM/崩溃。
 
 ## 下一步建议
 
 用户现在会以检查和理解为主。下一次如果继续推进，推荐顺序：
 
 ```text
-1. 阅读 reports/stage2b3_sft_stability_gate_report.md。
-2. 检查 v4/v5/v6 三个 comparison JSONL，理解为什么它们都不能替代 v3。
-3. 和用户一起决定：接受 v3 作为 tiny DPO 的 SFT checkpoint，还是先做更宽 replay 的 SFT pass。
-4. 决策前不要开始 Stage 5 DPO。
+1. 阅读 reports/stage5_dpo_plan.md 和 reports/stage2b3_sft_stability_gate_report.md。
+2. 做 Stage 5A：准备 data/processed/dpo_tiny_train.jsonl，20-50 个 preference pair。
+3. 做 Stage 5B：用 configs/dpo_qwen05b.yaml 跑 tiny DPO smoke test。
+4. 用户记录显存/内存/速度后，再做 Stage 5C 固定 prompt 对比。
+5. tiny DPO 可接受后，再考虑 Stage 5D 扩大 DPO。
 ```

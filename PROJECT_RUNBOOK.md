@@ -420,17 +420,69 @@ Result:
 
 DPO gate:
 
-- Do not start Stage 5 DPO automatically.
-- Review whether to accept v3 as the practical SFT checkpoint for tiny DPO or
-  do another broader replay-based SFT pass first.
+- Start Stage 5 from v3, not v4/v5/v6.
+- Split Stage 5 into DPO data preparation, tiny DPO smoke test, behavior check,
+  and only then larger DPO.
 
 ### Stage 5: DPO
 
 Goal:
 
-- Build 50 to 200 preference pairs.
-- Run minimal DPO after SFT behavior is stable.
-- Save adapter to `outputs/dpo_lora_qwen05b`.
+- Start from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+- Build a tiny preference dataset first.
+- Run minimal DPO after the tiny dataset exists.
+- Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
+
+Status: planned and split, not run yet.
+
+Report:
+
+```text
+reports/stage5_dpo_plan.md
+```
+
+### Stage 5A: Tiny DPO Data Preparation
+
+Goal:
+
+- Build `data/processed/dpo_tiny_train.jsonl`.
+- Start with 20 to 50 preference pairs.
+- Include the exact loss-vs-behavior prompt, public-SFT motivation, and replay
+  prompts for LoRA/SFT/DPO, data pipeline, DPO VRAM, and interview narrative.
+- Prefer rejected answers that resemble real bad outputs from base/public/v4/v5/v6.
+
+### Stage 5B: Tiny DPO Smoke Test
+
+Goal:
+
+- Verify memory feasibility on 8 GB VRAM.
+- Use `configs/dpo_qwen05b.yaml`.
+- Keep `batch_size=1`, `max_length=256`, `max_prompt_length=128`, tiny data,
+  and minimal eval.
+
+User should report:
+
+- Dedicated VRAM peak.
+- Shared GPU memory growth.
+- System RAM growth.
+- Step speed.
+- Any CUDA OOM, Windows native crash, or severe slowdown.
+
+### Stage 5C: Tiny DPO Behavior Check
+
+Goal:
+
+- Compare fixed prompts after tiny DPO.
+- Accept tiny DPO only if prompt 7 improves without badly regressing the other
+  seven prompts.
+
+### Stage 5D: Larger DPO
+
+Goal:
+
+- Only if Stage 5B/5C pass, expand to 50-100 pairs first and 100-200 pairs
+  later.
+- Keep the same VRAM safeguards and fixed-prompt regression checks.
 
 VRAM note:
 
@@ -440,8 +492,7 @@ VRAM note:
   `batch_size=1`, short `max_length`, short `max_prompt_length`, minimal eval,
   and PEFT/reference-model sharing where possible.
 - See `reports/vram_and_dpo_plan.md`.
-- Do not start DPO until the Stage 2B.3 stability report has been reviewed with
-  the user.
+- See `reports/stage5_dpo_plan.md`.
 
 ### Stage 6: Final Interview Package
 

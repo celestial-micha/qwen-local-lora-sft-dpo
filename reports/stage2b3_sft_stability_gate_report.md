@@ -230,22 +230,43 @@ Reason:
 
 ## DPO Gate Decision
 
-Do not start DPO in this turn.
+Do not use v4/v5/v6 as the DPO start adapter.
 
-The project is now at the intended pause point:
+The Stage 5 start adapter is:
 
 ```text
-Stage 5: SFT 稳定后再做 DPO
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
 ```
 
-Before DPO, review these options:
+Stage 5 is split in `reports/stage5_dpo_plan.md`:
 
-- Accept v3 as the practical SFT checkpoint and use DPO preference pairs to
-  target the loss-vs-behavior answer.
-- Keep improving SFT data, but use a broader replay set and smaller update
-  strength than v5/v6.
-- Consider whether the 0.5B model has reached a small-model ceiling for this
-  very specific meta-evaluation prompt.
+- Stage 5A: prepare a 20-50 pair tiny DPO dataset.
+- Stage 5B: run a tiny DPO smoke test and record VRAM/RAM behavior.
+- Stage 5C: compare fixed prompts after tiny DPO.
+- Stage 5D: only then consider larger or more naive DPO.
+
+## Likely Causes And Future Fixes
+
+v4 likely failed because the new loss-vs-behavior signal was diluted inside the
+full dataset. It was cautious enough to preserve most old behavior, but too weak
+to reliably move the final badcase.
+
+v5 likely failed because the focused patch over-weighted one prompt. It taught
+the exact loss answer, but the tiny and repeated patch shifted the adapter enough
+to damage neighboring concepts.
+
+v6 likely failed because lower LR/epochs reduced the damage but did not change
+the narrow direction of the update. The patch was still too small and too
+specialized.
+
+Future fixes:
+
+- Use DPO pairs where the rejected answer looks like the actual v3/v4 failure
+  and the chosen answer is the desired loss-vs-behavior explanation.
+- Keep replay preference pairs for the seven stable prompts.
+- Treat tiny DPO as a memory and behavior probe, not a final model-quality run.
+- If DPO still regresses, return to a broader SFT replay dataset or consider
+  that Qwen2.5-0.5B may be hitting a small-model ceiling for this meta prompt.
 
 ## Main Lesson
 

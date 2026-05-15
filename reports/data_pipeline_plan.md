@@ -246,7 +246,8 @@ Finding:
 - Stage 2B.2 improved the Stage 2B motivation prompt when the model was
   continued from v1, but the loss-vs-behavior prompt remained weak.
 - Stage 2B.3 fixed the loss prompt only in an overfit focused run that broke old
-  prompts, so the gate result is: pause before DPO and review.
+  prompts, so Stage 5 should start from v3 and begin with tiny DPO rather than
+  larger DPO.
 
 ## Stage 2B.2 Result: Patch, Retrain, Regression Test
 
@@ -286,6 +287,18 @@ The gate decision:
 Do not start DPO automatically.
 Review v3 vs the failed v4/v5/v6 attempts with the user first.
 ```
+
+After review, the Stage 5 decision is to start DPO from v3 and split DPO into
+small stages:
+
+```text
+Stage 5A: tiny preference data
+Stage 5B: tiny DPO smoke test
+Stage 5C: fixed-prompt DPO behavior check
+Stage 5D: larger DPO only if tiny works
+```
+
+See `reports/stage5_dpo_plan.md`.
 
 ## Cleaning Rules
 

@@ -6,6 +6,7 @@ Planned files:
 
 - `sft_train.jsonl`
 - `sft_eval.jsonl`
+- `dpo_tiny_train.jsonl`
 - `dpo_train.jsonl`
 
 Current Stage 2 SFT files:
@@ -31,3 +32,8 @@ Current Stage 2B custom-data files:
   The current best local adapter remains
   `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`; v4/v5/v6 patch attempts
   are documented but not recommended.
+
+Planned Stage 5 DPO files:
+
+- `dpo_tiny_train.jsonl`: 20-50 preference pairs for Stage 5B tiny smoke test.
+- `dpo_train.jsonl`: optional larger DPO data only after tiny DPO is acceptable.

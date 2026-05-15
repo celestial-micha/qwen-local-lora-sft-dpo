@@ -256,3 +256,15 @@
 - Current best local adapter remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 - Reason: v3 preserves 7/8 prompts; later attempts either failed to fix prompt 7 or fixed it with unacceptable regressions.
 - Next action: review Stage 2B.3 with the user before choosing DPO or another SFT replay pass.
+
+## Stage 5 Planning: Split DPO
+
+- Date: 2026-05-15
+- Decision: start Stage 5 from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+- Plan report: `reports/stage5_dpo_plan.md`
+- Config updated: `configs/dpo_qwen05b.yaml`
+- Stage 5A: prepare `data/processed/dpo_tiny_train.jsonl` with 20-50 preference pairs.
+- Stage 5B: tiny DPO smoke test on 8GB VRAM.
+- Stage 5C: compare fixed prompts after tiny DPO.
+- Stage 5D: larger or more naive DPO only if tiny DPO memory and behavior are acceptable.
+- User observation requested: dedicated VRAM peak, shared GPU memory growth, system RAM, step speed, crash/OOM status.

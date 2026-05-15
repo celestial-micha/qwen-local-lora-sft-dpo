@@ -44,8 +44,8 @@ For this project:
 
 - DPO is probably feasible as a small smoke test.
 - DPO is risky if implemented naively with two full model copies.
-- DPO should wait until the Stage 2B.3 SFT stability gate is reviewed with the
-  user.
+- DPO should start from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`,
+  because v4/v5/v6 were not accepted as replacement SFT adapters.
 - The first DPO run should be deliberately tiny: 20 to 50 pairs, short lengths,
   batch size 1, and no large eval loop.
 
@@ -56,6 +56,15 @@ Stage 2B.3 tried v4/v5/v6 patch runs.
 v5 fixed the loss prompt but regressed old prompts, so it is not accepted.
 The current best local adapter remains outputs/sft_lora_qwen05b_custom_v3_from_v1_patch.
 Do not start DPO until this tradeoff is reviewed.
+```
+
+After review, Stage 5 should proceed in four steps:
+
+```text
+Stage 5A: prepare tiny DPO pairs
+Stage 5B: tiny DPO smoke test
+Stage 5C: fixed-prompt behavior check
+Stage 5D: larger DPO only if tiny works
 ```
 
 ## Memory Reduction Playbook
@@ -90,7 +99,7 @@ Use carefully if still needed:
 
 ## First DPO Smoke Target
 
-Initial target after Stage 3B:
+Initial Stage 5B target:
 
 ```text
 pairs: 20-50
@@ -128,6 +137,16 @@ Success criteria:
   shared memory.
 - Loss logs are produced.
 - Adapter can be saved and loaded.
+
+User observation checklist:
+
+- Dedicated GPU memory peak.
+- Shared GPU memory growth.
+- System RAM growth.
+- Step speed.
+- Whether the machine remains usable during training.
+
+Do not expand to larger or more naive DPO unless these are acceptable.
 
 ## Interview Talking Point
 

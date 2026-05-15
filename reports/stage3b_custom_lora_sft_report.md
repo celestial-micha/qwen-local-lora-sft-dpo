@@ -228,7 +228,6 @@ Updated recommendation:
 
 - Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the current best
   SFT adapter.
-- Pause before Stage 5 DPO.
-- Review `reports/stage2b3_sft_stability_gate_report.md` with the user before
-  deciding whether to accept v3 for tiny DPO or do another broader SFT replay
-  pass.
+- Use v3 as the Stage 5 starting adapter.
+- Follow `reports/stage5_dpo_plan.md`: prepare tiny DPO data first, run a tiny
+  DPO smoke test, then compare fixed prompts before any larger DPO.

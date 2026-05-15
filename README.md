@@ -36,10 +36,12 @@ Completed:
 - Stage 4B base vs public-SFT vs custom-SFT comparison completed.
 - Stage 2B.2 badcase patch tested. Training v2 from scratch regressed, while low-learning-rate continuation from v1 produced `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` and preserved or improved 7/8 fixed prompts.
 - Stage 2B.3 SFT stability gate completed before DPO. It generated 142 train / 15 eval samples plus a 28-row focused patch file, but v4/v5/v6 patch attempts were not stable enough to replace v3.
+- Stage 5 DPO plan is split into data preparation, tiny smoke test, behavior check, and only then larger DPO.
 
 Not completed yet:
 
-- DPO dataset and DPO training.
+- Stage 5A DPO preference dataset.
+- Stage 5B tiny DPO smoke test.
 - Multi-GPU notes or experiments.
 
 ## Why This Project Exists
@@ -164,6 +166,34 @@ python scripts/train_sft_lora.py `
   --local_files_only
 ```
 
+Prepare Stage 2B.3 data and focused patch file:
+
+```powershell
+python scripts\prepare_custom_technical_data.py `
+  --raw_sources_file data\raw\custom_sources.jsonl `
+  --cleaned_chunks_file data\raw\custom_cleaned_chunks.jsonl `
+  --instruction_seed_file data\raw\custom_instruction_seed.jsonl `
+  --train_file data\processed\custom_sft_train.jsonl `
+  --eval_file data\processed\custom_sft_eval.jsonl `
+  --stage2b3_patch_train_file data\processed\custom_sft_stage2b3_patch_train.jsonl `
+  --stage2b3_loss_repeats 12 `
+  --eval_ratio 0.1 `
+  --max_doc_samples 20 `
+  --seed 42
+```
+
+Stage 5 planned first DPO config:
+
+```text
+configs/dpo_qwen05b.yaml
+```
+
+It starts from:
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
 Compare outputs:
 
 ```powershell
@@ -281,13 +311,14 @@ gradually.
 - [Stage 4B three-way comparison report](reports/stage4b_three_way_comparison_report.md)
 - [Stage 2B.2 badcase patch report](reports/stage2b2_badcase_patch_report.md)
 - [Stage 2B.3 SFT stability gate report](reports/stage2b3_sft_stability_gate_report.md)
+- [Stage 5 DPO plan](reports/stage5_dpo_plan.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-The project is intentionally paused before DPO:
+Stage 5 is planned but not started:
 
 1. Review `reports/stage2b3_sft_stability_gate_report.md`.
 2. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the current best local adapter.
-3. Discuss whether to accept v3 as the SFT checkpoint for tiny DPO, or do another broader SFT replay pass first.
-4. Do not start Stage 5 DPO until after that review.
+3. Use `reports/stage5_dpo_plan.md` to prepare `Stage 5A` tiny preference data.
+4. Run `Stage 5B` tiny DPO first and record VRAM/shared-memory behavior before any larger DPO.
