@@ -373,6 +373,43 @@ max prompt+chosen tokens: 100
 max prompt+rejected tokens: 69
 ```
 
+### Stage 5B: Tiny DPO smoke test
+
+已完成。这只是显存/运行可行性 smoke test，不是最终行为验收。
+
+输出：
+
+```text
+Script: scripts/train_dpo.py
+Config: configs/dpo_qwen05b.yaml
+Input data: data/processed/dpo_tiny_train.jsonl
+Start adapter: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+Output adapter: outputs/dpo_lora_qwen05b_tiny
+Report: reports/stage5b_tiny_dpo_smoke_report.md
+```
+
+结果：
+
+```text
+Rows: 33
+Optimizer steps: 4
+Train runtime: 32.8 seconds
+Train loss: 0.9319
+torch max allocated: 2.179 GB
+torch max reserved: 4.059 GB
+nvidia-smi before/after idle: 25 MiB / 8188 MiB
+OOM/native crash: no
+Adapter reload check: passed
+```
+
+注意：
+
+- 成功命令只设置 `HF_HOME=.hf_cache`，并移除 `TRANSFORMERS_CACHE`。
+- 如果把 `TRANSFORMERS_CACHE` 指到 `.hf_cache`，会找不到 `.hf_cache/hub`
+  下面的模型缓存。
+- PEFT 保存时尝试远程查 base config，被代理拒绝后忽略；adapter 已成功保存
+  并可重新加载。
+
 ## Notebook
 
 主 notebook：
@@ -400,8 +437,8 @@ reports/vram_and_dpo_plan.md
 判断：
 
 ```text
-8GB 可以尝试 tiny DPO smoke test，但朴素 DPO 风险较高。
-Stage 5A 已准备 tiny DPO 数据；下一步只进入 Stage 5B tiny smoke test，再根据显存和行为决定是否扩大。
+8GB 已跑通 Stage 5B tiny DPO smoke test，但朴素/扩大 DPO 风险仍然较高。
+下一步必须先做 Stage 5C 固定 prompt 行为对比，再根据行为决定是否扩大。
 ```
 
 原因：
@@ -427,7 +464,7 @@ Stage 5A 已准备 tiny DPO 数据；下一步只进入 Stage 5B tiny smoke test
 ```text
 1. 阅读 reports/stage5_dpo_plan.md 和 reports/stage2b3_sft_stability_gate_report.md。
 2. Stage 5A 已完成：data/processed/dpo_tiny_train.jsonl，33 个 preference pair。
-3. 和用户确认是否进入 Stage 5B：用 configs/dpo_qwen05b.yaml 跑 tiny DPO smoke test。
-4. 用户记录显存/内存/速度后，再做 Stage 5C 固定 prompt 对比。
-5. tiny DPO 可接受后，再考虑 Stage 5D 扩大 DPO。
+3. Stage 5B 已完成：outputs/dpo_lora_qwen05b_tiny，未 OOM/崩溃，adapter 可加载。
+4. 下一步做 Stage 5C：固定 prompt 对比 base/public/v3/DPO-tiny。
+5. Stage 5C 行为可接受后，再考虑 Stage 5D 扩大 DPO。
 ```

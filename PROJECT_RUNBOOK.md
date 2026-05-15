@@ -433,14 +433,15 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A data preparation is complete. DPO training has not been run
-yet.
+Status: Stage 5A data preparation and Stage 5B tiny DPO smoke test are
+complete. Stage 5C behavior comparison has not been run yet.
 
 Report:
 
 ```text
 reports/stage5_dpo_plan.md
 reports/stage5a_dpo_tiny_data_report.md
+reports/stage5b_tiny_dpo_smoke_report.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -492,6 +493,28 @@ User should report:
 - System RAM growth.
 - Step speed.
 - Any CUDA OOM, Windows native crash, or severe slowdown.
+
+Status: completed.
+
+Artifacts:
+
+```text
+scripts/train_dpo.py
+configs/dpo_qwen05b.yaml
+outputs/dpo_lora_qwen05b_tiny
+reports/stage5b_tiny_dpo_smoke_report.md
+```
+
+Result:
+
+- Used 33 Stage 5A preference pairs.
+- Completed 4 optimizer steps in about 32.8 seconds.
+- Train loss: 0.9319.
+- Torch max allocated memory: 2.179 GB.
+- Torch max reserved memory: 4.059 GB.
+- No CUDA OOM or native `python.exe` crash was observed.
+- Output adapter saved and reloaded successfully.
+- This is only a smoke test; behavior quality must be checked in Stage 5C.
 
 ### Stage 5C: Tiny DPO Behavior Check
 

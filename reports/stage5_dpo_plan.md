@@ -140,6 +140,12 @@ Expected schema:
 
 ### Stage 5B: Tiny DPO Smoke Test
 
+Status:
+
+```text
+completed on 2026-05-15
+```
+
 Goal:
 
 - Verify the 8GB RTX 4060 can run DPO without OOM, Windows native crash, or
@@ -180,6 +186,21 @@ Stop conditions:
 - Windows native crash.
 - Step time becomes impractically slow.
 - Output adapter cannot be saved or loaded.
+
+Current result:
+
+```text
+Output adapter: outputs/dpo_lora_qwen05b_tiny
+Rows: 33
+Optimizer steps: 4
+Train runtime: 32.8 seconds
+Train loss: 0.9319
+torch max allocated: 2.179 GB
+torch max reserved: 4.059 GB
+OOM/native crash: no
+Adapter reload check: passed
+Report: reports/stage5b_tiny_dpo_smoke_report.md
+```
 
 ### Stage 5C: Tiny DPO Behavior Check
 
