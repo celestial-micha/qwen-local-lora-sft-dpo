@@ -410,6 +410,48 @@ Adapter reload check: passed
 - PEFT 保存时尝试远程查 base config，被代理拒绝后忽略；adapter 已成功保存
   并可重新加载。
 
+### Stage 5C: Tiny DPO behavior check
+
+已完成，但行为 gate 没过，不建议扩大 DPO。
+
+输出：
+
+```text
+Script: scripts/compare_four_outputs.py
+Raw output: reports/compare_outputs_four_way_dpo_tiny.jsonl
+Report: reports/stage5c_tiny_dpo_behavior_report.md
+Compared: base / public-SFT / custom-SFT v3 / DPO-tiny
+```
+
+结果：
+
+```text
+Clear pass: 5 / 8
+Watch: 1 / 8
+Fail: 2 / 8
+Core success criterion: not met
+```
+
+具体判断：
+
+- Prompt 1 LoRA definition：DPO-tiny 和 v3 一样好。
+- Prompt 2 SFT/LoRA relation：DPO-tiny 和 v3 一样好。
+- Prompt 3 DPO/SFT：DPO-tiny 和 v3 一样好。
+- Prompt 4 public-SFT motivation：DPO-tiny 回归，出现“从零开始建模型”“三到六个月”等无依据说法。
+- Prompt 5 data pipeline：DPO-tiny 和 v3 一样好。
+- Prompt 6 DPO VRAM：DPO-tiny 略微更具体，保住。
+- Prompt 7 loss-vs-behavior：仍然弱，没有稳定说清楚 loss 只是必要不充分、要看固定 prompt 行为和回归。
+- Prompt 8 interview data pipeline：大体保住，但比 v3 略绕，列为 watch。
+
+结论：
+
+```text
+Stage 5B 证明显存/运行可行。
+Stage 5C 说明当前 tiny DPO 数据/训练还没有通过行为 gate。
+不要直接进入 Stage 5D 扩大 DPO。
+下一步应修 Stage 5A preference 数据，尤其 prompt 4 和 prompt 7，再重新 tiny DPO。
+```
+
 ## Notebook
 
 主 notebook：
@@ -438,7 +480,7 @@ reports/vram_and_dpo_plan.md
 
 ```text
 8GB 已跑通 Stage 5B tiny DPO smoke test，但朴素/扩大 DPO 风险仍然较高。
-下一步必须先做 Stage 5C 固定 prompt 行为对比，再根据行为决定是否扩大。
+Stage 5C 固定 prompt 行为对比没有通过，因此不能扩大 DPO。
 ```
 
 原因：
@@ -465,6 +507,6 @@ reports/vram_and_dpo_plan.md
 1. 阅读 reports/stage5_dpo_plan.md 和 reports/stage2b3_sft_stability_gate_report.md。
 2. Stage 5A 已完成：data/processed/dpo_tiny_train.jsonl，33 个 preference pair。
 3. Stage 5B 已完成：outputs/dpo_lora_qwen05b_tiny，未 OOM/崩溃，adapter 可加载。
-4. 下一步做 Stage 5C：固定 prompt 对比 base/public/v3/DPO-tiny。
-5. Stage 5C 行为可接受后，再考虑 Stage 5D 扩大 DPO。
+4. Stage 5C 已完成：行为 gate 未通过。
+5. 下一步不是扩大 DPO，而是修 preference 数据后重新 tiny DPO / Stage 5C。
 ```

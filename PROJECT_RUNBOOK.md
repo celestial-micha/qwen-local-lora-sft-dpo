@@ -433,8 +433,9 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A data preparation and Stage 5B tiny DPO smoke test are
-complete. Stage 5C behavior comparison has not been run yet.
+Status: Stage 5A data preparation, Stage 5B tiny DPO smoke test, and Stage 5C
+behavior comparison are complete. Stage 5D larger DPO is blocked because Stage
+5C did not pass.
 
 Report:
 
@@ -442,6 +443,7 @@ Report:
 reports/stage5_dpo_plan.md
 reports/stage5a_dpo_tiny_data_report.md
 reports/stage5b_tiny_dpo_smoke_report.md
+reports/stage5c_tiny_dpo_behavior_report.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -523,6 +525,25 @@ Goal:
 - Compare fixed prompts after tiny DPO.
 - Accept tiny DPO only if prompt 7 improves without badly regressing the other
   seven prompts.
+
+Status: completed, not accepted.
+
+Artifacts:
+
+```text
+scripts/compare_four_outputs.py
+reports/compare_outputs_four_way_dpo_tiny.jsonl
+reports/stage5c_tiny_dpo_behavior_report.md
+```
+
+Result:
+
+- Clear pass: 5 / 8 fixed prompts.
+- Watch: 1 / 8 fixed prompts.
+- Fail: 2 / 8 fixed prompts.
+- Prompt 7, the exact loss-vs-behavior prompt, remained weak.
+- Prompt 4, public-SFT motivation, regressed with unsupported claims.
+- Do not expand DPO yet; revise preference data first.
 
 ### Stage 5D: Larger DPO
 

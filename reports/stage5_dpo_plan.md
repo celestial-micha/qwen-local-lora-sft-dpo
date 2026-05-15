@@ -204,6 +204,13 @@ Report: reports/stage5b_tiny_dpo_smoke_report.md
 
 ### Stage 5C: Tiny DPO Behavior Check
 
+Status:
+
+```text
+completed on 2026-05-15
+behavior gate did not pass
+```
+
 Goal:
 
 - Compare base vs public-SFT vs custom-SFT v3 vs DPO-tiny on the same fixed
@@ -215,9 +222,33 @@ Success criteria:
 - The seven previously stable prompts do not regress badly.
 - DPO answers are not just more verbose; they should be more correct.
 
+Current result:
+
+```text
+Raw output: reports/compare_outputs_four_way_dpo_tiny.jsonl
+Report: reports/stage5c_tiny_dpo_behavior_report.md
+Clear pass: 5 / 8
+Watch: 1 / 8
+Fail: 2 / 8
+Core success criterion: not met
+```
+
+Finding:
+
+- DPO-tiny preserved several stable v3 behaviors.
+- The exact loss-vs-behavior prompt remained weak.
+- The public-SFT motivation prompt regressed with unsupported claims.
+- Larger DPO is blocked until the preference data is revised and Stage 5C passes.
+
 ### Stage 5D: Larger DPO Only If Tiny Works
 
 Only consider this after Stage 5B/5C pass.
+
+Current status:
+
+```text
+blocked because Stage 5C did not pass
+```
 
 Possible larger target:
 

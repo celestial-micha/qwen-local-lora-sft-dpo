@@ -43,3 +43,7 @@ Current Stage 5 DPO files:
 Stage 5B consumed `dpo_tiny_train.jsonl` and saved the tiny smoke-test adapter to
 `outputs/dpo_lora_qwen05b_tiny`. See
 `reports/stage5b_tiny_dpo_smoke_report.md`.
+
+Stage 5C found that the tiny-DPO behavior gate did not pass. The next data step
+should revise preference pairs for the public-SFT motivation and
+loss-vs-behavior prompts before any larger DPO.

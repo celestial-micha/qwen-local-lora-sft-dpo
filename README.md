@@ -38,10 +38,11 @@ Completed:
 - Stage 2B.3 SFT stability gate completed before DPO. It generated 142 train / 15 eval samples plus a 28-row focused patch file, but v4/v5/v6 patch attempts were not stable enough to replace v3.
 - Stage 5A tiny DPO preference data completed: `data/processed/dpo_tiny_train.jsonl` with 33 pairs. The Stage 5B start adapter remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 - Stage 5B tiny DPO smoke test completed and saved `outputs/dpo_lora_qwen05b_tiny`. It ran 4 optimizer steps in about 32.8 seconds, with no OOM/native crash, and the adapter reload check passed.
+- Stage 5C fixed-prompt behavior comparison completed, but the behavior gate did not pass. DPO-tiny clearly preserved 5/8 prompts, had 1 watch prompt, and failed 2/8 prompts.
 
 Not completed yet:
 
-- Stage 5C tiny DPO fixed-prompt behavior comparison.
+- Stage 5D larger DPO. It is blocked until Stage 5C passes after preference-data revision.
 - Multi-GPU notes or experiments.
 
 ## Why This Project Exists
@@ -315,13 +316,14 @@ gradually.
 - [Stage 5 DPO plan](reports/stage5_dpo_plan.md)
 - [Stage 5A tiny DPO data report](reports/stage5a_dpo_tiny_data_report.md)
 - [Stage 5B tiny DPO smoke report](reports/stage5b_tiny_dpo_smoke_report.md)
+- [Stage 5C tiny DPO behavior report](reports/stage5c_tiny_dpo_behavior_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-Stage 5A/5B are complete, but DPO behavior has not been validated yet:
+Stage 5A/5B/5C are complete, but DPO behavior did not pass the gate:
 
-1. Review `reports/stage2b3_sft_stability_gate_report.md`.
-2. Review `reports/stage5b_tiny_dpo_smoke_report.md`.
-3. Run Stage 5C fixed-prompt comparison for base, public-SFT, custom-SFT v3, and DPO-tiny.
-4. Do not expand DPO until Stage 5C confirms behavior improves without major regression.
+1. Review `reports/stage5c_tiny_dpo_behavior_report.md`.
+2. Revise Stage 5A preference data for prompt 4 and prompt 7.
+3. Rerun tiny DPO only after the preference data is improved.
+4. Keep Stage 5D larger DPO blocked until Stage 5C passes.
