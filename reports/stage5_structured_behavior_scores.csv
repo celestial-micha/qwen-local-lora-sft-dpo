@@ -1,0 +1,97 @@
+run_id,prompt_index,prompt_area,variant,score,passed,required_missing,forbidden_hits
+dpo_tiny_v1,1,LoRA definition,base_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v1,1,LoRA definition,public_sft_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v1,1,LoRA definition,custom_sft_v3_answer,5,True,,
+dpo_tiny_v1,1,LoRA definition,dpo_tiny_answer,5,True,,
+dpo_tiny_v1,2,SFT and LoRA relation,base_answer,-2,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion
+dpo_tiny_v1,2,SFT and LoRA relation,public_sft_answer,-4,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion; architecture confusion
+dpo_tiny_v1,2,SFT and LoRA relation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v1,2,SFT and LoRA relation,dpo_tiny_answer,4,True,,
+dpo_tiny_v1,3,DPO vs SFT,base_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,data preprocessing expansion
+dpo_tiny_v1,3,DPO vs SFT,public_sft_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,security/privacy expansion
+dpo_tiny_v1,3,DPO vs SFT,custom_sft_v3_answer,4,True,,
+dpo_tiny_v1,3,DPO vs SFT,dpo_tiny_answer,4,True,,
+dpo_tiny_v1,4,Public-SFT motivation,base_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v1,4,Public-SFT motivation,public_sft_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v1,4,Public-SFT motivation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v1,4,Public-SFT motivation,dpo_tiny_answer,0,False,,from-zero claim; invented duration
+dpo_tiny_v1,5,Data pipeline,base_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v1,5,Data pipeline,public_sft_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v1,5,Data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v1,5,Data pipeline,dpo_tiny_answer,5,True,,
+dpo_tiny_v1,6,DPO VRAM risk,base_answer,1,False,chosen/rejected memory; reference policy; 8GB risk; small batch/short length,
+dpo_tiny_v1,6,DPO VRAM risk,public_sft_answer,-1,False,chosen/rejected memory; reference policy; small batch/short length; LoRA/small pairs,memory leak generic
+dpo_tiny_v1,6,DPO VRAM risk,custom_sft_v3_answer,5,True,,
+dpo_tiny_v1,6,DPO VRAM risk,dpo_tiny_answer,5,True,,
+dpo_tiny_v1,7,Loss vs behavior,base_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v1,7,Loss vs behavior,public_sft_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v1,7,Loss vs behavior,custom_sft_v3_answer,1,False,loss average signal; not sufficient; badcase/regression; public-SFT example,
+dpo_tiny_v1,7,Loss vs behavior,dpo_tiny_answer,-1,False,loss average signal; not sufficient; fixed prompt behavior; badcase/regression,invented duration
+dpo_tiny_v1,8,Interview data pipeline,base_answer,0,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,
+dpo_tiny_v1,8,Interview data pipeline,public_sft_answer,-2,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,generic business data
+dpo_tiny_v1,8,Interview data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v1,8,Interview data pipeline,dpo_tiny_answer,5,True,,
+dpo_tiny_v2,1,LoRA definition,base_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v2,1,LoRA definition,public_sft_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v2,1,LoRA definition,custom_sft_v3_answer,5,True,,
+dpo_tiny_v2,1,LoRA definition,dpo_tiny_answer,5,True,,
+dpo_tiny_v2,2,SFT and LoRA relation,base_answer,-2,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion
+dpo_tiny_v2,2,SFT and LoRA relation,public_sft_answer,-4,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion; architecture confusion
+dpo_tiny_v2,2,SFT and LoRA relation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v2,2,SFT and LoRA relation,dpo_tiny_answer,4,True,,
+dpo_tiny_v2,3,DPO vs SFT,base_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,data preprocessing expansion
+dpo_tiny_v2,3,DPO vs SFT,public_sft_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,security/privacy expansion
+dpo_tiny_v2,3,DPO vs SFT,custom_sft_v3_answer,4,True,,
+dpo_tiny_v2,3,DPO vs SFT,dpo_tiny_answer,4,True,,
+dpo_tiny_v2,4,Public-SFT motivation,base_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v2,4,Public-SFT motivation,public_sft_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v2,4,Public-SFT motivation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v2,4,Public-SFT motivation,dpo_tiny_answer,2,False,,public adapter fixes concepts
+dpo_tiny_v2,5,Data pipeline,base_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v2,5,Data pipeline,public_sft_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v2,5,Data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v2,5,Data pipeline,dpo_tiny_answer,5,True,,
+dpo_tiny_v2,6,DPO VRAM risk,base_answer,1,False,chosen/rejected memory; reference policy; 8GB risk; small batch/short length,
+dpo_tiny_v2,6,DPO VRAM risk,public_sft_answer,-1,False,chosen/rejected memory; reference policy; small batch/short length; LoRA/small pairs,memory leak generic
+dpo_tiny_v2,6,DPO VRAM risk,custom_sft_v3_answer,5,True,,
+dpo_tiny_v2,6,DPO VRAM risk,dpo_tiny_answer,5,True,,
+dpo_tiny_v2,7,Loss vs behavior,base_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v2,7,Loss vs behavior,public_sft_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v2,7,Loss vs behavior,custom_sft_v3_answer,1,False,loss average signal; not sufficient; badcase/regression; public-SFT example,
+dpo_tiny_v2,7,Loss vs behavior,dpo_tiny_answer,-1,False,loss average signal; not sufficient; fixed prompt behavior; badcase/regression,invented duration
+dpo_tiny_v2,8,Interview data pipeline,base_answer,0,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,
+dpo_tiny_v2,8,Interview data pipeline,public_sft_answer,-2,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,generic business data
+dpo_tiny_v2,8,Interview data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v2,8,Interview data pipeline,dpo_tiny_answer,5,True,,
+dpo_tiny_v3,1,LoRA definition,base_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v3,1,LoRA definition,public_sft_answer,-2,False,parameter-efficient; low-rank; not wireless LoRa; frozen base model; adapter/linear layers,wrong LoRA expansion
+dpo_tiny_v3,1,LoRA definition,custom_sft_v3_answer,5,True,,
+dpo_tiny_v3,1,LoRA definition,dpo_tiny_answer,2,False,frozen base model,adapter-state confusion
+dpo_tiny_v3,2,SFT and LoRA relation,base_answer,-2,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion
+dpo_tiny_v3,2,SFT and LoRA relation,public_sft_answer,-4,False,supervised fine-tuning; training objective/data form; LoRA parameter-efficient; LoRA SFT relation,network/shortest expansion; architecture confusion
+dpo_tiny_v3,2,SFT and LoRA relation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v3,2,SFT and LoRA relation,dpo_tiny_answer,1,False,LoRA SFT relation,architecture confusion
+dpo_tiny_v3,3,DPO vs SFT,base_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,data preprocessing expansion
+dpo_tiny_v3,3,DPO vs SFT,public_sft_answer,-2,False,SFT imitation; DPO preference pairs; prefer chosen; SFT before DPO,security/privacy expansion
+dpo_tiny_v3,3,DPO vs SFT,custom_sft_v3_answer,4,True,,
+dpo_tiny_v3,3,DPO vs SFT,dpo_tiny_answer,-3,False,SFT imitation; DPO preference pairs; prefer chosen,DPO object confusion; SFT safety metric confusion
+dpo_tiny_v3,4,Public-SFT motivation,base_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v3,4,Public-SFT motivation,public_sft_answer,0,False,public baseline; engineering loop works; target concepts not solved; Stage 2B data repair,
+dpo_tiny_v3,4,Public-SFT motivation,custom_sft_v3_answer,4,True,,
+dpo_tiny_v3,4,Public-SFT motivation,dpo_tiny_answer,-2,False,engineering loop works; target concepts not solved,robustness-only claim; long-stack confusion
+dpo_tiny_v3,5,Data pipeline,base_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v3,5,Data pipeline,public_sft_answer,-1,False,instruction-answer conversion; Qwen chat JSONL,generic sensor data; tabular preprocessing confusion
+dpo_tiny_v3,5,Data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v3,5,Data pipeline,dpo_tiny_answer,4,True,Qwen chat JSONL,
+dpo_tiny_v3,6,DPO VRAM risk,base_answer,1,False,chosen/rejected memory; reference policy; 8GB risk; small batch/short length,
+dpo_tiny_v3,6,DPO VRAM risk,public_sft_answer,-1,False,chosen/rejected memory; reference policy; small batch/short length; LoRA/small pairs,memory leak generic
+dpo_tiny_v3,6,DPO VRAM risk,custom_sft_v3_answer,5,True,,
+dpo_tiny_v3,6,DPO VRAM risk,dpo_tiny_answer,2,False,LoRA/small pairs,fabricated memory numbers
+dpo_tiny_v3,7,Loss vs behavior,base_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v3,7,Loss vs behavior,public_sft_answer,1,False,not sufficient; fixed prompt behavior; badcase/regression; public-SFT example,
+dpo_tiny_v3,7,Loss vs behavior,custom_sft_v3_answer,1,False,loss average signal; not sufficient; badcase/regression; public-SFT example,
+dpo_tiny_v3,7,Loss vs behavior,dpo_tiny_answer,0,False,badcase/regression,DPO metric confusion; adapter-loss confusion
+dpo_tiny_v3,8,Interview data pipeline,base_answer,0,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,
+dpo_tiny_v3,8,Interview data pipeline,public_sft_answer,-2,False,public baseline; train/save/load; Stage 4A badcase; Stage 2B pipeline; instruction-answer,generic business data
+dpo_tiny_v3,8,Interview data pipeline,custom_sft_v3_answer,5,True,,
+dpo_tiny_v3,8,Interview data pipeline,dpo_tiny_answer,0,False,instruction-answer,tokenizer/storage confusion; base adapter/public adapter confusion

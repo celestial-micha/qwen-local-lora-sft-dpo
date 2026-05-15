@@ -515,6 +515,39 @@ DPO 系列 adapter 只作为实验产物保留，不推荐替代 v3 SFT。
 硬件不是当前瓶颈；行为稳定性和 preference 数据设计才是瓶颈。
 ```
 
+### Stage 5 Structured Behavior Scoring
+
+已完成。为了避免只靠人工报告判断，新增结构化评分脚本：
+
+```text
+Script: scripts/score_fixed_prompt_outputs.py
+Report: reports/stage5_structured_behavior_score_report.md
+Scores JSONL: reports/stage5_structured_behavior_scores.jsonl
+Scores CSV: reports/stage5_structured_behavior_scores.csv
+```
+
+评分方式：
+
+```text
+每个固定 prompt 配 required concepts 和 forbidden phrases。
+不是 LLM judge，而是透明、可复现的 gate helper。
+```
+
+评分结果：
+
+```text
+custom-SFT v3: 7 / 8 prompts passed
+DPO-tiny v1: 6 / 8 prompts passed
+DPO-tiny v2: 6 / 8 prompts passed
+DPO-tiny v3: 1 / 8 prompts passed
+```
+
+结论：
+
+```text
+结构化评分支持人工判断：不扩大 DPO，推荐 checkpoint 仍是 SFT v3。
+```
+
 ## Notebook
 
 主 notebook：
@@ -572,5 +605,6 @@ reports/vram_and_dpo_plan.md
 3. Stage 5B 已完成：outputs/dpo_lora_qwen05b_tiny，未 OOM/崩溃，adapter 可加载。
 4. Stage 5C 已完成：行为 gate 未通过。
 5. v2/v3 修订循环也已完成：硬件通过，行为仍不过 gate。
-6. 下一步不是扩大 DPO，而是重新设计更干净的 preference 数据和自动评分；推荐 checkpoint 仍是 SFT v3。
+6. 结构化评分已完成：确认 SFT v3 仍是推荐 checkpoint，DPO v1/v2/v3 不替代。
+7. 下一步不是扩大 DPO，而是重新设计更干净的 preference 数据和自动评分/验证集。
 ```

@@ -268,6 +268,26 @@ The current recommended checkpoint remains:
 outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
 ```
 
+Structured scoring:
+
+```text
+Script: scripts/score_fixed_prompt_outputs.py
+Report: reports/stage5_structured_behavior_score_report.md
+Scores JSONL: reports/stage5_structured_behavior_scores.jsonl
+Scores CSV: reports/stage5_structured_behavior_scores.csv
+```
+
+Scoring result:
+
+```text
+custom-SFT v3: 7 / 8 prompts passed
+DPO-tiny v1: 6 / 8 prompts passed
+DPO-tiny v2: 6 / 8 prompts passed
+DPO-tiny v3: 1 / 8 prompts passed
+```
+
+This supports the manual gate decision: no DPO adapter replaces SFT v3 yet.
+
 Possible larger target:
 
 ```text

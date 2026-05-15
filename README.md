@@ -40,6 +40,7 @@ Completed:
 - Stage 5B tiny DPO smoke test completed and saved `outputs/dpo_lora_qwen05b_tiny`. It ran 4 optimizer steps in about 32.8 seconds, with no OOM/native crash, and the adapter reload check passed.
 - Stage 5C fixed-prompt behavior comparison completed, but the behavior gate did not pass. DPO-tiny clearly preserved 5/8 prompts, had 1 watch prompt, and failed 2/8 prompts.
 - Stage 5 follow-up revision loop completed. DPO v2 and v3 both ran without OOM, but v2 still failed the loss-vs-behavior prompt and v3 regressed several stable prompts.
+- Stage 5 structured behavior scoring completed. It confirms custom-SFT v3 passes 7/8 prompts, DPO v1/v2 pass 6/8, and DPO v3 passes only 1/8.
 
 Not completed yet:
 
@@ -319,6 +320,7 @@ gradually.
 - [Stage 5B tiny DPO smoke report](reports/stage5b_tiny_dpo_smoke_report.md)
 - [Stage 5C tiny DPO behavior report](reports/stage5c_tiny_dpo_behavior_report.md)
 - [Stage 5 DPO revision loop report](reports/stage5_dpo_revision_loop_report.md)
+- [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
@@ -327,6 +329,7 @@ Stage 5A/B/C plus the v2/v3 DPO revision loop are complete, but DPO behavior did
 not pass the gate:
 
 1. Review `reports/stage5_dpo_revision_loop_report.md`.
-2. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the recommended checkpoint.
-3. Do not expand DPO until a cleaner preference-data/evaluation design is ready.
-4. Treat the DPO adapters as experiment artifacts, not recommended replacements.
+2. Review `reports/stage5_structured_behavior_score_report.md`.
+3. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the recommended checkpoint.
+4. Do not expand DPO until a cleaner preference-data/evaluation design is ready.
+5. Treat the DPO adapters as experiment artifacts, not recommended replacements.

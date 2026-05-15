@@ -209,6 +209,37 @@ outputs/dpo_lora_qwen05b_tiny_v2
 outputs/dpo_lora_qwen05b_tiny_v3
 ```
 
+## Structured Score Follow-Up
+
+After the manual reports, a deterministic scoring helper was added:
+
+```text
+scripts/score_fixed_prompt_outputs.py
+```
+
+Outputs:
+
+```text
+reports/stage5_structured_behavior_score_report.md
+reports/stage5_structured_behavior_scores.jsonl
+reports/stage5_structured_behavior_scores.csv
+```
+
+The scorer checks required concepts and known-bad phrases for each fixed prompt.
+It is not an LLM judge, but it makes the gate reproducible.
+
+Structured result:
+
+```text
+custom-SFT v3: 7 / 8 prompts passed
+DPO-tiny v1: 6 / 8 prompts passed
+DPO-tiny v2: 6 / 8 prompts passed
+DPO-tiny v3: 1 / 8 prompts passed
+```
+
+This matches the manual decision: DPO v1/v2 preserved several behaviors but did
+not fix the core loss-vs-behavior prompt, while DPO v3 caused broad regressions.
+
 ## Next Technical Direction
 
 The next useful move is not "more DPO". Better options:
