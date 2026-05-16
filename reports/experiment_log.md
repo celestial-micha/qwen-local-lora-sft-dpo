@@ -302,3 +302,23 @@
 - Fixed-prompt score: 7 / 8, best DPO candidate so far.
 - Remaining failure: prompt 7 loss-vs-behavior.
 - Report: `reports/stage5g_naive_dpo_v6_report.md`
+
+## Stage 5H: Prompt-7 Data And Expanded Gate Design
+
+- Date: 2026-05-16
+- Training run: none.
+- Goal: prepare stronger loss-vs-behavior preference/eval data and an expanded
+  behavior gate before any DPO v7 training.
+- Generator: `scripts/prepare_stage5h_prompt7_data.py`
+- Train file: `data/processed/dpo_stage5h_prompt7_train.jsonl`, 278 preference
+  pairs.
+- Eval file: `data/processed/dpo_stage5h_prompt7_eval.jsonl`, 55 preference
+  pairs.
+- New prompt-7 train pairs: 72.
+- New prompt-7 eval pairs: 24.
+- Expanded behavior suite:
+  `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`, 24 prompts.
+- Expanded scorer: `scripts/score_expanded_behavior_outputs.py`
+- Report: `reports/stage5h_prompt7_data_and_eval_design.md`
+- Decision: review data and expanded gate first; do not continue training from
+  DPO v6, and do not run DPO v7 until this design is accepted.

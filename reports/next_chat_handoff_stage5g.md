@@ -49,6 +49,7 @@ also pass.
 | Stage 5 DPO v1/v2/v3 | all ran without OOM; v1/v2 scored 6 / 8; v3 scored 1 / 8 | Tiny DPO data too brittle |
 | Stage 5 candidate v4/v5 | both ran without OOM; both scored 6 / 8 | Candidate data helped stability but not enough |
 | Stage 5G naive v6 | 192 train / 24 eval, separate frozen reference model, no OOM, scored 7 / 8 | Best DPO candidate; still not full pass |
+| Stage 5H prompt-7 design | 278 train / 55 eval candidate data plus 24-prompt expanded gate; no training run | Ready for review before DPO v7 |
 
 ## DPO Run Table
 
@@ -135,6 +136,17 @@ data/processed/dpo_larger_v6_eval.jsonl
 reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
 
+Stage 5H design artifacts:
+
+```text
+scripts/prepare_stage5h_prompt7_data.py
+scripts/score_expanded_behavior_outputs.py
+data/processed/dpo_stage5h_prompt7_train.jsonl
+data/processed/dpo_stage5h_prompt7_eval.jsonl
+data/samples/custom_technical_prompts_expanded_stage5h.jsonl
+reports/stage5h_prompt7_data_and_eval_design.md
+```
+
 ## Next Stage Proposal
 
 ### Stage 5H: Prompt 7 Repair Data
@@ -142,12 +154,15 @@ reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 Goal: make a cleaner loss-vs-behavior preference/eval set without breaking the
 other seven prompts.
 
+Status: data/eval design completed on 2026-05-16; do not treat this as a DPO
+result because no DPO v7 training has been run yet.
+
 Suggested work:
 
-- Add 40-80 new prompt 7 variants, not only the exact original wording.
-- Create held-out variants that mention "loss", "eval loss", "train loss",
-  "metrics", "fixed prompt", "badcase", "regression", and "public-SFT".
-- Include negative answers that sound plausible but omit one required idea.
+- Review `reports/stage5h_prompt7_data_and_eval_design.md`.
+- Check the 278-row train and 55-row eval preference files.
+- Keep the 72 new prompt-7 train pairs and 24 held-out prompt-7 eval pairs
+  only if their near-miss rejected answers look realistic.
 - Keep replay rows for prompts 1-6 and 8.
 - Do not rely only on generated train preference accuracy.
 
@@ -157,11 +172,10 @@ Goal: avoid overfitting the 8 fixed prompts.
 
 Suggested work:
 
-- Build a 16-24 prompt eval suite.
+- Use `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`.
 - Keep the old 8 prompts unchanged as regression tests.
-- Add held-out prompt 7 phrasings.
-- Update `scripts/score_fixed_prompt_outputs.py` or add a new scorer for the
-  expanded suite.
+- Use `scripts/score_expanded_behavior_outputs.py` for metadata-based scoring.
+- Require prompt-7 held-outs to pass before accepting DPO v7.
 
 ### Stage 5J: DPO v7 Probe
 
@@ -204,5 +218,5 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后从 Stage 5H 开始：围绕 prompt 7（为什么不能只看 loss 判断 SFT 是否成功）设计更强的 preference/eval 数据和 expanded behavior gate。不要直接继续加 DPO step；先做数据和评测设计，更新 markdown/notebook/Git/GitHub 后再训练。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后审核 Stage 5H 已生成的 prompt 7 preference/eval 数据和 expanded behavior gate：确认数据分布、near-miss rejected answers 和 scorer 规则是否合理。不要直接继续加 DPO step；只有数据和评测设计通过后，才从 SFT v3 出发准备 DPO v7。
 ```

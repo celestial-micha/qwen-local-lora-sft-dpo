@@ -40,8 +40,8 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def read_prompts(path: Path) -> list[str]:
-    prompts: list[str] = []
+def read_prompt_rows(path: Path) -> list[dict[str, Any]]:
+    prompt_rows: list[dict[str, Any]] = []
     with path.open("r", encoding="utf-8") as f:
         for line_no, line in enumerate(f, start=1):
             line = line.strip()
@@ -49,12 +49,17 @@ def read_prompts(path: Path) -> list[str]:
                 continue
             row = json.loads(line)
             try:
-                prompts.append(str(row["prompt"]).strip())
+                prompt = str(row["prompt"]).strip()
             except KeyError as exc:
                 raise ValueError(f"Missing prompt in {path}:{line_no}") from exc
-    if not prompts:
+            if not prompt:
+                raise ValueError(f"Empty prompt in {path}:{line_no}")
+            prompt_row = dict(row)
+            prompt_row["prompt"] = prompt
+            prompt_rows.append(prompt_row)
+    if not prompt_rows:
         raise ValueError(f"No prompts loaded from {path}")
-    return prompts
+    return prompt_rows
 
 
 def select_dtype(name: str) -> torch.dtype:
@@ -197,7 +202,8 @@ def run_variant(
 
 def main() -> None:
     args = parse_args()
-    prompts = read_prompts(Path(args.prompt_file))
+    prompt_rows = read_prompt_rows(Path(args.prompt_file))
+    prompts = [str(row["prompt"]) for row in prompt_rows]
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, local_files_only=args.local_files_only)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -217,7 +223,8 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
         for index, prompt in enumerate(prompts):
-            row = {"prompt": prompt}
+            row = dict(prompt_rows[index])
+            row["prompt"] = prompt
             for key in outputs:
                 row[key] = outputs[key][index]
             f.write(json.dumps(row, ensure_ascii=False) + "\n")

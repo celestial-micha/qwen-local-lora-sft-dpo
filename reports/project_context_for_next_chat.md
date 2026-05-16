@@ -670,6 +670,42 @@ reports/stage5_structured_behavior_score_report.md
 reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
 
+## 2026-05-16 Stage 5H prompt 7 数据和 expanded gate 设计
+
+已完成数据和评测设计，但没有运行 DPO v7 训练：
+
+```text
+scripts/prepare_stage5h_prompt7_data.py
+scripts/score_expanded_behavior_outputs.py
+data/processed/dpo_stage5h_prompt7_train.jsonl
+data/processed/dpo_stage5h_prompt7_eval.jsonl
+data/samples/custom_technical_prompts_expanded_stage5h.jsonl
+reports/stage5h_prompt7_data_and_eval_design.md
+```
+
+数据规模：
+
+```text
+Train rows: 278
+Eval rows: 55
+New prompt-7 train pairs: 72
+New prompt-7 eval pairs: 24
+Expanded behavior prompts: 24
+```
+
+设计意图：
+
+- 保留 Stage 5G v6 的广覆盖 replay 分布。
+- 围绕 train loss、eval loss、preference accuracy、fixed prompt、badcase、
+  regression、public-SFT 和 DPO v6 设计 prompt 7 变体。
+- rejected answer 采用 near-miss 形式：看起来合理，但会漏掉必要概念或过度相信某个指标。
+- expanded gate 保留原始 8 个固定 prompt，并加入 12 个 prompt 7 held-out
+  改写和 4 个 replay holdout。
+
+下一步：先人工审核 Stage 5H 数据和 expanded gate，再考虑从
+`outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` 出发训练 DPO v7。不要从
+DPO v6 继续叠 adapter。
+
 ## 下一次空聊天入口提示
 
 推荐用户下一次这样问：
@@ -689,7 +725,7 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后从 Stage 5H 开始：围绕 prompt 7（为什么不能只看 loss 判断 SFT 是否成功）设计更强的 preference/eval 数据和 expanded behavior gate。不要直接继续加 DPO step；先做数据和评测设计，更新 markdown/notebook/Git/GitHub 后再训练。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后审核 Stage 5H 已生成的 prompt 7 preference/eval 数据和 expanded behavior gate：确认数据分布、near-miss rejected answers 和 scorer 规则是否合理。不要直接继续加 DPO step；只有数据和评测设计通过后，才从 SFT v3 出发准备 DPO v7。
 ```
 
 下一阶段不要从 DPO v6 继续叠 adapter，优先从 SFT v3 重新开始设计 v7。v6 是最佳 DPO 候选，但不是完全通过的推荐替代品。

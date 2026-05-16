@@ -80,3 +80,15 @@ Stage 5G used a separate frozen reference model and also ran without OOM. It is
 the best DPO candidate so far at 7 / 8 fixed prompts, but prompt 7
 loss-vs-behavior still failed the structured gate. See
 `reports/stage5g_naive_dpo_v6_report.md`.
+
+Stage 5H prompt-7 repair design files:
+
+- `dpo_stage5h_prompt7_train.jsonl`: 278 train preference pairs. It keeps the
+  Stage 5G v6 distribution, adds 72 new loss-vs-behavior repair pairs, and adds
+  replay rows for the other fixed-prompt areas.
+- `dpo_stage5h_prompt7_eval.jsonl`: 55 held-out preference eval pairs,
+  including 24 new loss-vs-behavior eval pairs.
+
+Stage 5H does not run DPO training. It prepares the next candidate data and the
+expanded behavior gate first. See
+`reports/stage5h_prompt7_data_and_eval_design.md`.

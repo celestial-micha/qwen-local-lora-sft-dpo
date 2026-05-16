@@ -340,8 +340,39 @@ Goal:
 Status:
 
 ```text
-planned after Stage 5G
+data/eval design completed on 2026-05-16; no DPO training run yet
 ```
+
+Artifacts:
+
+```text
+scripts/prepare_stage5h_prompt7_data.py
+data/processed/dpo_stage5h_prompt7_train.jsonl
+data/processed/dpo_stage5h_prompt7_eval.jsonl
+data/samples/custom_technical_prompts_expanded_stage5h.jsonl
+reports/stage5h_prompt7_data_and_eval_design.md
+```
+
+Current result:
+
+```text
+Train rows: 278
+Eval rows: 55
+New prompt-7 train pairs: 72
+New prompt-7 eval pairs: 24
+Expanded behavior prompts: 24
+```
+
+Design decision:
+
+- Keep Stage 5G v6 as the broad replay base, because it is the strongest DPO
+  candidate distribution so far.
+- Add varied loss-vs-behavior phrasings instead of repeating only the exact
+  original prompt.
+- Make rejected answers near-misses that over-trust train loss, eval loss,
+  preference accuracy, or omit badcase/regression checks.
+- Do not train DPO v7 until the expanded scorer and comparison command are in
+  place.
 
 ### Stage 5I: Expanded Behavior Gate
 
@@ -350,6 +381,24 @@ Goal:
 - Keep the original 8 prompts as regression tests.
 - Add 8-16 held-out prompt variants, especially around loss-vs-behavior.
 - Score the expanded set before any DPO v7 decision.
+
+Status:
+
+```text
+prompt suite and scorer prepared on 2026-05-16; model comparison not run yet
+```
+
+Artifacts:
+
+```text
+data/samples/custom_technical_prompts_expanded_stage5h.jsonl
+scripts/score_expanded_behavior_outputs.py
+```
+
+The expanded suite has 24 prompts: the original 8 fixed prompts unchanged, 12
+Stage 5H loss-vs-behavior holdouts, and 4 replay holdouts for neighboring
+behaviors. The scorer uses `prompt_area` metadata instead of relying only on row
+index.
 
 ### Stage 5J: DPO v7 Probe
 

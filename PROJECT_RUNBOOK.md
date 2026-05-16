@@ -433,9 +433,10 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A/B/C, v2/v3 revision loops, candidate-derived v4/v5 loops, and
-the larger naive v6 loop are complete. Stage 5D full expansion is still blocked
-because the core loss-vs-behavior gate did not pass.
+Status: Stage 5A/B/C, v2/v3 revision loops, candidate-derived v4/v5 loops, the
+larger naive v6 loop, and Stage 5H data/eval design are complete. Stage 5D full
+expansion is still blocked because the core loss-vs-behavior gate did not pass.
+No DPO v7 training has been run yet.
 
 Report:
 
@@ -448,6 +449,7 @@ reports/stage5_dpo_revision_loop_report.md
 reports/stage5_candidate_dpo_v4_v5_report.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5_structured_behavior_score_report.md
+reports/stage5h_prompt7_data_and_eval_design.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -630,16 +632,22 @@ Goal:
 
 Stage 5H:
 
-- Redesign prompt-7 loss-vs-behavior preference data.
-- Add varied held-out phrasings around train loss, eval loss, metrics,
-  fixed-prompt behavior, badcase review, and old-capability regression.
-- Keep replay rows for the other seven fixed prompts.
+- Status: data/eval design completed on 2026-05-16; no training run yet.
+- Data: `data/processed/dpo_stage5h_prompt7_train.jsonl` with 278 train pairs.
+- Eval: `data/processed/dpo_stage5h_prompt7_eval.jsonl` with 55 held-out pairs.
+- Prompt-7 additions: 72 train pairs and 24 eval pairs around train loss, eval
+  loss, metrics, fixed-prompt behavior, badcase review, old-capability
+  regression, public-SFT, and DPO v6.
+- Replay rows are kept for the other fixed-prompt areas.
 
 Stage 5I:
 
-- Build an expanded 16-24 prompt behavior gate.
-- Keep the original 8 prompts as regression tests.
-- Add deterministic scoring rules for the new prompt-7 variants.
+- Prompt suite prepared:
+  `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`.
+- Scorer prepared: `scripts/score_expanded_behavior_outputs.py`.
+- The suite has 24 prompts: original 8 fixed prompts, 12 loss-vs-behavior
+  holdouts, and 4 replay holdouts.
+- Compare and score a future DPO v7 adapter before accepting it.
 
 Stage 5J:
 
