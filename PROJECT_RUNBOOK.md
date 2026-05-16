@@ -607,3 +607,48 @@ Goal:
 - Keep custom crawling legally and ethically scoped: prefer permissive sources,
   public docs, own notes, summaries, and small excerpts rather than copying full
   copyrighted articles.
+
+## Known Problems And Fixes
+
+- Windows training stack can be fragile. Keep the pinned package versions unless
+  there is a specific reason to upgrade.
+- Use `HF_HOME=.hf_cache` and avoid setting `TRANSFORMERS_CACHE=.hf_cache`; the
+  latter caused local model lookup problems.
+- PEFT may warn about remote config lookup when the proxy is unavailable. The
+  warning is acceptable if adapter save and reload checks pass.
+- From-scratch SFT patching regressed solved prompts. Low-learning-rate
+  continuation from the current best adapter was safer.
+- Focused prompt patches can overfit. Always keep replay prompts and fixed
+  behavior gates.
+- In `scripts/train_dpo.py`, boolean config keys must not be overwritten by
+  argparse defaults. `separate_ref_model` now uses `default=None` so YAML can
+  enable the true separate-reference path.
+- Preference eval can look excellent while fixed-prompt behavior still fails.
+  Stage 5G v6 reached eval preference accuracy 1.0 but still failed prompt 7.
+
+## Next Stages
+
+Stage 5H:
+
+- Redesign prompt-7 loss-vs-behavior preference data.
+- Add varied held-out phrasings around train loss, eval loss, metrics,
+  fixed-prompt behavior, badcase review, and old-capability regression.
+- Keep replay rows for the other seven fixed prompts.
+
+Stage 5I:
+
+- Build an expanded 16-24 prompt behavior gate.
+- Keep the original 8 prompts as regression tests.
+- Add deterministic scoring rules for the new prompt-7 variants.
+
+Stage 5J:
+
+- Run a DPO v7 probe only after Stage 5H/5I data and scoring are ready.
+- Start from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+- Use a separate frozen reference model again.
+- Compare against SFT v3 and DPO naive v6 immediately after training.
+
+Stage 6:
+
+- Prepare the final interview package: narrative, command list, before/after
+  examples, failure analysis, and resume-ready bullets.

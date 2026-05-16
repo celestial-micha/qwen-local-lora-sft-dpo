@@ -39,12 +39,13 @@ Completed:
 - Stage 5A tiny DPO preference data completed: `data/processed/dpo_tiny_train.jsonl` with 33 pairs. The Stage 5B start adapter remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 - Stage 5B tiny DPO smoke test completed and saved `outputs/dpo_lora_qwen05b_tiny`. It ran 4 optimizer steps in about 32.8 seconds, with no OOM/native crash, and the adapter reload check passed.
 - Stage 5C fixed-prompt behavior comparison completed, but the behavior gate did not pass. DPO-tiny clearly preserved 5/8 prompts, had 1 watch prompt, and failed 2/8 prompts.
-- Stage 5 follow-up revision loop completed. DPO v2 and v3 both ran without OOM, but v2 still failed the loss-vs-behavior prompt and v3 regressed several stable prompts.
-- Stage 5 structured behavior scoring completed. It confirms custom-SFT v3 passes 7/8 prompts, DPO v1/v2 pass 6/8, and DPO v3 passes only 1/8.
+- Stage 5 follow-up revision loop completed. DPO v2/v3/v4/v5/v6 all ran without OOM. Larger naive DPO v6 is the best DPO candidate so far at 7/8 fixed prompts, but still fails the loss-vs-behavior prompt.
+- Stage 5 structured behavior scoring completed. It confirms custom-SFT v3 passes 7/8 prompts; DPO v1/v2/v4/v5 pass 6/8; DPO v3 passes 1/8; and naive DPO v6 passes 7/8.
 
 Not completed yet:
 
-- Stage 5D larger DPO. It is blocked until Stage 5C passes after preference-data revision.
+- Stage 5H prompt-7 repair data and expanded behavior gate.
+- A fully accepted DPO adapter. v6 is promising, but not a complete pass.
 - Multi-GPU notes or experiments.
 
 ## Why This Project Exists
@@ -324,6 +325,7 @@ gradually.
 - [Stage 5 DPO revision loop report](reports/stage5_dpo_revision_loop_report.md)
 - [Stage 5 candidate DPO v4/v5 report](reports/stage5_candidate_dpo_v4_v5_report.md)
 - [Stage 5 larger naive DPO v6 report](reports/stage5g_naive_dpo_v6_report.md)
+- [Next chat handoff after Stage 5G](reports/next_chat_handoff_stage5g.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
@@ -339,3 +341,19 @@ but the core loss-vs-behavior gate still did not pass:
 4. Review `reports/stage5_structured_behavior_score_report.md`.
 5. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
 6. Treat the DPO adapters as experiment artifacts until prompt 7 passes.
+
+## Next Chat
+
+For a new empty chat, start by asking the assistant to read:
+
+```text
+reports/next_chat_handoff_stage5g.md
+reports/project_context_for_next_chat.md
+reports/stage5g_naive_dpo_v6_report.md
+reports/stage5_structured_behavior_score_report.md
+PROJECT_RUNBOOK.md
+notebooks/04_full_pipeline_learning.ipynb
+```
+
+Then continue with Stage 5H: redesign the loss-vs-behavior preference/eval data
+and expanded behavior gate before running another DPO training pass.

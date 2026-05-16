@@ -669,3 +669,27 @@ reports/stage5g_naive_dpo_v6_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
+
+## 下一次空聊天入口提示
+
+推荐用户下一次这样问：
+
+```text
+请先阅读这个项目：
+D:\coding\qwen lorar sft\qwen-local-lora-sft-dpo
+
+请重点阅读：
+reports/next_chat_handoff_stage5g.md
+reports/project_context_for_next_chat.md
+reports/stage5g_naive_dpo_v6_report.md
+reports/stage5_structured_behavior_score_report.md
+reports/stage5_dpo_plan.md
+PROJECT_RUNBOOK.md
+README.zh-CN.md
+README.md
+notebooks/04_full_pipeline_learning.ipynb
+
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后从 Stage 5H 开始：围绕 prompt 7（为什么不能只看 loss 判断 SFT 是否成功）设计更强的 preference/eval 数据和 expanded behavior gate。不要直接继续加 DPO step；先做数据和评测设计，更新 markdown/notebook/Git/GitHub 后再训练。
+```
+
+下一阶段不要从 DPO v6 继续叠 adapter，优先从 SFT v3 重新开始设计 v7。v6 是最佳 DPO 候选，但不是完全通过的推荐替代品。

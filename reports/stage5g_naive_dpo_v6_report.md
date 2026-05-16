@@ -123,3 +123,33 @@ The useful conclusion is sharper now:
 - The next improvement should target prompt 7 with better held-out phrasings and
   possibly SFT-side data cleanup, not just more steps on the same preference
   distribution.
+
+## Next Tasks
+
+1. Stage 5H should build a dedicated prompt-7 repair dataset.
+
+   It should include many phrasings of "why loss is insufficient", with chosen
+   answers that explicitly mention average training objective signal,
+   fixed-prompt behavior, badcase review, old-capability regression, and the
+   public-SFT example.
+
+2. Stage 5I should expand the behavior gate.
+
+   Keep the original 8 prompts as regression tests, then add held-out variants
+   for prompt 7 so the model cannot pass by memorizing a single sentence.
+
+3. Stage 5J can run DPO v7 only after the data and scoring changes exist.
+
+   Start again from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`, use a
+   separate frozen reference model, then compare SFT v3, DPO naive v6, and DPO
+   v7 side by side.
+
+## Suggested Next-Chat Entry
+
+Use:
+
+```text
+请先阅读 reports/next_chat_handoff_stage5g.md，然后从 Stage 5H 开始设计
+prompt 7 的 preference/eval 数据和 expanded behavior gate。不要直接继续加
+DPO step；先做数据和评测设计，并同步更新 markdown、notebook、Git 和 GitHub。
+```

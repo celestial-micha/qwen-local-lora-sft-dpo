@@ -320,6 +320,49 @@ Still keep:
 - LoRA/PEFT reference sharing if possible
 - fixed-prompt regression tests after training
 
+### Stage 5H: Loss-vs-Behavior Repair Data
+
+Current target:
+
+```text
+prompt 7: 为什么不能只看 loss 判断一次 SFT 是否成功？
+```
+
+Goal:
+
+- Fix the remaining conceptual gap without regressing the seven stable prompts.
+- Build varied train and held-out eval phrasings instead of repeating one exact
+  prompt.
+- Require answers to mention loss as an average training objective signal,
+  fixed-prompt behavior, badcase review, old-capability regression, and the
+  public-SFT example.
+
+Status:
+
+```text
+planned after Stage 5G
+```
+
+### Stage 5I: Expanded Behavior Gate
+
+Goal:
+
+- Keep the original 8 prompts as regression tests.
+- Add 8-16 held-out prompt variants, especially around loss-vs-behavior.
+- Score the expanded set before any DPO v7 decision.
+
+### Stage 5J: DPO v7 Probe
+
+Only run after Stage 5H/5I exist.
+
+Recommended starting point:
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+Do not stack on top of DPO v6 unless there is a deliberate experiment plan.
+
 ## Interview Narrative
 
 Useful phrasing:
