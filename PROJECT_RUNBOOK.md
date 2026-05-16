@@ -649,13 +649,14 @@ Stage 5H-5P:
 
 Stage 5Q or Stage 6:
 
-- Preferred next action is Stage 6 packaging: narrative, command list,
-  before/after examples, failure analysis, and resume-ready bullets.
+- Stage 6 packaging is complete: narrative, command list, before/after
+  examples, failure analysis, and resume-ready bullets.
+- Main report: `reports/stage6_final_interview_package.md`.
 - If training resumes, design a broader prompt-7 curriculum first. It must
   include more varied loss-vs-behavior prompts and stronger replay for prompts
   1-6 and 8 before any DPO/SFT step.
 
 Stage 6:
 
-- Prepare the final interview package: narrative, command list, before/after
-  examples, failure analysis, and resume-ready bullets.
+- Status: completed on 2026-05-16.
+- Final package: `reports/stage6_final_interview_package.md`.

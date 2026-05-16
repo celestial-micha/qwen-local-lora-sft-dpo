@@ -767,6 +767,31 @@ outputs/dpo_lora_qwen05b_naive_v6
 
 下一步不要继续盲目加 DPO/SFT step。优先做 Stage 6 分析和面试包装；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和更强的旧题 replay。
 
+## 2026-05-16 Stage 6 最终面试包
+
+已完成：
+
+```text
+reports/stage6_final_interview_package.md
+```
+
+内容包括：
+
+- 30 秒面试叙事；
+- 2 分钟项目讲述；
+- LoRA 定义、SFT/LoRA 关系、数据管线的 before/after 示例；
+- prompt 7 的失败复盘；
+- 中文和英文简历 bullet；
+- 推荐 demo flow；
+- 下一阶段边界：不要继续盲目 DPO，除非先设计更宽的 prompt 7 curriculum。
+
+最终推荐仍是：
+
+```text
+Recommended checkpoint: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+Best DPO artifact:      outputs/dpo_lora_qwen05b_naive_v6
+```
+
 ## 下一次空聊天入口提示
 
 推荐用户下一次这样问：
@@ -780,6 +805,7 @@ reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/stage6_final_interview_package.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 PROJECT_RUNBOOK.md
@@ -787,7 +813,7 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点复盘 Stage 5I-5P 为什么 loss / preference accuracy 不能替代 behavior gate。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点阅读 Stage 6 最终面试包，继续完善面试讲述、简历 bullet、before/after 示例或 demo flow。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
 ```
 
-下一阶段优先 Stage 6 包装和复盘。v6 是最佳 DPO 候选 artifact，但不是完全通过的推荐替代品。
+下一阶段优先完善 Stage 6 展示材料。v6 是最佳 DPO 候选 artifact，但不是完全通过的推荐替代品。

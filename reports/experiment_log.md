@@ -361,3 +361,22 @@
   - Fixed behavior: 6 / 8; prompt 7 failed again.
 - Decision: stop the training loop. No Stage 5J-5P adapter is accepted.
 - Report: `reports/stage5j_to_5p_prompt7_repair_report.md`
+
+## Stage 6: Final Interview Package
+
+- Date: 2026-05-16
+- Training run: none.
+- Goal: package the project for interview/resume use instead of adding more
+  DPO/SFT steps.
+- Report: `reports/stage6_final_interview_package.md`
+- Contents:
+  - 30-second and two-minute interview narratives.
+  - Before/after examples for LoRA definition, SFT vs LoRA, and the data
+    pipeline.
+  - Failure review for prompt 7 and why loss/preference accuracy were not
+    accepted as behavior gates.
+  - Chinese and English resume bullets.
+  - Recommended demo flow and next-work boundary.
+- Decision: Stage 6 is complete. Keep
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative
+  checkpoint and `outputs/dpo_lora_qwen05b_naive_v6` as the best DPO artifact.

@@ -43,6 +43,7 @@ Completed:
 - Stage 5 structured behavior scoring completed. It confirms custom-SFT v3 passes 7/8 prompts; DPO v1/v2/v4/v5 pass 6/8; DPO v3 passes 1/8; and naive DPO v6 passes 7/8.
 - Stage 5H prompt-7 repair data/eval design completed. It created a 278-row train preference file, a 55-row held-out eval file, a 24-prompt expanded behavior suite, and a metadata-based expanded scorer.
 - Stage 5I-5P prompt-7 repair loop completed. DPO v7 and v8 reached preference accuracy 1.0 but still failed fixed prompt 7; direct SFT probes could either preserve old prompts while missing prompt 7 or force prompt 7 while regressing old prompts. No new adapter is accepted.
+- Stage 6 final interview package completed. It summarizes the final narrative, before/after examples, failure review, resume bullets, and the boundary against blind DPO expansion.
 
 Not completed yet:
 
@@ -349,24 +350,26 @@ gradually.
 - [Stage 5 larger naive DPO v6 report](reports/stage5g_naive_dpo_v6_report.md)
 - [Stage 5H prompt-7 data and expanded eval design](reports/stage5h_prompt7_data_and_eval_design.md)
 - [Stage 5J-5P prompt-7 repair report](reports/stage5j_to_5p_prompt7_repair_report.md)
+- [Stage 6 final interview package](reports/stage6_final_interview_package.md)
 - [Next chat handoff after Stage 5G](reports/next_chat_handoff_stage5g.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-Stage 5A/B/C through Stage 5P are complete. v6 remains the best DPO candidate
-artifact at 7/8 fixed prompts, but the core loss-vs-behavior gate still did not
-pass in any accepted adapter:
+Stage 5A/B/C through Stage 5P are complete, and Stage 6 packaging is complete.
+v6 remains the best DPO candidate artifact at 7/8 fixed prompts, but the core
+loss-vs-behavior gate still did not pass in any accepted adapter:
 
 1. Review `reports/stage5_dpo_revision_loop_report.md`.
 2. Review `reports/stage5_candidate_dpo_v4_v5_report.md`.
 3. Review `reports/stage5g_naive_dpo_v6_report.md`.
 4. Review `reports/stage5_structured_behavior_score_report.md`.
 5. Review `reports/stage5j_to_5p_prompt7_repair_report.md`.
-6. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
-7. Treat DPO v6 as the best DPO artifact, not the default recommendation.
-8. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
+6. Review `reports/stage6_final_interview_package.md`.
+7. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
+8. Treat DPO v6 as the best DPO artifact, not the default recommendation.
+9. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
 
 ## Next Chat
 
@@ -377,6 +380,7 @@ reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/stage6_final_interview_package.md
 reports/stage5_structured_behavior_score_report.md
 PROJECT_RUNBOOK.md
 notebooks/04_full_pipeline_learning.ipynb
