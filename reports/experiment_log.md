@@ -268,3 +268,16 @@
 - Stage 5C: compare fixed prompts after tiny DPO.
 - Stage 5D: larger or more naive DPO only if tiny DPO memory and behavior are acceptable.
 - User observation requested: dedicated VRAM peak, shared GPU memory growth, system RAM, step speed, crash/OOM status.
+
+## Stage 5 Candidate DPO v4/v5 Follow-Up
+
+- Date: 2026-05-16
+- Starting adapter for both runs: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- v4 data: `data/processed/dpo_candidate_train.jsonl`, 20 train pairs; `data/processed/dpo_candidate_eval.jsonl`, 5 eval pairs.
+- v4 output: `outputs/dpo_lora_qwen05b_candidate_v4`
+- v4 result: no OOM, adapter reload passed, final eval accuracy 0.8000, structured behavior score 6/8.
+- v5 data: `data/processed/dpo_candidate_v5_train.jsonl`, 28 train pairs; `data/processed/dpo_candidate_v5_eval.jsonl`, 7 eval pairs.
+- v5 output: `outputs/dpo_lora_qwen05b_candidate_v5`
+- v5 result: no OOM, adapter reload passed, final eval accuracy 0.8571, structured behavior score 6/8.
+- Decision: Stage 5D larger DPO remains blocked. Candidate v4/v5 still failed prompt 4 public-SFT motivation and prompt 7 loss-vs-behavior.
+- Report: `reports/stage5_candidate_dpo_v4_v5_report.md`

@@ -67,15 +67,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model_name", default=None)
     parser.add_argument("--sft_adapter_path", default=None)
     parser.add_argument("--dpo_file", default=None)
+    parser.add_argument("--eval_file", default=None)
     parser.add_argument("--output_dir", default=None)
     parser.add_argument("--max_length", type=int, default=None)
     parser.add_argument("--max_prompt_length", type=int, default=None)
     parser.add_argument("--per_device_train_batch_size", type=int, default=None)
+    parser.add_argument("--per_device_eval_batch_size", type=int, default=None)
     parser.add_argument("--gradient_accumulation_steps", type=int, default=None)
     parser.add_argument("--learning_rate", type=float, default=None)
     parser.add_argument("--num_train_epochs", type=float, default=None)
     parser.add_argument("--beta", type=float, default=None)
     parser.add_argument("--logging_steps", type=int, default=None)
+    parser.add_argument("--eval_steps", type=int, default=None)
     parser.add_argument("--save_steps", type=int, default=None)
     parser.add_argument("--report_to", default=None)
     parser.add_argument("--local_files_only", action="store_true")
@@ -96,15 +99,18 @@ def merged_config(args: argparse.Namespace) -> dict[str, Any]:
         "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
         "sft_adapter_path": "outputs/sft_lora_qwen05b_custom_v3_from_v1_patch",
         "dpo_file": "data/processed/dpo_tiny_train.jsonl",
+        "eval_file": "none",
         "output_dir": "outputs/dpo_lora_qwen05b_tiny",
         "max_length": 256,
         "max_prompt_length": 128,
         "per_device_train_batch_size": 1,
+        "per_device_eval_batch_size": 1,
         "gradient_accumulation_steps": 8,
         "learning_rate": 5e-5,
         "num_train_epochs": 1,
         "beta": 0.1,
         "logging_steps": 10,
+        "eval_steps": 10,
         "save_steps": 200,
         "report_to": "none",
     }
@@ -200,7 +206,17 @@ def main() -> None:
         system_prompt=args.system_prompt,
         use_chat_template=not args.no_chat_template,
     )
+    eval_rows: list[dict[str, str]] | None = None
+    eval_file = str(config.get("eval_file", "none"))
+    if eval_file.lower() not in {"", "none", "null"}:
+        eval_rows = read_dpo_rows(
+            eval_file,
+            tokenizer,
+            system_prompt=args.system_prompt,
+            use_chat_template=not args.no_chat_template,
+        )
     train_dataset = Dataset.from_list(rows)
+    eval_dataset = Dataset.from_list(eval_rows) if eval_rows else None
     model = load_policy_model(config, local_files_only=local_files_only)
     model.print_trainable_parameters()
 
@@ -211,6 +227,7 @@ def main() -> None:
     training_args = DPOConfig(
         output_dir=str(config["output_dir"]),
         per_device_train_batch_size=int(config["per_device_train_batch_size"]),
+        per_device_eval_batch_size=int(config["per_device_eval_batch_size"]),
         gradient_accumulation_steps=int(config["gradient_accumulation_steps"]),
         learning_rate=float(config["learning_rate"]),
         num_train_epochs=float(config["num_train_epochs"]),
@@ -218,10 +235,11 @@ def main() -> None:
         max_length=int(config["max_length"]),
         max_prompt_length=int(config["max_prompt_length"]),
         logging_steps=int(config["logging_steps"]),
+        eval_steps=int(config["eval_steps"]),
         save_steps=int(config["save_steps"]),
         save_strategy="steps",
         save_total_limit=1,
-        eval_strategy="no",
+        eval_strategy="steps" if eval_dataset is not None else "no",
         bf16=torch.cuda.is_available() and torch.cuda.is_bf16_supported(),
         fp16=torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
         report_to=report_to,
@@ -235,12 +253,15 @@ def main() -> None:
         ref_model=None,
         args=training_args,
         train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         processing_class=tokenizer,
     )
 
     print("Stage 5B tiny DPO config:")
     print(json.dumps(config, ensure_ascii=False, indent=2))
     print("Rows:", len(rows))
+    if eval_rows is not None:
+        print("Eval rows:", len(eval_rows))
     print("GPU before train:", json.dumps(gpu_snapshot(), ensure_ascii=False))
     start = time.perf_counter()
     trainer.train()

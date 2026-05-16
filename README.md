@@ -296,7 +296,8 @@ It is designed as a guided learning map for this whole project. It currently
 covers environment checks, base inference, public SFT data preparation, public
 LoRA SFT, Stage 4A comparison, Stage 2B custom technical data preparation,
 Stage 3B custom LoRA SFT, Stage 4B three-way comparison, Stage 2B.2 badcase
-patch regression testing, Stage 2B.3 SFT stability gating, and DPO VRAM notes.
+patch regression testing, Stage 2B.3 SFT stability gating, Stage 5 tiny DPO
+smoke tests, candidate-derived DPO retries, and DPO VRAM notes.
 Heavy cells are guarded by Boolean switches so the notebook can be read and run
 gradually.
 
@@ -320,16 +321,18 @@ gradually.
 - [Stage 5B tiny DPO smoke report](reports/stage5b_tiny_dpo_smoke_report.md)
 - [Stage 5C tiny DPO behavior report](reports/stage5c_tiny_dpo_behavior_report.md)
 - [Stage 5 DPO revision loop report](reports/stage5_dpo_revision_loop_report.md)
+- [Stage 5 candidate DPO v4/v5 report](reports/stage5_candidate_dpo_v4_v5_report.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-Stage 5A/B/C plus the v2/v3 DPO revision loop are complete, but DPO behavior did
-not pass the gate:
+Stage 5A/B/C plus the v2/v3 and candidate-derived v4/v5 DPO loops are complete,
+but DPO behavior did not pass the gate:
 
 1. Review `reports/stage5_dpo_revision_loop_report.md`.
-2. Review `reports/stage5_structured_behavior_score_report.md`.
-3. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the recommended checkpoint.
-4. Do not expand DPO until a cleaner preference-data/evaluation design is ready.
-5. Treat the DPO adapters as experiment artifacts, not recommended replacements.
+2. Review `reports/stage5_candidate_dpo_v4_v5_report.md`.
+3. Review `reports/stage5_structured_behavior_score_report.md`.
+4. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the recommended checkpoint.
+5. Do not expand DPO until a cleaner preference-data/evaluation design is ready.
+6. Treat the DPO adapters as experiment artifacts, not recommended replacements.

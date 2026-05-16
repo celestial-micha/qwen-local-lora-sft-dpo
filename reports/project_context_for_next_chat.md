@@ -608,3 +608,35 @@ reports/vram_and_dpo_plan.md
 6. 结构化评分已完成：确认 SFT v3 仍是推荐 checkpoint，DPO v1/v2/v3 不替代。
 7. 下一步不是扩大 DPO，而是重新设计更干净的 preference 数据和自动评分/验证集。
 ```
+
+## 2026-05-16 最新 Stage 5 状态
+
+继续完成了 candidate-derived DPO v4/v5：
+
+```text
+v4 train/eval: 20 / 5
+v4 output: outputs/dpo_lora_qwen05b_candidate_v4
+v4 behavior: 6 / 8 prompts passed
+v4 failed: prompt 4 public-SFT motivation, prompt 7 loss-vs-behavior
+
+v5 train/eval: 28 / 7
+v5 output: outputs/dpo_lora_qwen05b_candidate_v5
+v5 behavior: 6 / 8 prompts passed
+v5 failed: prompt 4 public-SFT motivation, prompt 7 loss-vs-behavior
+```
+
+硬件结论：8GB RTX 4060 Laptop GPU 可以继续跑这些 tiny DPO；v4/v5 都无 OOM，adapter reload 均通过。
+
+行为结论：Stage 5D larger DPO 仍然阻塞，不建议继续扩大同一套 tiny DPO。推荐 checkpoint 仍然是：
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+关键报告：
+
+```text
+reports/stage5_candidate_dpo_v4_v5_report.md
+reports/stage5_structured_behavior_score_report.md
+reports/stage5_dpo_plan.md
+```

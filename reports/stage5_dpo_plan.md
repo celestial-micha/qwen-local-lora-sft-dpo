@@ -247,7 +247,7 @@ Only consider this after Stage 5B/5C pass.
 Current status:
 
 ```text
-blocked because Stage 5C, Stage 5C.2, and Stage 5C.3 did not pass
+blocked because Stage 5C through Stage 5C.5 did not pass
 ```
 
 Revision loop:
@@ -259,7 +259,16 @@ prompt 7 remained weak.
 Stage 5A.3/B.3/C.3: exact-bad-output v3 data, 57 pairs, 2 epochs, DPO ran
 without OOM but regressed multiple previously stable prompts.
 
+Stage 5E/B.4/C.4: candidate-derived v4 data, 20 train pairs and 5 eval pairs,
+DPO ran without OOM and preserved 6/8 prompts, but still failed public-SFT
+motivation and loss-vs-behavior.
+
+Stage 5F/B.5/C.5: focused candidate v5 data, 28 train pairs and 7 eval pairs,
+DPO ran without OOM, but still scored 6/8 and weakened the loss-vs-behavior
+answer again.
+
 Report: reports/stage5_dpo_revision_loop_report.md
+Candidate report: reports/stage5_candidate_dpo_v4_v5_report.md
 ```
 
 The current recommended checkpoint remains:
@@ -284,6 +293,8 @@ custom-SFT v3: 7 / 8 prompts passed
 DPO-tiny v1: 6 / 8 prompts passed
 DPO-tiny v2: 6 / 8 prompts passed
 DPO-tiny v3: 1 / 8 prompts passed
+DPO-candidate v4: 6 / 8 prompts passed
+DPO-candidate v5: 6 / 8 prompts passed
 ```
 
 This supports the manual gate decision: no DPO adapter replaces SFT v3 yet.

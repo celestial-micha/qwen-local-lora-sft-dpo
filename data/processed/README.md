@@ -57,3 +57,16 @@ Follow-up data files:
 
 Both v2 and v3 DPO runs completed without OOM, but neither passed the behavior
 gate. See `reports/stage5_dpo_revision_loop_report.md`.
+
+Candidate-derived Stage 5 follow-up files:
+
+- `dpo_candidate_train.jsonl`: 20 train pairs built from actual failed DPO
+  v1/v2/v3 outputs plus guardrails.
+- `dpo_candidate_eval.jsonl`: 5 held-out preference eval pairs.
+- `dpo_candidate_v5_train.jsonl`: 28 train pairs; keeps candidate v4 data and
+  adds exact v4 failure repairs for prompts 4 and 7.
+- `dpo_candidate_v5_eval.jsonl`: 7 held-out eval pairs.
+
+Candidate v4/v5 DPO also ran without OOM, but both scored 6 / 8 on fixed
+prompts. Stage 5D remains blocked; the recommended checkpoint remains
+`outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.

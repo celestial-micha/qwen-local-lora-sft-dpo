@@ -1,0 +1,19 @@
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+sft_adapter_path: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+dpo_file: data/processed/dpo_candidate_train.jsonl
+eval_file: data/processed/dpo_candidate_eval.jsonl
+output_dir: outputs/dpo_lora_qwen05b_candidate_v4
+max_length: 256
+max_prompt_length: 128
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 3.0e-5
+num_train_epochs: 1
+beta: 0.1
+logging_steps: 1
+eval_steps: 1
+save_steps: 200
+report_to: none
+# Stage 5B.4 config.
+# Uses candidate-derived rejected answers plus a held-out tiny eval split.

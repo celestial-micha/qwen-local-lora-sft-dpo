@@ -235,10 +235,31 @@ custom-SFT v3: 7 / 8 prompts passed
 DPO-tiny v1: 6 / 8 prompts passed
 DPO-tiny v2: 6 / 8 prompts passed
 DPO-tiny v3: 1 / 8 prompts passed
+DPO-candidate v4: 6 / 8 prompts passed
+DPO-candidate v5: 6 / 8 prompts passed
 ```
 
 This matches the manual decision: DPO v1/v2 preserved several behaviors but did
-not fix the core loss-vs-behavior prompt, while DPO v3 caused broad regressions.
+not fix the core loss-vs-behavior prompt, DPO v3 caused broad regressions, and
+candidate-derived v4/v5 still failed the public-SFT motivation and
+loss-vs-behavior gates.
+
+## Candidate-Derived Follow-Up
+
+Stage 5 then continued with two candidate-derived retries:
+
+- v4 used 20 train pairs and 5 eval pairs built from actual failed DPO
+  candidate outputs. It ran without OOM and the adapter reloaded, but fixed
+  prompt scoring was still 6 / 8.
+- v5 added 8 focused rows for the exact v4 failures, giving 28 train pairs and
+  7 eval pairs. It also ran without OOM and reloaded, but scoring stayed 6 / 8
+  and the loss-vs-behavior answer weakened again.
+
+Follow-up report:
+
+```text
+reports/stage5_candidate_dpo_v4_v5_report.md
+```
 
 ## Next Technical Direction
 
