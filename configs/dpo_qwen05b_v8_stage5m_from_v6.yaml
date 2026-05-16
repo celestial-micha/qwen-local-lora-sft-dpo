@@ -1,0 +1,20 @@
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+sft_adapter_path: outputs/dpo_lora_qwen05b_naive_v6
+dpo_file: data/processed/dpo_stage5m_exact_prompt7_train.jsonl
+eval_file: data/processed/dpo_stage5m_exact_prompt7_eval.jsonl
+output_dir: outputs/dpo_lora_qwen05b_v8_stage5m_from_v6
+max_length: 384
+max_prompt_length: 160
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 4.0e-6
+num_train_epochs: 1
+beta: 0.08
+logging_steps: 5
+eval_steps: 20
+save_steps: 500
+separate_ref_model: true
+report_to: none
+# Stage 5M v8 config.
+# Deliberate exact-failure DPO repair starting from DPO naive v6.

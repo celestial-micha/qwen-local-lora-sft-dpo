@@ -49,14 +49,15 @@ Qwen/Qwen2.5-0.5B-Instruct
 - Stage 5B：tiny DPO smoke test 已完成，输出 `outputs/dpo_lora_qwen05b_tiny`；4 个 optimizer step，约 32.8 秒，无 OOM/原生崩溃，adapter 可重新加载。
 - Stage 5C：tiny DPO 固定 prompt 行为对比已完成，但行为 gate 未通过；8 个 prompt 中 5 个明确保住、1 个观察、2 个失败。
 - Stage 5A.2/B.2/C.2 和 Stage 5A.3/B.3/C.3 修订循环已完成。硬件继续通过，但行为仍不过 gate；v3 DPO 甚至回归多个旧 prompt。
-- Stage 5 结构化行为评分已完成：custom-SFT v3 通过 7/8，DPO v1/v2 通过 6/8，DPO v3 通过 1/8，支持“不要扩大 DPO”的结论。
-- Stage 5H prompt 7 修复数据和 expanded behavior gate 设计已完成：生成 278 条 train preference、55 条 held-out eval、24 题 expanded prompt suite，并新增 metadata-based scorer。还没有运行 DPO v7 训练。
+- Stage 5 结构化行为评分已完成：custom-SFT v3 通过 7/8，DPO v1/v2 通过 6/8，DPO v3 通过 1/8，支持“不要盲目扩大 DPO”的结论。
+- Stage 5H prompt 7 修复数据和 expanded behavior gate 设计已完成：生成 278 条 train preference、55 条 held-out eval、24 题 expanded prompt suite，并新增 metadata-based scorer。
+- Stage 5I-5P prompt 7 修复循环已完成：v6 expanded gate 失败；DPO v7/v8 偏好 eval accuracy 都到 1.0 但固定 prompt 7 仍失败；Stage 5N/5O/5P 直接 SFT 探针也没有同时满足“prompt 7 通过且旧题不回归”。没有新的 adapter 被接受。
 - 学习型 notebook 已更新：`notebooks/04_full_pipeline_learning.ipynb`。
 
 还没完成：
 
-- Stage 5D / DPO v7：还没有训练；需要先审核 Stage 5H 数据和 expanded scorer。
 - 一个完全接受的 DPO adapter。v6 是当前最好 DPO 候选，但不是完整通过的推荐替代品。
+- 一个稳定的 prompt 7 修复 checkpoint：目前不是 prompt 7 仍弱，就是修 prompt 7 时旧题回归。
 - 多卡训练说明或实验。
 
 ## 为什么要先 public-SFT，再 custom-SFT
@@ -223,6 +224,17 @@ scripts/score_expanded_behavior_outputs.py
 reports/stage5h_prompt7_data_and_eval_design.md
 ```
 
+Stage 5J-5P 修复循环 artifact：
+
+```text
+configs/dpo_qwen05b_v7_stage5h.yaml
+configs/dpo_qwen05b_v8_stage5m_from_v6.yaml
+data/processed/dpo_stage5m_exact_prompt7_train.jsonl
+data/processed/sft_stage5n_prompt7_micro_train.jsonl
+data/processed/sft_stage5o_prompt7_exact_train.jsonl
+reports/stage5j_to_5p_prompt7_repair_report.md
+```
+
 ## 重要文件
 
 - [项目上下文，下一次聊天先读](reports/project_context_for_next_chat.md)
@@ -241,13 +253,14 @@ reports/stage5h_prompt7_data_and_eval_design.md
 - [Stage 5 DPO 修订循环报告](reports/stage5_dpo_revision_loop_report.md)
 - [Stage 5 结构化行为评分报告](reports/stage5_structured_behavior_score_report.md)
 - [Stage 5H prompt 7 数据和 expanded eval 设计](reports/stage5h_prompt7_data_and_eval_design.md)
+- [Stage 5J-5P prompt 7 修复报告](reports/stage5j_to_5p_prompt7_repair_report.md)
 - [显存与 DPO 计划](reports/vram_and_dpo_plan.md)
 
 ## 下一步
 
-Stage 5A/5B/5C 和后续 v2/v3 修订循环已完成，但行为 gate 仍没过。
+Stage 5A/B/C 到 Stage 5P 都已完成。当前 tiny/naive DPO 系列证明 8GB 本地环境可以跑 DPO，v7/v8 甚至能把偏好 eval accuracy 跑到 1.0；但行为质量没有完整过关。固定评分里，v6/v7/v8 都停在 7/8，Stage 5O 虽然让 prompt 7 通过，却把旧题打回 4/8。
 
-当前 tiny DPO 系列证明 8GB 本地环境可以跑 DPO，小数据甚至 57 pair / 2 epoch 都没有 OOM。但行为质量没有过关：结构化评分显示 DPO v1/v2 都卡在 6/8，DPO v3 只有 1/8。因此当前不建议扩大 DPO；推荐 checkpoint 仍是 `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`。
+当前保守推荐 checkpoint 仍是 `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`。`outputs/dpo_lora_qwen05b_naive_v6` 是当前最好 DPO artifact，但不是默认推荐。下一步应进入分析/面试包装，或者先设计更宽的 prompt 7 curriculum，再恢复训练。
 
 ## 2026-05-16 Stage 5 补充结论
 
@@ -287,6 +300,7 @@ D:\coding\qwen lorar sft\qwen-local-lora-sft-dpo
 reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 PROJECT_RUNBOOK.md
@@ -294,10 +308,10 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后审核 Stage 5H 已生成的 prompt 7 preference/eval 数据和 expanded behavior gate：确认数据分布、near-miss rejected answers 和 scorer 规则是否合理。不要直接继续加 DPO step；只有数据和评测设计通过后，才从 SFT v3 出发准备 DPO v7。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点复盘 Stage 5I-5P 为什么 loss / preference accuracy 不能替代 behavior gate。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
 ```
 
-当前最重要的判断：v6 证明数据增大和 separate reference 确实有效，DPO 行为从 6/8 提升到 7/8；但 prompt 7 仍未过，所以下一步要先修 loss-vs-behavior 的数据和评测，而不是只继续加训练步数。
+当前最重要的判断：v6 证明数据增大和 separate reference 确实有效，DPO 行为从 6/8 提升到 7/8；但 v7/v8 的偏好指标再好也没有修掉 prompt 7。Stage 5O 证明 exact SFT 能强行修 prompt 7，却会造成旧题回归。因此下一步不是继续加 step，而是分析/包装，或重新设计更宽的 curriculum。
 
 ## 2026-05-16 Stage 5H 数据和评测设计
 
@@ -309,4 +323,4 @@ notebooks/04_full_pipeline_learning.ipynb
 - `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`：24 题 expanded behavior gate，保留原始 8 题，增加 12 条 prompt 7 改写和 4 条 replay holdout。
 - `scripts/score_expanded_behavior_outputs.py`：按 `prompt_area` 元数据评分，不再只依赖固定 8 题行号。
 
-下一步不是马上加 DPO step，而是先审核这些 preference/eval 数据和 expanded gate；确认后再从 SFT v3 出发跑 DPO v7，并同时跑原始固定 prompt 和 expanded behavior gate。
+后续已基于这些设计完成 Stage 5I-5P 修复循环，结论见 `reports/stage5j_to_5p_prompt7_repair_report.md`：没有新的 adapter 被接受，保守 checkpoint 仍是 SFT v3，最佳 DPO artifact 仍是 v6。

@@ -189,6 +189,18 @@ def parse_args() -> argparse.Namespace:
 
 def run_id_from_path(path: Path) -> str:
     name = path.stem
+    if "stage5p" in name:
+        return "stage5p_prompt7_balanced_sft"
+    if "stage5o" in name:
+        return "stage5o_prompt7_exact_sft"
+    if "stage5n" in name:
+        return "stage5n_prompt7_micro_sft"
+    if "v8" in name or "stage5m" in name:
+        return "dpo_v8_stage5m"
+    if "stage5k" in name:
+        return "stage5k_sft_repair"
+    if "v7" in name or "stage5h" in name:
+        return "dpo_v7_stage5h"
     if "naive_v6" in name or name.endswith("_v6"):
         return "dpo_naive_v6"
     if "candidate_v5" in name or name.endswith("_v5"):
@@ -317,7 +329,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any
     return summary
 
 
-def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path) -> str:
+def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path, input_paths: list[Path]) -> str:
     summary = summarize(rows)
     preferred_run_order = [
         "dpo_tiny_v1",
@@ -326,6 +338,12 @@ def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path) 
         "dpo_candidate_v4",
         "dpo_candidate_v5",
         "dpo_naive_v6",
+        "dpo_v7_stage5h",
+        "stage5k_sft_repair",
+        "dpo_v8_stage5m",
+        "stage5n_prompt7_micro_sft",
+        "stage5o_prompt7_exact_sft",
+        "stage5p_prompt7_balanced_sft",
     ]
     present_runs = {row["run_id"] for row in rows}
     run_order = [run_id for run_id in preferred_run_order if run_id in present_runs]
@@ -354,6 +372,7 @@ def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path) 
         dpo_lines.append(
             f"| {row['run_id']} | {row['prompt_index']} | {row['prompt_area']} | {row['score']} | {row['passed']} | {missing} | {forbidden} |"
         )
+    input_lines = "\n".join(path.as_posix() for path in input_paths)
 
     return f"""# Stage 5 Structured Behavior Score Report
 
@@ -371,12 +390,7 @@ concepts and known-bad phrases for each fixed prompt.
 Inputs:
 
 ```text
-reports/compare_outputs_four_way_dpo_tiny.jsonl
-reports/compare_outputs_four_way_dpo_tiny_v2.jsonl
-reports/compare_outputs_four_way_dpo_tiny_v3.jsonl
-reports/compare_outputs_four_way_dpo_candidate_v4.jsonl
-reports/compare_outputs_four_way_dpo_candidate_v5.jsonl
-reports/compare_outputs_four_way_dpo_naive_v6.jsonl
+{input_lines}
 ```
 
 Outputs:
@@ -407,8 +421,15 @@ The structured scores support the manual Stage 5 decision:
   loss-vs-behavior answer again.
 - Larger naive v6 is the best DPO candidate so far at 7 / 8 prompts. It fixed
   public-SFT motivation, but still failed the core loss-vs-behavior gate.
-- No DPO adapter has fully passed the fixed-prompt gate yet.
-- Further DPO expansion remains blocked until prompt 7 passes.
+- Stage 5H/5J/5M showed that larger prompt-7 preference data and exact-failure
+  DPO-on-DPO repair can improve wording but still did not pass prompt 7.
+- Stage 5K direct SFT repair is rejected because it regressed older prompts.
+- Stage 5N stayed stable at 7 / 8 but still missed prompt 7; Stage 5O passed
+  prompt 7 only by regressing older prompts; Stage 5P did not find a stable
+  middle point.
+- No DPO or SFT repair adapter has fully passed the fixed-prompt gate yet.
+- Further training expansion remains blocked until prompt 7 can pass without
+  old-prompt regression.
 
 Recommended checkpoint remains:
 
@@ -428,7 +449,7 @@ def main() -> None:
     write_jsonl(output_jsonl, scored_rows)
     write_csv(output_csv, scored_rows)
     report_file.parent.mkdir(parents=True, exist_ok=True)
-    report_file.write_text(render_report(scored_rows, output_jsonl, output_csv), encoding="utf-8")
+    report_file.write_text(render_report(scored_rows, output_jsonl, output_csv, paths), encoding="utf-8")
     print(f"Wrote {len(scored_rows)} score rows to {output_jsonl}")
     print(f"Wrote CSV to {output_csv}")
     print(f"Wrote report to {report_file}")

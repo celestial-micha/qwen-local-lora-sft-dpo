@@ -433,10 +433,10 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A/B/C, v2/v3 revision loops, candidate-derived v4/v5 loops, the
-larger naive v6 loop, and Stage 5H data/eval design are complete. Stage 5D full
-expansion is still blocked because the core loss-vs-behavior gate did not pass.
-No DPO v7 training has been run yet.
+Status: Stage 5A/B/C through Stage 5P are complete. Stage 5H data/eval design
+was followed by expanded v6 evaluation, DPO v7/v8 probes, and SFT repair probes
+5K/5N/5O/5P. No new adapter is accepted because the core loss-vs-behavior gate
+still did not pass without old-prompt regression.
 
 Report:
 
@@ -450,6 +450,7 @@ reports/stage5_candidate_dpo_v4_v5_report.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5h_prompt7_data_and_eval_design.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 ```
 
 ### Stage 5A: Tiny DPO Data Preparation
@@ -571,16 +572,20 @@ VRAM note:
 
 Current decision:
 
-- Do not run larger DPO yet.
+- Do not run larger DPO blindly.
 - The machine handled 33-row, 47-row, 57-row, 20-row, 28-row, and 192-row DPO
-  runs without OOM.
+  runs without OOM. It also handled Stage 5J v7 and Stage 5M v8 DPO runs
+  without OOM.
 - Behavior did not pass: v2 still failed the loss-vs-behavior prompt, v3
   regressed several previously stable prompts, and candidate v4/v5 still failed
   public-SFT motivation plus loss-vs-behavior. Larger naive v6 fixed
-  public-SFT motivation but still failed loss-vs-behavior.
+  public-SFT motivation but still failed loss-vs-behavior. DPO v7/v8 reached
+  preference eval accuracy 1.0 but also failed prompt 7.
 - Structured scoring confirms the manual decision: custom-SFT v3 passes 7/8
   fixed prompts; DPO v1/v2 pass 6/8; DPO v3 passes only 1/8; candidate v4/v5
-  pass 6/8; naive v6 passes 7/8.
+  pass 6/8; naive v6, v7, and v8 pass 7/8. Stage 5N SFT repair preserved 7/8
+  but still failed prompt 7; Stage 5O passed prompt 7 only by dropping to 4/8;
+  Stage 5P ended at 6/8.
 - Current recommended checkpoint remains
   `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 
@@ -627,34 +632,28 @@ Goal:
   enable the true separate-reference path.
 - Preference eval can look excellent while fixed-prompt behavior still fails.
   Stage 5G v6 reached eval preference accuracy 1.0 but still failed prompt 7.
+- Direct exact-prompt SFT can force prompt 7 to pass while breaking old prompts.
+  Stage 5O is the clearest regression example, so exact prompt success alone is
+  not enough.
 
 ## Next Stages
 
-Stage 5H:
+Stage 5H-5P:
 
-- Status: data/eval design completed on 2026-05-16; no training run yet.
-- Data: `data/processed/dpo_stage5h_prompt7_train.jsonl` with 278 train pairs.
-- Eval: `data/processed/dpo_stage5h_prompt7_eval.jsonl` with 55 held-out pairs.
-- Prompt-7 additions: 72 train pairs and 24 eval pairs around train loss, eval
-  loss, metrics, fixed-prompt behavior, badcase review, old-capability
-  regression, public-SFT, and DPO v6.
-- Replay rows are kept for the other fixed-prompt areas.
+- Completed on 2026-05-16.
+- Data/eval design, expanded gate, DPO v7/v8, exact-failure DPO, and
+  micro-SFT probes are all documented.
+- Decision: stop training loop. Best DPO artifact remains
+  `outputs/dpo_lora_qwen05b_naive_v6`; conservative recommended checkpoint
+  remains `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 
-Stage 5I:
+Stage 5Q or Stage 6:
 
-- Prompt suite prepared:
-  `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`.
-- Scorer prepared: `scripts/score_expanded_behavior_outputs.py`.
-- The suite has 24 prompts: original 8 fixed prompts, 12 loss-vs-behavior
-  holdouts, and 4 replay holdouts.
-- Compare and score a future DPO v7 adapter before accepting it.
-
-Stage 5J:
-
-- Run a DPO v7 probe only after Stage 5H/5I data and scoring are ready.
-- Start from `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
-- Use a separate frozen reference model again.
-- Compare against SFT v3 and DPO naive v6 immediately after training.
+- Preferred next action is Stage 6 packaging: narrative, command list,
+  before/after examples, failure analysis, and resume-ready bullets.
+- If training resumes, design a broader prompt-7 curriculum first. It must
+  include more varied loss-vs-behavior prompts and stronger replay for prompts
+  1-6 and 8 before any DPO/SFT step.
 
 Stage 6:
 

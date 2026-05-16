@@ -54,10 +54,20 @@ def parse_args() -> argparse.Namespace:
 
 def run_id_from_path(path: Path) -> str:
     stem = path.stem
-    if "v7" in stem or "stage5h" in stem:
-        return "dpo_v7_stage5h"
+    if "stage5p" in stem:
+        return "stage5p_prompt7_balanced_sft"
+    if "stage5o" in stem:
+        return "stage5o_prompt7_exact_sft"
+    if "stage5n" in stem:
+        return "stage5n_prompt7_micro_sft"
+    if "v8" in stem or "stage5m" in stem:
+        return "dpo_v8_stage5m"
+    if "stage5k" in stem:
+        return "stage5k_sft_repair"
     if "naive_v6" in stem or stem.endswith("_v6"):
         return "dpo_naive_v6"
+    if "v7" in stem or "stage5h" in stem:
+        return "dpo_v7_stage5h"
     if "candidate_v5" in stem or stem.endswith("_v5"):
         return "dpo_candidate_v5"
     if "candidate_v4" in stem or stem.endswith("_v4"):
@@ -240,13 +250,13 @@ def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path) 
             f"{row['passed']} | {missing} | {forbidden} |"
         )
 
-    return f"""# Stage 5H Expanded Behavior Score Report
+    return f"""# Stage 5H/5I Expanded Behavior Score Report
 
 Date: 2026-05-16
 
 ## Scope
 
-This report scores expanded Stage 5H comparison outputs. The scorer uses
+This report scores expanded Stage 5H/5I comparison outputs. The scorer uses
 `prompt_area` metadata when available and falls back to the original fixed
 8-prompt row order only for legacy comparison files.
 

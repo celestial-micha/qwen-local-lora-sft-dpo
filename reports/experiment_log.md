@@ -322,3 +322,42 @@
 - Report: `reports/stage5h_prompt7_data_and_eval_design.md`
 - Decision: review data and expanded gate first; do not continue training from
   DPO v6, and do not run DPO v7 until this design is accepted.
+
+## Stage 5I-5P: Prompt-7 Repair Loop
+
+- Date: 2026-05-16
+- Stage 5I expanded gate check:
+  - Input: `reports/compare_outputs_four_way_dpo_naive_v6_expanded_stage5h.jsonl`
+  - Report: `reports/stage5i_expanded_behavior_score_v6_report.md`
+  - Result: DPO v6 passed 7 / 24 expanded prompts and 0 / 13 loss-vs-behavior prompts.
+- Stage 5J DPO v7:
+  - Config: `configs/dpo_qwen05b_v7_stage5h.yaml`
+  - Train/eval: 278 / 55 preference pairs.
+  - Output: `outputs/dpo_lora_qwen05b_v7_stage5h`
+  - Preference eval accuracy: 1.0000.
+  - Fixed behavior: 7 / 8; prompt 7 still failed.
+- Stage 5K direct SFT repair:
+  - Data: `data/processed/sft_stage5k_prompt7_repair_train.jsonl`, 193 train rows.
+  - Output: `outputs/sft_lora_qwen05b_stage5k_prompt7_repair`
+  - Fixed behavior: 1 / 8 on the custom variant.
+  - Decision: rejected due to severe regression.
+- Stage 5M exact-failure DPO v8:
+  - Config: `configs/dpo_qwen05b_v8_stage5m_from_v6.yaml`
+  - Train/eval: 162 / 41 preference pairs.
+  - Output: `outputs/dpo_lora_qwen05b_v8_stage5m_from_v6`
+  - Preference eval accuracy: 1.0000.
+  - Fixed behavior: 7 / 8; prompt 7 improved but still failed.
+- Stage 5N micro-SFT from v6:
+  - Data: `data/processed/sft_stage5n_prompt7_micro_train.jsonl`, 116 train rows.
+  - Output: `outputs/sft_lora_qwen05b_stage5n_prompt7_micro_from_v6`
+  - Fixed behavior: 7 / 8; old prompts preserved but prompt 7 still failed.
+- Stage 5O exact SFT from Stage 5N:
+  - Data: `data/processed/sft_stage5o_prompt7_exact_train.jsonl`, 196 train rows.
+  - Output: `outputs/sft_lora_qwen05b_stage5o_prompt7_exact_from_5n`
+  - Fixed behavior: 4 / 8; prompt 7 passed but older prompts regressed.
+- Stage 5P balanced half-epoch SFT:
+  - Data: same as Stage 5O.
+  - Output: `outputs/sft_lora_qwen05b_stage5p_prompt7_balanced_from_5n`
+  - Fixed behavior: 6 / 8; prompt 7 failed again.
+- Decision: stop the training loop. No Stage 5J-5P adapter is accepted.
+- Report: `reports/stage5j_to_5p_prompt7_repair_report.md`

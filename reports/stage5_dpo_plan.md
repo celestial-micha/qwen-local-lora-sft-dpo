@@ -385,7 +385,7 @@ Goal:
 Status:
 
 ```text
-prompt suite and scorer prepared on 2026-05-16; model comparison not run yet
+prompt suite and scorer prepared on 2026-05-16; v6 expanded comparison/scoring completed in Stage 5I
 ```
 
 Artifacts:
@@ -411,6 +411,40 @@ outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
 ```
 
 Do not stack on top of DPO v6 unless there is a deliberate experiment plan.
+
+## Stage 5I-5P Outcome Update
+
+Date: 2026-05-16
+
+Stage 5H/5I were completed first, then the training probes ran. The outcome is
+now known:
+
+| Stage | Result | Decision |
+|---|---|---|
+| 5I expanded v6 eval | DPO v6 scored 7 / 24 on the expanded suite and 0 / 13 on loss-vs-behavior prompts | v6 remains an artifact, not accepted |
+| 5J DPO v7 | 278 / 55 preference pairs, eval accuracy 1.0, fixed gate 7 / 8 | prompt 7 still failed |
+| 5K SFT repair | 193 / 55 chat rows, fixed gate 1 / 8 | rejected due to broad regression |
+| 5M DPO v8 from v6 | 162 / 41 exact-failure pairs, eval accuracy 1.0, fixed gate 7 / 8 | not better than v6 |
+| 5N micro-SFT | 116 / 13 chat rows, fixed gate 7 / 8 | stable but prompt 7 still failed |
+| 5O exact SFT | 196 / 13 chat rows, prompt 7 passed but fixed gate fell to 4 / 8 | rejected |
+| 5P balanced SFT | half epoch from Stage 5N, fixed gate 6 / 8 | rejected |
+
+The plan's original warning was correct: DPO/SFT metrics cannot be accepted
+without behavior gates. The conservative recommended checkpoint remains:
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+The best DPO experiment artifact remains:
+
+```text
+outputs/dpo_lora_qwen05b_naive_v6
+```
+
+Next action is not another DPO step. Either package the experiment as an
+interview narrative, or design a broader prompt-7 curriculum with stronger
+old-prompt replay before resuming training.
 
 ## Interview Narrative
 

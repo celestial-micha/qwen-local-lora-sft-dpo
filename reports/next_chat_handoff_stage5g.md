@@ -1,4 +1,4 @@
-# Next Chat Handoff After Stage 5G
+# Next Chat Handoff After Stage 5P
 
 Date: 2026-05-16
 
@@ -24,8 +24,9 @@ outputs/dpo_lora_qwen05b_naive_v6
 
 Do not confuse those two statements. The SFT v3 adapter remains the conservative
 recommendation because it is stable and well understood. DPO naive v6 is the
-best DPO candidate because it reached 7 / 8 fixed prompts, but it still failed
-the core loss-vs-behavior prompt.
+best DPO candidate because it reached 7 / 8 fixed prompts. Later v7/v8 also
+stayed at 7 / 8 and did not beat v6; SFT repair probes either missed prompt 7
+or regressed old prompts.
 
 ## One-Sentence Project Story
 
@@ -49,7 +50,11 @@ also pass.
 | Stage 5 DPO v1/v2/v3 | all ran without OOM; v1/v2 scored 6 / 8; v3 scored 1 / 8 | Tiny DPO data too brittle |
 | Stage 5 candidate v4/v5 | both ran without OOM; both scored 6 / 8 | Candidate data helped stability but not enough |
 | Stage 5G naive v6 | 192 train / 24 eval, separate frozen reference model, no OOM, scored 7 / 8 | Best DPO candidate; still not full pass |
-| Stage 5H prompt-7 design | 278 train / 55 eval candidate data plus 24-prompt expanded gate; no training run | Ready for review before DPO v7 |
+| Stage 5H prompt-7 design | 278 train / 55 eval candidate data plus 24-prompt expanded gate | Data/eval design completed before more training |
+| Stage 5I expanded v6 eval | v6 scored 7 / 24 expanded prompts and 0 / 13 loss-vs-behavior prompts | v6 not accepted |
+| Stage 5J DPO v7 | preference eval accuracy 1.0, fixed gate 7 / 8 | prompt 7 still failed |
+| Stage 5K/5N/5O/5P SFT probes | Stage 5N stable 7 / 8; Stage 5O passed prompt 7 but regressed to 4 / 8; Stage 5P ended 6 / 8 | no SFT repair accepted |
+| Stage 5M DPO v8 | preference eval accuracy 1.0, fixed gate 7 / 8 | not better than v6 |
 
 ## DPO Run Table
 
@@ -71,8 +76,8 @@ also pass.
    192-row balanced set improved behavior from 6 / 8 to 7 / 8 and fixed
    public-SFT motivation.
 
-3. Preference metrics are not behavior gates. v6 reached eval preference
-   accuracy 1.0, but still failed prompt 7 under fixed-prompt scoring.
+3. Preference metrics are not behavior gates. v6, v7, and v8 can look strong
+   on preference metrics, but still fail prompt 7 under fixed-prompt scoring.
 
 4. Prompt 7 is the real remaining conceptual bottleneck:
 
@@ -98,7 +103,7 @@ badcase review, old-capability regression, and the public-SFT example.
 | Focused patch overfit | v5 fixed one prompt but regressed several others | add replay and use fixed-prompt gate |
 | Tiny DPO brittleness | v1/v2/v4/v5 stuck at 6 / 8, v3 regressed badly | increase data diversity and held-out eval |
 | Argparse override bug | config `separate_ref_model: true` became `false` in logs | set argparse store_true default to `None`; rerun true separate-reference v6 |
-| Good eval but failed behavior | v6 eval accuracy 1.0 but prompt 7 failed | keep structured fixed-prompt scoring as final gate |
+| Good eval but failed behavior | v6/v7/v8 preference metrics looked strong but prompt 7 failed | keep structured fixed-prompt scoring as final gate |
 
 ## Current Key Files
 
@@ -108,6 +113,7 @@ Core reports:
 reports/project_context_for_next_chat.md
 reports/next_chat_handoff_stage5g.md
 reports/stage5g_naive_dpo_v6_report.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 reports/experiment_log.md
@@ -124,7 +130,10 @@ scripts/train_sft_lora.py
 scripts/train_dpo.py
 scripts/compare_four_outputs.py
 scripts/score_fixed_prompt_outputs.py
+scripts/score_expanded_behavior_outputs.py
 scripts/prepare_larger_dpo_v6_data.py
+scripts/prepare_stage5h_prompt7_data.py
+scripts/prepare_stage5n_prompt7_micro_sft_data.py
 ```
 
 Latest DPO config and data:
@@ -136,58 +145,36 @@ data/processed/dpo_larger_v6_eval.jsonl
 reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
 
-Stage 5H design artifacts:
+Stage 5H-5P artifacts:
 
 ```text
 scripts/prepare_stage5h_prompt7_data.py
 scripts/score_expanded_behavior_outputs.py
+scripts/prepare_stage5n_prompt7_micro_sft_data.py
 data/processed/dpo_stage5h_prompt7_train.jsonl
 data/processed/dpo_stage5h_prompt7_eval.jsonl
+data/processed/dpo_stage5m_exact_prompt7_train.jsonl
+data/processed/dpo_stage5m_exact_prompt7_eval.jsonl
+data/processed/sft_stage5n_prompt7_micro_train.jsonl
+data/processed/sft_stage5o_prompt7_exact_train.jsonl
 data/samples/custom_technical_prompts_expanded_stage5h.jsonl
 reports/stage5h_prompt7_data_and_eval_design.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 ```
 
 ## Next Stage Proposal
 
-### Stage 5H: Prompt 7 Repair Data
+### Stage 6: Final Interview Package
 
-Goal: make a cleaner loss-vs-behavior preference/eval set without breaking the
-other seven prompts.
+The recommended next stage is packaging and analysis, not more blind training:
 
-Status: data/eval design completed on 2026-05-16; do not treat this as a DPO
-result because no DPO v7 training has been run yet.
-
-Suggested work:
-
-- Review `reports/stage5h_prompt7_data_and_eval_design.md`.
-- Check the 278-row train and 55-row eval preference files.
-- Keep the 72 new prompt-7 train pairs and 24 held-out prompt-7 eval pairs
-  only if their near-miss rejected answers look realistic.
-- Keep replay rows for prompts 1-6 and 8.
-- Do not rely only on generated train preference accuracy.
-
-### Stage 5I: Expanded Behavior Gate
-
-Goal: avoid overfitting the 8 fixed prompts.
-
-Suggested work:
-
-- Use `data/samples/custom_technical_prompts_expanded_stage5h.jsonl`.
-- Keep the old 8 prompts unchanged as regression tests.
-- Use `scripts/score_expanded_behavior_outputs.py` for metadata-based scoring.
-- Require prompt-7 held-outs to pass before accepting DPO v7.
-
-### Stage 5J: DPO v7 Probe
-
-Only after Stage 5H/5I data exists:
-
-- Start from SFT v3 again, not from DPO v6.
-- Use separate frozen reference model again.
-- Use roughly 200-300 train pairs and 40 eval pairs.
-- Conservative starting config: max_length 384, max_prompt_length 160,
-  batch size 1, grad_accum 4, learning rate 5e-6 to 8e-6, beta 0.08.
-- Run fixed-prompt and expanded-prompt behavior checks immediately after
-  training.
+- write the final experiment narrative;
+- create before/after examples;
+- explain why loss and preference accuracy were insufficient;
+- keep SFT v3 as the conservative checkpoint and DPO v6 as the best DPO
+  artifact;
+- only resume training after designing a broader prompt-7 curriculum with
+  stronger replay protection.
 
 ### Stage 6: Final Interview Package
 
@@ -211,6 +198,7 @@ D:\coding\qwen lorar sft\qwen-local-lora-sft-dpo
 reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 PROJECT_RUNBOOK.md
@@ -218,5 +206,5 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后审核 Stage 5H 已生成的 prompt 7 preference/eval 数据和 expanded behavior gate：确认数据分布、near-miss rejected answers 和 scorer 规则是否合理。不要直接继续加 DPO step；只有数据和评测设计通过后，才从 SFT v3 出发准备 DPO v7。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点复盘 Stage 5I-5P 为什么 loss / preference accuracy 不能替代 behavior gate。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
 ```

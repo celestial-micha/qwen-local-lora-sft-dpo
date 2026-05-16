@@ -41,12 +41,13 @@ Completed:
 - Stage 5C fixed-prompt behavior comparison completed, but the behavior gate did not pass. DPO-tiny clearly preserved 5/8 prompts, had 1 watch prompt, and failed 2/8 prompts.
 - Stage 5 follow-up revision loop completed. DPO v2/v3/v4/v5/v6 all ran without OOM. Larger naive DPO v6 is the best DPO candidate so far at 7/8 fixed prompts, but still fails the loss-vs-behavior prompt.
 - Stage 5 structured behavior scoring completed. It confirms custom-SFT v3 passes 7/8 prompts; DPO v1/v2/v4/v5 pass 6/8; DPO v3 passes 1/8; and naive DPO v6 passes 7/8.
-- Stage 5H prompt-7 repair data/eval design completed. It created a 278-row train preference file, a 55-row held-out eval file, a 24-prompt expanded behavior suite, and a metadata-based expanded scorer. No DPO v7 training has been run yet.
+- Stage 5H prompt-7 repair data/eval design completed. It created a 278-row train preference file, a 55-row held-out eval file, a 24-prompt expanded behavior suite, and a metadata-based expanded scorer.
+- Stage 5I-5P prompt-7 repair loop completed. DPO v7 and v8 reached preference accuracy 1.0 but still failed fixed prompt 7; direct SFT probes could either preserve old prompts while missing prompt 7 or force prompt 7 while regressing old prompts. No new adapter is accepted.
 
 Not completed yet:
 
 - A fully accepted DPO adapter. v6 is promising, but not a complete pass.
-- DPO v7 training and expanded behavior comparison.
+- A stable prompt-7 repair that passes without old-prompt regression.
 - Multi-GPU notes or experiments.
 
 ## Why This Project Exists
@@ -209,6 +210,17 @@ data/samples/custom_technical_prompts_expanded_stage5h.jsonl
 scripts/score_expanded_behavior_outputs.py
 ```
 
+Stage 5J-5P repair-loop artifacts:
+
+```text
+configs/dpo_qwen05b_v7_stage5h.yaml
+configs/dpo_qwen05b_v8_stage5m_from_v6.yaml
+data/processed/dpo_stage5m_exact_prompt7_train.jsonl
+data/processed/sft_stage5n_prompt7_micro_train.jsonl
+data/processed/sft_stage5o_prompt7_exact_train.jsonl
+reports/stage5j_to_5p_prompt7_repair_report.md
+```
+
 Compare outputs:
 
 ```powershell
@@ -336,24 +348,25 @@ gradually.
 - [Stage 5 candidate DPO v4/v5 report](reports/stage5_candidate_dpo_v4_v5_report.md)
 - [Stage 5 larger naive DPO v6 report](reports/stage5g_naive_dpo_v6_report.md)
 - [Stage 5H prompt-7 data and expanded eval design](reports/stage5h_prompt7_data_and_eval_design.md)
+- [Stage 5J-5P prompt-7 repair report](reports/stage5j_to_5p_prompt7_repair_report.md)
 - [Next chat handoff after Stage 5G](reports/next_chat_handoff_stage5g.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
 
 ## Next Step
 
-Stage 5A/B/C plus the v2/v3, candidate-derived v4/v5, larger naive v6 DPO loop,
-and Stage 5H data/eval design are complete. v6 is the best DPO candidate so far
-at 7/8 fixed prompts, but the core loss-vs-behavior gate still did not pass:
+Stage 5A/B/C through Stage 5P are complete. v6 remains the best DPO candidate
+artifact at 7/8 fixed prompts, but the core loss-vs-behavior gate still did not
+pass in any accepted adapter:
 
 1. Review `reports/stage5_dpo_revision_loop_report.md`.
 2. Review `reports/stage5_candidate_dpo_v4_v5_report.md`.
 3. Review `reports/stage5g_naive_dpo_v6_report.md`.
 4. Review `reports/stage5_structured_behavior_score_report.md`.
-5. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
-6. Treat the DPO adapters as experiment artifacts until prompt 7 passes.
-7. Review the Stage 5H train/eval files and expanded prompt suite before
-   running any DPO v7 training.
+5. Review `reports/stage5j_to_5p_prompt7_repair_report.md`.
+6. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
+7. Treat DPO v6 as the best DPO artifact, not the default recommendation.
+8. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
 
 ## Next Chat
 
@@ -363,11 +376,12 @@ For a new empty chat, start by asking the assistant to read:
 reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md
 PROJECT_RUNBOOK.md
 notebooks/04_full_pipeline_learning.ipynb
 ```
 
-Then review the Stage 5H loss-vs-behavior preference/eval data and expanded
-behavior gate before running another DPO training pass. Move to DPO v7 only
-after the data and scorer are accepted.
+Then continue with analysis/packaging, not more blind DPO. The important story
+is that loss and preference accuracy were insufficient without behavior-gate
+success.

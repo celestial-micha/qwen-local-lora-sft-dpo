@@ -92,3 +92,26 @@ Stage 5H prompt-7 repair design files:
 Stage 5H does not run DPO training. It prepares the next candidate data and the
 expanded behavior gate first. See
 `reports/stage5h_prompt7_data_and_eval_design.md`.
+
+Stage 5K/5N/5O prompt-7 SFT repair files:
+
+- `sft_stage5k_prompt7_repair_train.jsonl`: 193 train chat rows converted
+  from Stage 5H chosen answers.
+- `sft_stage5k_prompt7_repair_eval.jsonl`: 55 eval chat rows.
+- `sft_stage5n_prompt7_micro_train.jsonl`: 116 train chat rows for a
+  conservative micro-SFT repair from DPO v6.
+- `sft_stage5n_prompt7_micro_eval.jsonl`: 13 eval chat rows.
+- `sft_stage5o_prompt7_exact_train.jsonl`: 196 train chat rows with stronger
+  exact prompt-7 repetition.
+- `sft_stage5o_prompt7_exact_eval.jsonl`: 13 eval chat rows.
+
+Stage 5M exact-failure DPO files:
+
+- `dpo_stage5m_exact_prompt7_train.jsonl`: 162 train preference pairs built
+  from actual prompt-7 failures from v6/v7/Stage 5K.
+- `dpo_stage5m_exact_prompt7_eval.jsonl`: 41 eval preference pairs.
+
+Outcome: these files were useful diagnostics, but no Stage 5K-5P adapter is an
+accepted checkpoint. Stage 5N preserved old prompts but still failed prompt 7;
+Stage 5O passed prompt 7 only with old-prompt regression; Stage 5P did not find
+a stable middle point. See `reports/stage5j_to_5p_prompt7_repair_report.md`.

@@ -672,7 +672,7 @@ reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 
 ## 2026-05-16 Stage 5H prompt 7 数据和 expanded gate 设计
 
-已完成数据和评测设计，但没有运行 DPO v7 训练：
+当时先完成数据和评测设计，并刻意先不运行 DPO v7：
 
 ```text
 scripts/prepare_stage5h_prompt7_data.py
@@ -702,9 +702,70 @@ Expanded behavior prompts: 24
 - expanded gate 保留原始 8 个固定 prompt，并加入 12 个 prompt 7 held-out
   改写和 4 个 replay holdout。
 
-下一步：先人工审核 Stage 5H 数据和 expanded gate，再考虑从
-`outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` 出发训练 DPO v7。不要从
-DPO v6 继续叠 adapter。
+后续已基于这套设计继续完成 Stage 5I-5P，结论见下一节。
+
+## 2026-05-16 Stage 5I-5P prompt 7 修复循环
+
+已完成 expanded gate、DPO v7/v8 和多轮 SFT 修复探针：
+
+```text
+Stage 5I expanded v6:
+  reports/compare_outputs_four_way_dpo_naive_v6_expanded_stage5h.jsonl
+  reports/stage5i_expanded_behavior_score_v6_report.md
+  result: v6 expanded 7 / 24, loss-vs-behavior 0 / 13
+
+Stage 5J DPO v7:
+  configs/dpo_qwen05b_v7_stage5h.yaml
+  outputs/dpo_lora_qwen05b_v7_stage5h
+  train/eval: 278 / 55
+  preference eval accuracy: 1.0
+  fixed behavior: 7 / 8, prompt 7 failed
+
+Stage 5K direct SFT repair:
+  data/processed/sft_stage5k_prompt7_repair_train.jsonl
+  outputs/sft_lora_qwen05b_stage5k_prompt7_repair
+  fixed behavior: 1 / 8, rejected
+
+Stage 5M DPO v8 from v6:
+  configs/dpo_qwen05b_v8_stage5m_from_v6.yaml
+  outputs/dpo_lora_qwen05b_v8_stage5m_from_v6
+  train/eval: 162 / 41
+  preference eval accuracy: 1.0
+  fixed behavior: 7 / 8, prompt 7 still failed
+
+Stage 5N micro-SFT from v6:
+  data/processed/sft_stage5n_prompt7_micro_train.jsonl
+  outputs/sft_lora_qwen05b_stage5n_prompt7_micro_from_v6
+  fixed behavior: 7 / 8, prompt 7 still failed
+
+Stage 5O exact SFT from 5N:
+  data/processed/sft_stage5o_prompt7_exact_train.jsonl
+  outputs/sft_lora_qwen05b_stage5o_prompt7_exact_from_5n
+  fixed behavior: 4 / 8, prompt 7 passed but old prompts regressed
+
+Stage 5P balanced half-epoch SFT:
+  outputs/sft_lora_qwen05b_stage5p_prompt7_balanced_from_5n
+  fixed behavior: 6 / 8, prompt 7 failed again
+```
+
+关键结论：
+
+- v7/v8 证明 preference accuracy 1.0 也不能替代固定 behavior gate。
+- Stage 5O 证明 exact prompt SFT 可以强行修 prompt 7，但会破坏旧题。
+- Stage 5N 最稳定，但仍是 7/8，不是接受 checkpoint。
+- 保守推荐 checkpoint 仍是：
+
+```text
+outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+```
+
+- 最好 DPO artifact 仍是：
+
+```text
+outputs/dpo_lora_qwen05b_naive_v6
+```
+
+下一步不要继续盲目加 DPO/SFT step。优先做 Stage 6 分析和面试包装；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和更强的旧题 replay。
 
 ## 下一次空聊天入口提示
 
@@ -718,6 +779,7 @@ D:\coding\qwen lorar sft\qwen-local-lora-sft-dpo
 reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
+reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 PROJECT_RUNBOOK.md
@@ -725,7 +787,7 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。然后审核 Stage 5H 已生成的 prompt 7 preference/eval 数据和 expanded behavior gate：确认数据分布、near-miss rejected answers 和 scorer 规则是否合理。不要直接继续加 DPO step；只有数据和评测设计通过后，才从 SFT v3 出发准备 DPO v7。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点复盘 Stage 5I-5P 为什么 loss / preference accuracy 不能替代 behavior gate。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
 ```
 
-下一阶段不要从 DPO v6 继续叠 adapter，优先从 SFT v3 重新开始设计 v7。v6 是最佳 DPO 候选，但不是完全通过的推荐替代品。
+下一阶段优先 Stage 6 包装和复盘。v6 是最佳 DPO 候选 artifact，但不是完全通过的推荐替代品。
