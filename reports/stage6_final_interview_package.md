@@ -268,6 +268,7 @@ also pass.
 Core files:
 
 ```text
+reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 reports/stage5j_to_5p_prompt7_repair_report.md
 reports/stage5_structured_behavior_score_report.md

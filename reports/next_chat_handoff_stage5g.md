@@ -115,6 +115,7 @@ reports/project_context_for_next_chat.md
 reports/next_chat_handoff_stage5g.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
@@ -162,6 +163,7 @@ data/processed/sft_stage5o_prompt7_exact_train.jsonl
 data/samples/custom_technical_prompts_expanded_stage5h.jsonl
 reports/stage5h_prompt7_data_and_eval_design.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 ```
 
@@ -193,6 +195,7 @@ reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
@@ -201,5 +204,5 @@ README.zh-CN.md
 README.md
 notebooks/04_full_pipeline_learning.ipynb
 
-读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点阅读 Stage 6 最终面试包，继续完善面试讲述、简历 bullet、before/after 示例或 demo flow。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
+读完后，请先用中文总结当前状态、推荐 checkpoint、最好 DPO 候选、剩余问题和下一阶段计划。重点阅读项目最终总结和 Stage 6 最终面试包，继续完善面试讲述、简历 bullet、before/after 示例或 demo flow。不要继续盲目加 DPO step；如果要恢复训练，先设计更宽的 prompt 7 curriculum 和回归保护。
 ```

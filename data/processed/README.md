@@ -115,3 +115,14 @@ Outcome: these files were useful diagnostics, but no Stage 5K-5P adapter is an
 accepted checkpoint. Stage 5N preserved old prompts but still failed prompt 7;
 Stage 5O passed prompt 7 only with old-prompt regression; Stage 5P did not find
 a stable middle point. See `reports/stage5j_to_5p_prompt7_repair_report.md`.
+
+Final project summary:
+
+- Conservative checkpoint:
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Best DPO artifact:
+  `outputs/dpo_lora_qwen05b_naive_v6`
+- Final summary:
+  `reports/final_project_summary_zh.md`
+- Stage 6 interview package:
+  `reports/stage6_final_interview_package.md`

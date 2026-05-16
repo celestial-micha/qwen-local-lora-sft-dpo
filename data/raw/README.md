@@ -27,3 +27,14 @@ Current Stage 2B local custom-data snapshot:
   it was too noisy. The current snapshot is the revised version with fewer
   generic project-record samples, more direct targeted QA samples, and the
   Stage 2B.2/2B.3 badcase patches.
+
+Final project update:
+
+- The raw/custom data loop supported the final accepted SFT checkpoint:
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+- Later DPO and repair datasets live under `data/processed/`.
+- The best DPO artifact is `outputs/dpo_lora_qwen05b_naive_v6`, but it is not
+  the default recommended checkpoint.
+- Final summary entry points:
+  `reports/final_project_summary_zh.md` and
+  `reports/stage6_final_interview_package.md`.

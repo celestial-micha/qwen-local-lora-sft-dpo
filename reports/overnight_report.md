@@ -238,3 +238,22 @@ Base inference first. Then tiny demo SFT. Then real SFT data.
 ```
 
 DPO should wait until LoRA SFT is demonstrably stable.
+
+## 9. Final Update On 2026-05-16
+
+This report is now a historical early-project snapshot. The project has since
+completed public-SFT, custom-SFT, DPO v1-v8 probes, expanded behavior scoring,
+and Stage 6 packaging.
+
+Final decision:
+
+```text
+Recommended checkpoint: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+Best DPO artifact:      outputs/dpo_lora_qwen05b_naive_v6
+Final summary:          reports/final_project_summary_zh.md
+Interview package:      reports/stage6_final_interview_package.md
+```
+
+The key final lesson is that lower loss and high preference accuracy were not
+enough. The project accepted only behavior-gated results, and stopped training
+when prompt 7 could not be fixed without old-prompt regression.

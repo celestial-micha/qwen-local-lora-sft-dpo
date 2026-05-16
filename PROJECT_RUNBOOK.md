@@ -651,6 +651,7 @@ Stage 5Q or Stage 6:
 
 - Stage 6 packaging is complete: narrative, command list, before/after
   examples, failure analysis, and resume-ready bullets.
+- Final project summary: `reports/final_project_summary_zh.md`.
 - Main report: `reports/stage6_final_interview_package.md`.
 - If training resumes, design a broader prompt-7 curriculum first. It must
   include more varied loss-vs-behavior prompts and stronger replay for prompts
@@ -659,4 +660,5 @@ Stage 5Q or Stage 6:
 Stage 6:
 
 - Status: completed on 2026-05-16.
+- Final summary: `reports/final_project_summary_zh.md`.
 - Final package: `reports/stage6_final_interview_package.md`.

@@ -369,6 +369,7 @@
 - Goal: package the project for interview/resume use instead of adding more
   DPO/SFT steps.
 - Report: `reports/stage6_final_interview_package.md`
+- Final project summary: `reports/final_project_summary_zh.md`
 - Contents:
   - 30-second and two-minute interview narratives.
   - Before/after examples for LoRA definition, SFT vs LoRA, and the data

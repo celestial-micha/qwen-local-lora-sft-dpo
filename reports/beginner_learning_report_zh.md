@@ -320,3 +320,30 @@ DPO 可能更高，第一版只能小样本、短序列、batch_size=1 做 smoke
 - 你能解释为什么 public-SFT 没解决目标问题，以及下一步怎么用数据修正。
 - 你对显存和 DPO 风险有预案。
 - 你知道下一步怎么迭代。
+
+## 11. 2026-05-16 最终更新
+
+项目后来已经继续完成 Stage 5 和 Stage 6：
+
+- Stage 5 tiny DPO、candidate DPO、larger naive DPO、Stage 5H prompt 7 数据
+  设计、expanded behavior gate、DPO v7/v8、SFT repair probes 都已经跑完。
+- DPO 硬件可行：8GB RTX 4060 Laptop GPU 可以跑 Qwen2.5-0.5B LoRA DPO，
+  包括 separate frozen reference 的 v6。
+- 行为没有完全通过：DPO v6/v7/v8 都停在固定 prompt 7 / 8，prompt 7
+  仍然失败。
+- Stage 5O 证明 exact SFT 可以强行修 prompt 7，但会把旧题打坏，所以不能
+  只看单题通过。
+- Stage 6 已完成最终面试包。
+
+最终推荐：
+
+```text
+保守推荐 checkpoint: outputs/sft_lora_qwen05b_custom_v3_from_v1_patch
+最好 DPO artifact:   outputs/dpo_lora_qwen05b_naive_v6
+最终总结:             reports/final_project_summary_zh.md
+面试包:               reports/stage6_final_interview_package.md
+```
+
+现在这份 beginner report 应理解为“学习过程记录”。真正最终结论以
+`reports/final_project_summary_zh.md` 和
+`reports/stage6_final_interview_package.md` 为准。

@@ -350,6 +350,7 @@ gradually.
 - [Stage 5 larger naive DPO v6 report](reports/stage5g_naive_dpo_v6_report.md)
 - [Stage 5H prompt-7 data and expanded eval design](reports/stage5h_prompt7_data_and_eval_design.md)
 - [Stage 5J-5P prompt-7 repair report](reports/stage5j_to_5p_prompt7_repair_report.md)
+- [Final project summary zh](reports/final_project_summary_zh.md)
 - [Stage 6 final interview package](reports/stage6_final_interview_package.md)
 - [Next chat handoff after Stage 5G](reports/next_chat_handoff_stage5g.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
@@ -366,10 +367,11 @@ loss-vs-behavior gate still did not pass in any accepted adapter:
 3. Review `reports/stage5g_naive_dpo_v6_report.md`.
 4. Review `reports/stage5_structured_behavior_score_report.md`.
 5. Review `reports/stage5j_to_5p_prompt7_repair_report.md`.
-6. Review `reports/stage6_final_interview_package.md`.
-7. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
-8. Treat DPO v6 as the best DPO artifact, not the default recommendation.
-9. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
+6. Review `reports/final_project_summary_zh.md`.
+7. Review `reports/stage6_final_interview_package.md`.
+8. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
+9. Treat DPO v6 as the best DPO artifact, not the default recommendation.
+10. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
 
 ## Next Chat
 
@@ -380,6 +382,7 @@ reports/next_chat_handoff_stage5g.md
 reports/project_context_for_next_chat.md
 reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
+reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 reports/stage5_structured_behavior_score_report.md
 PROJECT_RUNBOOK.md
