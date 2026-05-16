@@ -38,6 +38,8 @@ data/processed/*
 !data/processed/dpo_candidate_eval.jsonl
 !data/processed/dpo_candidate_v5_train.jsonl
 !data/processed/dpo_candidate_v5_eval.jsonl
+!data/processed/dpo_larger_v6_train.jsonl
+!data/processed/dpo_larger_v6_eval.jsonl
 !data/samples/*.jsonl
 
 .env

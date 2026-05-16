@@ -640,3 +640,32 @@ reports/stage5_candidate_dpo_v4_v5_report.md
 reports/stage5_structured_behavior_score_report.md
 reports/stage5_dpo_plan.md
 ```
+
+## 2026-05-16 Stage 5G naive DPO v6
+
+用户允许放开一点做更大的朴素 DPO 后，已完成：
+
+```text
+train/eval: 192 / 24
+config: configs/dpo_qwen05b_v6_naive.yaml
+output: outputs/dpo_lora_qwen05b_naive_v6
+mode: separate frozen reference model
+optimizer steps: 48
+runtime: 271.4 seconds
+final eval loss: 0.0474
+final eval preference accuracy: 1.0
+max allocated VRAM: 3.415 GB
+max reserved VRAM: 8.686 GB
+behavior score: 7 / 8
+remaining fail: prompt 7 loss-vs-behavior
+```
+
+这个结果说明：硬件确实能扛更大的 naive DPO；v6 是目前最好的 DPO 候选，但核心 prompt 7 仍未过 gate。下一轮如果继续，应优先重新设计 loss-vs-behavior 的 held-out prompt 和 preference 数据，而不是只继续加 step。
+
+关键报告：
+
+```text
+reports/stage5g_naive_dpo_v6_report.md
+reports/stage5_structured_behavior_score_report.md
+reports/compare_outputs_four_way_dpo_naive_v6.jsonl
+```

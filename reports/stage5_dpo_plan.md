@@ -267,8 +267,13 @@ Stage 5F/B.5/C.5: focused candidate v5 data, 28 train pairs and 7 eval pairs,
 DPO ran without OOM, but still scored 6/8 and weakened the loss-vs-behavior
 answer again.
 
+Stage 5G/B.6/C.6: larger naive v6 data, 192 train pairs and 24 eval pairs,
+separate frozen reference model, DPO ran without OOM and scored 7/8. It fixed
+public-SFT motivation but still failed loss-vs-behavior.
+
 Report: reports/stage5_dpo_revision_loop_report.md
 Candidate report: reports/stage5_candidate_dpo_v4_v5_report.md
+Naive v6 report: reports/stage5g_naive_dpo_v6_report.md
 ```
 
 The current recommended checkpoint remains:
@@ -295,6 +300,7 @@ DPO-tiny v2: 6 / 8 prompts passed
 DPO-tiny v3: 1 / 8 prompts passed
 DPO-candidate v4: 6 / 8 prompts passed
 DPO-candidate v5: 6 / 8 prompts passed
+DPO-naive v6: 7 / 8 prompts passed
 ```
 
 This supports the manual gate decision: no DPO adapter replaces SFT v3 yet.

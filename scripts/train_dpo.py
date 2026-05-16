@@ -1,7 +1,7 @@
-"""Run a tiny Stage 5B DPO smoke test.
+"""Run a Stage 5 DPO experiment.
 
-This script is intentionally conservative. It is designed for the first local
-8GB VRAM probe, not for full DPO training.
+The default config remains conservative, but later Stage 5 runs can opt into a
+larger dataset and a separate frozen reference model.
 """
 
 from __future__ import annotations
@@ -81,6 +81,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--eval_steps", type=int, default=None)
     parser.add_argument("--save_steps", type=int, default=None)
     parser.add_argument("--report_to", default=None)
+    parser.add_argument("--separate_ref_model", action="store_true", default=None)
     parser.add_argument("--local_files_only", action="store_true")
     parser.add_argument("--gradient_checkpointing", action="store_true")
     parser.add_argument(
@@ -112,6 +113,7 @@ def merged_config(args: argparse.Namespace) -> dict[str, Any]:
         "logging_steps": 10,
         "eval_steps": 10,
         "save_steps": 200,
+        "separate_ref_model": False,
         "report_to": "none",
     }
     defaults.update(config)
@@ -145,6 +147,27 @@ def load_policy_model(config: dict[str, Any], local_files_only: bool) -> torch.n
         str(config["sft_adapter_path"]),
         is_trainable=True,
     )
+    return model
+
+
+def load_reference_model(config: dict[str, Any], local_files_only: bool) -> torch.nn.Module:
+    dtype = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
+    dtype_arg = "dtype" if int(transformers.__version__.split(".", maxsplit=1)[0]) >= 5 else "torch_dtype"
+    base_model = AutoModelForCausalLM.from_pretrained(
+        str(config["model_name"]),
+        **{dtype_arg: dtype if torch.cuda.is_available() else torch.float32},
+        device_map="auto" if torch.cuda.is_available() else None,
+        local_files_only=local_files_only,
+    )
+    base_model.config.use_cache = False
+    model = PeftModel.from_pretrained(
+        base_model,
+        str(config["sft_adapter_path"]),
+        is_trainable=False,
+    )
+    model.eval()
+    for param in model.parameters():
+        param.requires_grad_(False)
     return model
 
 
@@ -219,6 +242,11 @@ def main() -> None:
     eval_dataset = Dataset.from_list(eval_rows) if eval_rows else None
     model = load_policy_model(config, local_files_only=local_files_only)
     model.print_trainable_parameters()
+    ref_model = None
+    if bool(config.get("separate_ref_model", False)):
+        print("Loading separate frozen reference model...")
+        ref_model = load_reference_model(config, local_files_only=local_files_only)
+        print("Reference model loaded.")
 
     if args.gradient_checkpointing and hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
@@ -250,14 +278,14 @@ def main() -> None:
 
     trainer = DPOTrainer(
         model=model,
-        ref_model=None,
+        ref_model=ref_model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
     )
 
-    print("Stage 5B tiny DPO config:")
+    print("Stage 5 DPO config:")
     print(json.dumps(config, ensure_ascii=False, indent=2))
     print("Rows:", len(rows))
     if eval_rows is not None:

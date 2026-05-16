@@ -433,9 +433,9 @@ Goal:
 - Run minimal DPO after the tiny dataset exists.
 - Save the first tiny adapter to `outputs/dpo_lora_qwen05b_tiny`.
 
-Status: Stage 5A/B/C, v2/v3 revision loops, and candidate-derived v4/v5 loops
-are complete. Stage 5D larger DPO is blocked because the behavior gate did not
-pass.
+Status: Stage 5A/B/C, v2/v3 revision loops, candidate-derived v4/v5 loops, and
+the larger naive v6 loop are complete. Stage 5D full expansion is still blocked
+because the core loss-vs-behavior gate did not pass.
 
 Report:
 
@@ -446,6 +446,7 @@ reports/stage5b_tiny_dpo_smoke_report.md
 reports/stage5c_tiny_dpo_behavior_report.md
 reports/stage5_dpo_revision_loop_report.md
 reports/stage5_candidate_dpo_v4_v5_report.md
+reports/stage5g_naive_dpo_v6_report.md
 reports/stage5_structured_behavior_score_report.md
 ```
 
@@ -569,14 +570,15 @@ VRAM note:
 Current decision:
 
 - Do not run larger DPO yet.
-- The machine handled 33-row, 47-row, 57-row, 20-row, and 28-row tiny DPO runs
-  without OOM.
+- The machine handled 33-row, 47-row, 57-row, 20-row, 28-row, and 192-row DPO
+  runs without OOM.
 - Behavior did not pass: v2 still failed the loss-vs-behavior prompt, v3
   regressed several previously stable prompts, and candidate v4/v5 still failed
-  public-SFT motivation plus loss-vs-behavior.
+  public-SFT motivation plus loss-vs-behavior. Larger naive v6 fixed
+  public-SFT motivation but still failed loss-vs-behavior.
 - Structured scoring confirms the manual decision: custom-SFT v3 passes 7/8
   fixed prompts; DPO v1/v2 pass 6/8; DPO v3 passes only 1/8; candidate v4/v5
-  pass 6/8.
+  pass 6/8; naive v6 passes 7/8.
 - Current recommended checkpoint remains
   `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
 

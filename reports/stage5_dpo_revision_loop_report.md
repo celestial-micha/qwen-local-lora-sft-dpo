@@ -254,11 +254,15 @@ Stage 5 then continued with two candidate-derived retries:
 - v5 added 8 focused rows for the exact v4 failures, giving 28 train pairs and
   7 eval pairs. It also ran without OOM and reloaded, but scoring stayed 6 / 8
   and the loss-vs-behavior answer weakened again.
+- v6 used a larger 192-row train split, 24-row eval split, and a separate frozen
+  reference model. It also ran without OOM, scored 7 / 8, and fixed
+  public-SFT motivation, but prompt 7 loss-vs-behavior still failed.
 
 Follow-up report:
 
 ```text
 reports/stage5_candidate_dpo_v4_v5_report.md
+reports/stage5g_naive_dpo_v6_report.md
 ```
 
 ## Next Technical Direction

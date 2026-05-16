@@ -281,3 +281,24 @@
 - v5 result: no OOM, adapter reload passed, final eval accuracy 0.8571, structured behavior score 6/8.
 - Decision: Stage 5D larger DPO remains blocked. Candidate v4/v5 still failed prompt 4 public-SFT motivation and prompt 7 loss-vs-behavior.
 - Report: `reports/stage5_candidate_dpo_v4_v5_report.md`
+
+## Stage 5G: Larger Naive DPO v6
+
+- Date: 2026-05-16
+- Starting adapter: `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`
+- Train file: `data/processed/dpo_larger_v6_train.jsonl`, 192 preference pairs.
+- Eval file: `data/processed/dpo_larger_v6_eval.jsonl`, 24 preference pairs.
+- Config: `configs/dpo_qwen05b_v6_naive.yaml`
+- Training mode: separate frozen reference model (`separate_ref_model: true`)
+- Output adapter: `outputs/dpo_lora_qwen05b_naive_v6`
+- Optimizer steps: 48
+- Runtime: 271.4 seconds including save.
+- Final train loss: 0.2418
+- Final eval loss: 0.0474
+- Final eval preference accuracy: 1.0000
+- Max allocated VRAM: 3.415 GB
+- Max reserved VRAM: 8.686 GB
+- Adapter reload: passed.
+- Fixed-prompt score: 7 / 8, best DPO candidate so far.
+- Remaining failure: prompt 7 loss-vs-behavior.
+- Report: `reports/stage5g_naive_dpo_v6_report.md`

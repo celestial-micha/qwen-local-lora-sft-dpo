@@ -178,6 +178,7 @@ def parse_args() -> argparse.Namespace:
             "reports/compare_outputs_four_way_dpo_tiny_v3.jsonl",
             "reports/compare_outputs_four_way_dpo_candidate_v4.jsonl",
             "reports/compare_outputs_four_way_dpo_candidate_v5.jsonl",
+            "reports/compare_outputs_four_way_dpo_naive_v6.jsonl",
         ],
     )
     parser.add_argument("--output_jsonl", default="reports/stage5_structured_behavior_scores.jsonl")
@@ -188,6 +189,8 @@ def parse_args() -> argparse.Namespace:
 
 def run_id_from_path(path: Path) -> str:
     name = path.stem
+    if "naive_v6" in name or name.endswith("_v6"):
+        return "dpo_naive_v6"
     if "candidate_v5" in name or name.endswith("_v5"):
         return "dpo_candidate_v5"
     if "candidate_v4" in name or name.endswith("_v4"):
@@ -316,7 +319,14 @@ def summarize(rows: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any
 
 def render_report(rows: list[dict[str, Any]], jsonl_path: Path, csv_path: Path) -> str:
     summary = summarize(rows)
-    preferred_run_order = ["dpo_tiny_v1", "dpo_tiny_v2", "dpo_tiny_v3", "dpo_candidate_v4", "dpo_candidate_v5"]
+    preferred_run_order = [
+        "dpo_tiny_v1",
+        "dpo_tiny_v2",
+        "dpo_tiny_v3",
+        "dpo_candidate_v4",
+        "dpo_candidate_v5",
+        "dpo_naive_v6",
+    ]
     present_runs = {row["run_id"] for row in rows}
     run_order = [run_id for run_id in preferred_run_order if run_id in present_runs]
     run_order.extend(sorted(present_runs - set(run_order)))
@@ -366,6 +376,7 @@ reports/compare_outputs_four_way_dpo_tiny_v2.jsonl
 reports/compare_outputs_four_way_dpo_tiny_v3.jsonl
 reports/compare_outputs_four_way_dpo_candidate_v4.jsonl
 reports/compare_outputs_four_way_dpo_candidate_v5.jsonl
+reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
 
 Outputs:
@@ -394,8 +405,10 @@ The structured scores support the manual Stage 5 decision:
   public-SFT motivation and loss-vs-behavior.
 - Focused candidate v5 did not fix those two gates and weakened the
   loss-vs-behavior answer again.
-- None of the DPO adapters should replace the current SFT v3 adapter.
-- Stage 5D larger DPO remains blocked.
+- Larger naive v6 is the best DPO candidate so far at 7 / 8 prompts. It fixed
+  public-SFT motivation, but still failed the core loss-vs-behavior gate.
+- No DPO adapter has fully passed the fixed-prompt gate yet.
+- Further DPO expansion remains blocked until prompt 7 passes.
 
 Recommended checkpoint remains:
 

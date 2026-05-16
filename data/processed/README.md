@@ -70,3 +70,13 @@ Candidate-derived Stage 5 follow-up files:
 Candidate v4/v5 DPO also ran without OOM, but both scored 6 / 8 on fixed
 prompts. Stage 5D remains blocked; the recommended checkpoint remains
 `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`.
+
+Stage 5G larger/naive DPO files:
+
+- `dpo_larger_v6_train.jsonl`: 192 train preference pairs.
+- `dpo_larger_v6_eval.jsonl`: 24 held-out preference eval pairs.
+
+Stage 5G used a separate frozen reference model and also ran without OOM. It is
+the best DPO candidate so far at 7 / 8 fixed prompts, but prompt 7
+loss-vs-behavior still failed the structured gate. See
+`reports/stage5g_naive_dpo_v6_report.md`.

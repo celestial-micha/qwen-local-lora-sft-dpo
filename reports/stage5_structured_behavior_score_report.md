@@ -19,6 +19,7 @@ reports/compare_outputs_four_way_dpo_tiny_v2.jsonl
 reports/compare_outputs_four_way_dpo_tiny_v3.jsonl
 reports/compare_outputs_four_way_dpo_candidate_v4.jsonl
 reports/compare_outputs_four_way_dpo_candidate_v5.jsonl
+reports/compare_outputs_four_way_dpo_naive_v6.jsonl
 ```
 
 Outputs:
@@ -52,6 +53,10 @@ reports/stage5_structured_behavior_scores.csv
 | dpo_candidate_v5 | `public_sft_answer` | 0 / 8 | -11 | 1: LoRA definition, 2: SFT and LoRA relation, 3: DPO vs SFT, 4: Public-SFT motivation, 5: Data pipeline, 6: DPO VRAM risk, 7: Loss vs behavior, 8: Interview data pipeline |
 | dpo_candidate_v5 | `custom_sft_v3_answer` | 7 / 8 | 33 | 7: Loss vs behavior |
 | dpo_candidate_v5 | `dpo_tiny_answer` | 6 / 8 | 31 | 4: Public-SFT motivation, 7: Loss vs behavior |
+| dpo_naive_v6 | `base_answer` | 0 / 8 | -5 | 1: LoRA definition, 2: SFT and LoRA relation, 3: DPO vs SFT, 4: Public-SFT motivation, 5: Data pipeline, 6: DPO VRAM risk, 7: Loss vs behavior, 8: Interview data pipeline |
+| dpo_naive_v6 | `public_sft_answer` | 0 / 8 | -11 | 1: LoRA definition, 2: SFT and LoRA relation, 3: DPO vs SFT, 4: Public-SFT motivation, 5: Data pipeline, 6: DPO VRAM risk, 7: Loss vs behavior, 8: Interview data pipeline |
+| dpo_naive_v6 | `custom_sft_v3_answer` | 7 / 8 | 33 | 7: Loss vs behavior |
+| dpo_naive_v6 | `dpo_tiny_answer` | 7 / 8 | 34 | 7: Loss vs behavior |
 
 ## DPO Candidate Prompt Scores
 
@@ -97,6 +102,14 @@ reports/stage5_structured_behavior_scores.csv
 | dpo_candidate_v5 | 6 | DPO VRAM risk | 5 | True | - | - |
 | dpo_candidate_v5 | 7 | Loss vs behavior | 1 | False | loss average signal, fixed prompt behavior, badcase/regression, public-SFT example | - |
 | dpo_candidate_v5 | 8 | Interview data pipeline | 5 | True | - | - |
+| dpo_naive_v6 | 1 | LoRA definition | 5 | True | - | - |
+| dpo_naive_v6 | 2 | SFT and LoRA relation | 4 | True | - | - |
+| dpo_naive_v6 | 3 | DPO vs SFT | 4 | True | - | - |
+| dpo_naive_v6 | 4 | Public-SFT motivation | 4 | True | - | - |
+| dpo_naive_v6 | 5 | Data pipeline | 5 | True | - | - |
+| dpo_naive_v6 | 6 | DPO VRAM risk | 5 | True | - | - |
+| dpo_naive_v6 | 7 | Loss vs behavior | 2 | False | loss average signal, fixed prompt behavior, badcase/regression | - |
+| dpo_naive_v6 | 8 | Interview data pipeline | 5 | True | - | - |
 
 ## Decision
 
@@ -109,8 +122,10 @@ The structured scores support the manual Stage 5 decision:
   public-SFT motivation and loss-vs-behavior.
 - Focused candidate v5 did not fix those two gates and weakened the
   loss-vs-behavior answer again.
-- None of the DPO adapters should replace the current SFT v3 adapter.
-- Stage 5D larger DPO remains blocked.
+- Larger naive v6 is the best DPO candidate so far at 7 / 8 prompts. It fixed
+  public-SFT motivation, but still failed the core loss-vs-behavior gate.
+- No DPO adapter has fully passed the fixed-prompt gate yet.
+- Further DPO expansion remains blocked until prompt 7 passes.
 
 Recommended checkpoint remains:
 
