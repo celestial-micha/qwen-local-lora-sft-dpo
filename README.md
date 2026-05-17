@@ -16,6 +16,26 @@ first a public Chinese instruction dataset baseline, then a self-collected data
 pipeline with crawling, cleaning, filtering, instruction conversion, and another
 SFT comparison.
 
+## Learning Walkthrough Notebooks
+
+For readers who want to understand the project from first principles, see
+`project_learning_notebooks_zh/`. This folder is a Chinese learning walkthrough,
+not a training output directory. It explains the project by starting from
+concrete questions:
+
+- how Qwen is cached, loaded, and used for one inference call;
+- how the tokenizer and Qwen chat template turn messages into token IDs;
+- how SFT JSONL examples become training labels and where loss is computed;
+- how LoRA is attached to Qwen through PEFT adapters;
+- how adapters are saved, loaded, and evaluated with fixed prompts;
+- how DPO uses `prompt` / `chosen` / `rejected` preference rows;
+- why the final accepted checkpoint is based on behavior gates, not only loss
+  or preference accuracy.
+
+The notebooks are safe for study by default: they mostly read project files and
+print annotated code snippets. Any real inference cell is guarded by a
+`RUN = False` or `RUN_INFERENCE = False` switch.
+
 ## Current Status
 
 Completed:
