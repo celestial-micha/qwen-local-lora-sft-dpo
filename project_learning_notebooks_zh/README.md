@@ -8,6 +8,9 @@
 
 ## 建议顺序
 
+如果你觉得项目还是太大，先进入 `micro_steps/`，从最小推理闭环开始学。
+
+0. `micro_steps/README.md` 和 `micro_steps/00_从一个prompt开始_最小推理闭环.ipynb`
 0. `00_START_项目总架构_入口出口和代码地图.ipynb`
 1. `00_学习路线_先从问题而不是目录开始.ipynb`
 2. `01_Qwen下载缓存加载和一次推理到底发生什么.ipynb`
