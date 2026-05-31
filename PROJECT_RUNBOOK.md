@@ -656,6 +656,12 @@ reports/stage7_safety_eval_design.md
 reports/stage7_safety_baseline_report.md
 ```
 
+Canonical detailed plan:
+
+```text
+reports/stage7_safety_eval_design.md
+```
+
 Planned workflow:
 
 ```text
@@ -750,6 +756,8 @@ Stage 7:
 
 - Status: planned.
 - Start with `reports/stage7_safety_eval_design.md`, not training.
+- Treat `reports/stage7_safety_eval_design.md` as the source of truth if a new
+  chat loses context.
 - First implementation step: create the safety taxonomy, held-out evaluation
   prompts, scoring rubric, and baseline report.
 - Second step: construct the first 1,500-row SFT dataset from the observed

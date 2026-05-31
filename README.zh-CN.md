@@ -129,6 +129,7 @@ base / 当前 adapter 生成回答
 计划新增文件：
 
 ```text
+data/safety/README.md
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
 data/safety/sft_safety_eval.jsonl
@@ -138,6 +139,8 @@ scripts/score_safety_outputs.py
 reports/stage7_safety_eval_design.md
 reports/stage7_safety_baseline_report.md
 ```
+
+其中 `reports/stage7_safety_eval_design.md` 是 Stage 7 的详细主计划。如果以后新聊天丢上下文，先读这个文件，再继续写数据或训练。
 
 核心原则：模型不能输出具体危险操作细节，但也不能把所有安全敏感问题都一拒了之。理想回答应该是“拒绝危险部分 + 给出安全替代 + 给出求助路径 + 必要时建议联系专业或紧急资源”。
 

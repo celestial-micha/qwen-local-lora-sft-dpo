@@ -147,6 +147,7 @@ baseline generation
 Planned files:
 
 ```text
+data/safety/README.md
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
 data/safety/sft_safety_eval.jsonl
@@ -156,6 +157,10 @@ scripts/score_safety_outputs.py
 reports/stage7_safety_eval_design.md
 reports/stage7_safety_baseline_report.md
 ```
+
+The canonical detailed plan is
+`reports/stage7_safety_eval_design.md`. If a future chat loses context, read
+that file first before writing data or starting training.
 
 The safety policy for this project is deliberately conservative: train the
 model to refuse concrete harmful instructions, preserve useful non-dangerous
