@@ -1,0 +1,31 @@
+[33mcommit 6d32995f899522d9b6bf9c853b8e2753248618a4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: celestial-micha <47535427+celestial-micha@users.noreply.github.com>
+Date:   Sun May 31 16:49:34 2026 +0800
+
+    Refresh learning notebooks and inference comments
+
+D	notebooks/00_env_check.ipynb
+D	notebooks/01_base_infer.ipynb
+D	notebooks/02_prepare_demo_data.ipynb
+D	notebooks/03_sft_lora_smoke.ipynb
+D	notebooks/04_full_pipeline_learning.ipynb
+D	project_learning_notebooks_zh/00_学习路线_先从问题而不是目录开始.ipynb
+D	project_learning_notebooks_zh/01_Qwen下载缓存加载和一次推理到底发生什么.ipynb
+A	project_learning_notebooks_zh/01_SFT_LoRA最小训练闭环_从一条数据到adapter.ipynb
+D	project_learning_notebooks_zh/02_tokenizer和chat_template_文字怎么变成模型能懂的数字.ipynb
+A	project_learning_notebooks_zh/02_自己构造5条SFT数据_训练一个自己的LoRA.ipynb
+D	project_learning_notebooks_zh/03_SFT数据集和loss_模型到底在学哪几个字.ipynb
+A	project_learning_notebooks_zh/03_训练后怎么用infer加载adapter并对比.ipynb
+D	project_learning_notebooks_zh/04_LoRA怎么贴到Qwen上_代码里的adapter实现.ipynb
+A	project_learning_notebooks_zh/04_模型评估闭环_从回答到行为门禁.ipynb
+D	project_learning_notebooks_zh/05_adapter保存加载和固定prompt对比_怎么判断真的变好.ipynb
+A	project_learning_notebooks_zh/05_继续DPO训练_从preference数据到安全验收.ipynb
+D	project_learning_notebooks_zh/06_DPO从偏好数据到DPOTrainer_为什么指标好也可能不接受.ipynb
+D	project_learning_notebooks_zh/07_面试复盘_把代码细节讲成工程闭环.ipynb
+M	project_learning_notebooks_zh/README.md
+D	project_learning_notebooks_zh/micro_steps/00_从一个prompt开始_最小推理闭环.ipynb
+D	project_learning_notebooks_zh/micro_steps/01_tokenizer到底做了什么_文字到数字.ipynb
+D	project_learning_notebooks_zh/micro_steps/02_base_model到底怎么加载_模型从哪来.ipynb
+D	project_learning_notebooks_zh/micro_steps/03_generate到底做了什么_数字到回答.ipynb
+D	project_learning_notebooks_zh/micro_steps/README.md
+M	scripts/infer.py
