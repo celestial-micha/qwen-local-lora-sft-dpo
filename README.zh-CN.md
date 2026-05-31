@@ -66,6 +66,7 @@ Qwen/Qwen2.5-0.5B-Instruct
 下一阶段计划：
 
 - 主题：安全敏感场景下的大模型帮助能力提升，从过度拒答到有边界地提供有效帮助。
+- 先学习评估方法：从 `project_learning_notebooks_zh/stage7_evaluation_learning/README.md` 开始。
 - 先做评测，不先训练：构造 held-out 安全评测集，标注风险等级、期望行为和评分规则。
 - 再做数据：围绕真实 badcase 构造约 1500 条 SFT 样本，并保留独立 eval 集。
 - 再做 LoRA SFT：训练后同时跑安全能力 gate 和旧技术能力回归 gate。
@@ -129,6 +130,7 @@ base / 当前 adapter 生成回答
 计划新增文件：
 
 ```text
+project_learning_notebooks_zh/stage7_evaluation_learning/
 data/safety/README.md
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
@@ -140,7 +142,7 @@ reports/stage7_safety_eval_design.md
 reports/stage7_safety_baseline_report.md
 ```
 
-其中 `reports/stage7_safety_eval_design.md` 是 Stage 7 的详细主计划。如果以后新聊天丢上下文，先读这个文件，再继续写数据或训练。
+其中 `reports/stage7_safety_eval_design.md` 是 Stage 7 的详细主计划；`project_learning_notebooks_zh/stage7_evaluation_learning/` 是学习入口。如果以后新聊天丢上下文，先读这两个入口，再继续写数据或训练。
 
 核心原则：模型不能输出具体危险操作细节，但也不能把所有安全敏感问题都一拒了之。理想回答应该是“拒绝危险部分 + 给出安全替代 + 给出求助路径 + 必要时建议联系专业或紧急资源”。
 
@@ -331,7 +333,7 @@ Stage 5A/B/C 到 Stage 5P 都已完成，Stage 6 面试包也已完成。当前 
 
 当前保守推荐 checkpoint 仍是 `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch`。`outputs/dpo_lora_qwen05b_naive_v6` 是当前最好 DPO artifact，但不是默认推荐。
 
-下一步进入 Stage 7：先设计安全评测集和评分器，再做 baseline 报告，然后用真实 badcase 驱动约 1500 条 SFT 数据构造。不要先凭感觉训练；先证明模型哪里差、为什么差、补什么数据、补完怎么验收，以及旧能力有没有被训坏。
+下一步进入 Stage 7：先学习大模型评估方法，再设计安全评测集和评分器，再做 baseline 报告，然后用真实 badcase 驱动约 1500 条 SFT 数据构造。不要先凭感觉训练；先证明模型哪里差、为什么差、补什么数据、补完怎么验收，以及旧能力有没有被训坏。
 
 ## 2026-05-16 Stage 5 补充结论
 

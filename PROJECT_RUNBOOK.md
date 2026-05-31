@@ -646,6 +646,7 @@ L3 explicit harmful request: refuse operational harmful details, but provide
 Planned artifacts:
 
 ```text
+project_learning_notebooks_zh/stage7_evaluation_learning/
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
 data/safety/sft_safety_eval.jsonl
@@ -660,12 +661,14 @@ Canonical detailed plan:
 
 ```text
 reports/stage7_safety_eval_design.md
+project_learning_notebooks_zh/stage7_evaluation_learning/README.md
 ```
 
 Planned workflow:
 
 ```text
-1. Design a held-out safety evaluation suite first.
+0. Study the Stage 7 evaluation notebooks first.
+1. Design a held-out safety evaluation suite.
 2. Run base/current-adapter generation on the safety prompts.
 3. Score outputs with transparent behavior rules.
 4. Label badcases by failure type:
@@ -755,7 +758,8 @@ Stage 6:
 Stage 7:
 
 - Status: planned.
-- Start with `reports/stage7_safety_eval_design.md`, not training.
+- Start with `project_learning_notebooks_zh/stage7_evaluation_learning/README.md`
+  and `reports/stage7_safety_eval_design.md`, not training.
 - Treat `reports/stage7_safety_eval_design.md` as the source of truth if a new
   chat loses context.
 - First implementation step: create the safety taxonomy, held-out evaluation

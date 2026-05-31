@@ -8,6 +8,13 @@ The important rule is:
 Evaluation first, training second.
 ```
 
+Before creating files here, study:
+
+```text
+project_learning_notebooks_zh/stage7_evaluation_learning/README.md
+reports/stage7_safety_eval_design.md
+```
+
 Planned files:
 
 ```text

@@ -10,6 +10,7 @@
 3. `03_训练后怎么用infer加载adapter并对比.ipynb`
 4. `04_模型评估闭环_从回答到行为门禁.ipynb`
 5. `05_继续DPO训练_从preference数据到安全验收.ipynb`
+6. `stage7_evaluation_learning/README.md`：先学大模型评估和数据闭环，再进入安全帮助能力项目。
 
 ## 每个文件的学习目标
 
@@ -18,6 +19,7 @@
 - `03`：回到 `scripts/infer.py`，理解训练后的 adapter 怎么加载和对比。
 - `04`：只看 `compare_four_outputs.py` 和 `score_*`，搞懂为什么评估不能只看 loss。
 - `05`：只看 `train_dpo.py`、`configs/dpo_*.yaml` 和 preference JSONL，搞懂继续 DPO 前后必须怎么验收。
+- `stage7_evaluation_learning/`：专门学习“大模型评估、评测集设计、baseline、多路对比、badcase、回归保护、SFT/DPO 数据构造”。这一步先学习，不急着训练。
 
 ## 安全说明
 

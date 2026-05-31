@@ -78,6 +78,8 @@ Planned next direction:
 - Stage 7 will use a safety-sensitive but help-oriented task: improving the
   model's ability to provide bounded help instead of either refusing too much
   or giving unsafe details.
+- Before implementing data or scripts, study the evaluation walkthrough under
+  `project_learning_notebooks_zh/stage7_evaluation_learning/`.
 - The first artifact is not training data. It is a held-out evaluation suite
   with risk levels, expected behavior, and transparent scoring rules.
 - The first SFT target is about 1,500 examples across risk levels and answer
@@ -147,6 +149,7 @@ baseline generation
 Planned files:
 
 ```text
+project_learning_notebooks_zh/stage7_evaluation_learning/
 data/safety/README.md
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
@@ -158,9 +161,10 @@ reports/stage7_safety_eval_design.md
 reports/stage7_safety_baseline_report.md
 ```
 
-The canonical detailed plan is
-`reports/stage7_safety_eval_design.md`. If a future chat loses context, read
-that file first before writing data or starting training.
+The canonical detailed plan is `reports/stage7_safety_eval_design.md`. The
+learning entry is `project_learning_notebooks_zh/stage7_evaluation_learning/`.
+If a future chat loses context, read both before writing data or starting
+training.
 
 The safety policy for this project is deliberately conservative: train the
 model to refuse concrete harmful instructions, preserve useful non-dangerous
@@ -462,8 +466,9 @@ loss-vs-behavior gate still did not pass in any accepted adapter:
 8. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
 9. Treat DPO v6 as the best DPO artifact, not the default recommendation.
 10. Stop adding technical-task DPO/SFT steps until a broader prompt-7 curriculum is designed.
-11. Start Stage 7 by designing the safety evaluation suite before generating training data.
-12. Build the first safety scorer and baseline report, then use the observed failures to construct SFT data.
+11. Start Stage 7 by studying the evaluation learning notebooks.
+12. Then design the safety evaluation suite before generating training data.
+13. Build the first safety scorer and baseline report, then use the observed failures to construct SFT data.
 
 ## Next Chat
 

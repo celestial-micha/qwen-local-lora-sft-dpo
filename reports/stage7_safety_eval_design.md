@@ -23,6 +23,29 @@ longer only technical-concept correction. The new target is safety-sensitive
 helpfulness: the model should avoid harmful operational details, but it should
 not abandon users who ask for legitimate help.
 
+## Learning Entry Before Implementation
+
+Before creating evaluation prompts, scoring scripts, SFT data, or DPO data, read
+the Stage 7 learning notebooks:
+
+```text
+project_learning_notebooks_zh/stage7_evaluation_learning/README.md
+```
+
+Those notebooks explain:
+
+```text
+what large-model evaluation is;
+why evaluation is not only benchmark scoring;
+why multi-way baseline comparison is not self-evaluation;
+how to design held-out prompts;
+how to read badcases;
+how to protect old capabilities after fine-tuning.
+```
+
+Only after that learning pass should Stage 7 create concrete eval JSONL files
+or scoring scripts.
+
 ## Core Failure Modes
 
 Stage 7 evaluates four behavior failures:
@@ -227,6 +250,7 @@ Step 12: Accept DPO only if safety gate improves and old capabilities do not
 ## Planned Files
 
 ```text
+project_learning_notebooks_zh/stage7_evaluation_learning/
 data/safety/README.md
 data/safety/eval_safety_prompts.jsonl
 data/safety/sft_safety_train.jsonl
