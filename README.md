@@ -11,10 +11,11 @@ LoRA SFT: supervised fine-tuning implemented by training LoRA adapters.
 
 This project intentionally starts small. The goal is not to build a large
 domain model first, but to finish a clean, reproducible, explainable training
-pipeline that can be discussed in interviews. The data plan has two loops:
-first a public Chinese instruction dataset baseline, then a self-collected data
-pipeline with crawling, cleaning, filtering, instruction conversion, and another
-SFT comparison.
+pipeline that can be discussed in interviews. The completed technical-data loop
+proved the local LoRA SFT/DPO workflow. The next planned loop is a safety
+assistance project: evaluate over-refusal and unsafe over-answering, build
+graded safety data, run LoRA SFT, protect older capabilities with regression
+prompts, and use DPO only for concrete badcases.
 
 ## Learning Walkthrough Notebooks
 
@@ -70,6 +71,21 @@ Not completed yet:
 - A fully accepted DPO adapter. v6 is promising, but not a complete pass.
 - A stable prompt-7 repair that passes without old-prompt regression.
 - Multi-GPU notes or experiments.
+- Stage 7 safety-assistance data, evaluation, SFT, and DPO loop.
+
+Planned next direction:
+
+- Stage 7 will use a safety-sensitive but help-oriented task: improving the
+  model's ability to provide bounded help instead of either refusing too much
+  or giving unsafe details.
+- The first artifact is not training data. It is a held-out evaluation suite
+  with risk levels, expected behavior, and transparent scoring rules.
+- The first SFT target is about 1,500 examples across risk levels and answer
+  skills, with a separate held-out eval set.
+- DPO will be used after SFT only for answers that still fail the behavior
+  gate, using `prompt` / `chosen` / `rejected` preference pairs.
+- Every accepted adapter must pass both the new safety gate and old technical
+  regression prompts.
 
 ## Why This Project Exists
 
@@ -96,6 +112,55 @@ The public dataset comes first on purpose. It proves that the training pipeline
 works with controlled data. The custom-data loop comes after that, so crawling
 and cleaning issues can be analyzed separately instead of being mixed with
 training bugs.
+
+## Stage 7 Planned Safety Loop
+
+The next interview-facing project is:
+
+```text
+Safety-sensitive assistance improvement:
+from over-refusal to bounded, useful help
+```
+
+The model will be evaluated on two failure modes:
+
+- over-refusal: the user asks for legitimate help in a risky situation, but the
+  model refuses without useful support;
+- unsafe over-answering: the model gives operational or dangerous details when
+  it should refuse that part and redirect to safe alternatives.
+
+The planned loop is:
+
+```text
+baseline generation
+  -> graded safety evaluation suite
+  -> structured safety scorer
+  -> badcase analysis
+  -> 1,500-row SFT data construction
+  -> LoRA SFT
+  -> safety gate + old technical regression gate
+  -> DPO data from remaining badcases
+  -> DPO training
+  -> final acceptance or rollback
+```
+
+Planned files:
+
+```text
+data/safety/eval_safety_prompts.jsonl
+data/safety/sft_safety_train.jsonl
+data/safety/sft_safety_eval.jsonl
+data/safety/dpo_safety_train.jsonl
+scripts/prepare_safety_sft_data.py
+scripts/score_safety_outputs.py
+reports/stage7_safety_eval_design.md
+reports/stage7_safety_baseline_report.md
+```
+
+The safety policy for this project is deliberately conservative: train the
+model to refuse concrete harmful instructions, preserve useful non-dangerous
+support, encourage emergency or professional help when appropriate, and explain
+safe next steps without giving operational harm details.
 
 ## Model
 
@@ -391,7 +456,9 @@ loss-vs-behavior gate still did not pass in any accepted adapter:
 7. Review `reports/stage6_final_interview_package.md`.
 8. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
 9. Treat DPO v6 as the best DPO artifact, not the default recommendation.
-10. Stop adding DPO/SFT steps until a broader prompt-7 curriculum is designed.
+10. Stop adding technical-task DPO/SFT steps until a broader prompt-7 curriculum is designed.
+11. Start Stage 7 by designing the safety evaluation suite before generating training data.
+12. Build the first safety scorer and baseline report, then use the observed failures to construct SFT data.
 
 ## Next Chat
 
