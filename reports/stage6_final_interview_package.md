@@ -2,6 +2,11 @@
 
 Date: 2026-05-16
 
+Addendum: 2026-07-02 Stage 8 expanded the technical-data assets to 1,500 SFT
+train rows, 160 SFT eval rows, 1,500 DPO preference train pairs, 160 DPO eval
+pairs, and a 96-prompt expanded behavior suite. The original 7 / 8 score remains
+the pilot fixed-gate result until Stage 8 retraining/evaluation is run.
+
 ## Final Position
 
 This project is now ready to present as a local post-training engineering

@@ -116,6 +116,24 @@ accepted checkpoint. Stage 5N preserved old prompts but still failed prompt 7;
 Stage 5O passed prompt 7 only with old-prompt regression; Stage 5P did not find
 a stable middle point. See `reports/stage5j_to_5p_prompt7_repair_report.md`.
 
+Stage 8 expanded technical data files:
+
+- `custom_sft_expanded_train.jsonl`: 1,500 Qwen chat SFT train rows.
+- `custom_sft_expanded_eval.jsonl`: 160 held-out Qwen chat SFT eval rows.
+- `dpo_expanded_train.jsonl`: 1,500 DPO preference train pairs.
+- `dpo_expanded_eval.jsonl`: 160 held-out DPO preference eval pairs.
+- Behavior suite: `data/samples/custom_technical_prompts_stage8_expanded.jsonl`
+  contains 96 held-out behavior prompts across the original core evaluation
+  areas.
+- Source registry:
+  `data/references/stage8_expanded_source_registry.jsonl`.
+- Report: `reports/stage8_expanded_data_report.md`.
+
+Important boundary: Stage 8 expands the data assets. It does not mean the old
+accepted checkpoint has already been retrained on the new rows. The old 7 / 8
+result remains a pilot fixed-gate result until a new Stage 8 training/eval run
+is executed.
+
 Final project summary:
 
 - Conservative checkpoint:

@@ -65,6 +65,8 @@ Completed:
 - Stage 5H prompt-7 repair data/eval design completed. It created a 278-row train preference file, a 55-row held-out eval file, a 24-prompt expanded behavior suite, and a metadata-based expanded scorer.
 - Stage 5I-5P prompt-7 repair loop completed. DPO v7 and v8 reached preference accuracy 1.0 but still failed fixed prompt 7; direct SFT probes could either preserve old prompts while missing prompt 7 or force prompt 7 while regressing old prompts. No new adapter is accepted.
 - Stage 6 final interview package completed. It summarizes the final narrative, before/after examples, failure review, resume bullets, and the boundary against blind DPO expansion.
+- Stage 8 technical-data scale-up completed. It adds 1,500 SFT train rows, 160 held-out SFT eval rows, 1,500 DPO preference train pairs, 160 held-out DPO eval pairs, and a 96-prompt expanded behavior suite. Boundary: the old 7/8 result still belongs to the pilot fixed-prompt gate until a new Stage 8 training/evaluation run is executed.
+- Stage 8 report entry points: `reports/stage8_expanded_data_report.md` and `reports/stage8_resume_data_scale_update_zh.md`.
 
 Not completed yet:
 
@@ -72,9 +74,11 @@ Not completed yet:
 - A stable prompt-7 repair that passes without old-prompt regression.
 - Multi-GPU notes or experiments.
 - Stage 7 safety-assistance data, evaluation, SFT, and DPO loop.
+- Stage 8 retraining and 96-prompt scoring. The expanded data exists, but the old checkpoint has not been re-scored as a Stage 8 pass rate.
 
 Planned next direction:
 
+- For the technical fine-tuning project, read `reports/stage8_expanded_data_report.md` before continuing. Do not present the old 7/8 pilot result as a score on the new 96-prompt suite.
 - Stage 7 will use a safety-sensitive but help-oriented task: improving the
   model's ability to provide bounded help instead of either refusing too much
   or giving unsafe details.

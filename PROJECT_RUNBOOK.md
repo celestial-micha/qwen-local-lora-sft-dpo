@@ -616,6 +616,52 @@ reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
 ```
 
+### Stage 8: Expanded Technical Data Scale-Up
+
+Goal:
+
+- Upgrade the technical fine-tuning data scale so the project no longer depends
+  only on the old 142 / 15 custom SFT split and 8-prompt pilot gate.
+- Keep the data honest and traceable: generated rows are grounded in local
+  project reports, public reference metadata, and observed badcases, without
+  copying long web passages.
+- Separate data construction from model-quality claims. The existing accepted
+  checkpoint has not yet been retrained on Stage 8 rows.
+
+Status: data generation completed on 2026-07-02.
+
+Artifacts:
+
+```text
+scripts/prepare_stage8_expanded_data.py
+data/processed/custom_sft_expanded_train.jsonl
+data/processed/custom_sft_expanded_eval.jsonl
+data/processed/dpo_expanded_train.jsonl
+data/processed/dpo_expanded_eval.jsonl
+data/samples/custom_technical_prompts_stage8_expanded.jsonl
+data/references/stage8_expanded_source_registry.jsonl
+reports/stage8_expanded_data_report.md
+```
+
+Scale:
+
+```text
+SFT train: 1500
+SFT eval: 160
+DPO preference train: 1500
+DPO preference eval: 160
+Behavior suite: 96 prompts
+```
+
+Boundary:
+
+- The old `7 / 8` score is still the Stage 5/6 pilot fixed-gate score.
+- Do not claim a Stage 8 pass rate until the accepted checkpoint or a new
+  checkpoint is run on the 96-prompt expanded behavior suite.
+- If training resumes, start from
+  `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` and use the commands in
+  `reports/stage8_expanded_data_report.md`.
+
 ### Stage 7: Safety-Sensitive Assistance Loop
 
 Goal:
@@ -727,6 +773,9 @@ Acceptance criteria:
 - Direct exact-prompt SFT can force prompt 7 to pass while breaking old prompts.
   Stage 5O is the clearest regression example, so exact prompt success alone is
   not enough.
+- Stage 8 expands data assets but does not automatically upgrade old metrics.
+  Keep resume/project wording separate: "expanded data was built" is true;
+  "old checkpoint passed the expanded suite" is not yet true.
 
 ## Next Stages
 
@@ -754,6 +803,15 @@ Stage 6:
 - Status: completed on 2026-05-16.
 - Final summary: `reports/final_project_summary_zh.md`.
 - Final package: `reports/stage6_final_interview_package.md`.
+
+Stage 8:
+
+- Status: data generation completed on 2026-07-02.
+- Data report: `reports/stage8_expanded_data_report.md`.
+- Generated 1500 SFT train / 160 SFT eval, 1500 DPO train / 160 DPO eval, and
+  96 held-out behavior prompts.
+- Next technical step: run SFT/DPO or at least run the 96-prompt behavior suite
+  before reporting any expanded pass rate.
 
 Stage 7:
 

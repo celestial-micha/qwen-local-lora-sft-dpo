@@ -2,6 +2,12 @@
 
 Date: 2026-05-16
 
+Addendum: 2026-07-02 完成 Stage 8 技术数据扩容。新增
+`reports/stage8_expanded_data_report.md`，并生成 1500 条 SFT train、
+160 条 SFT eval、1500 条 DPO preference train、160 条 DPO preference
+eval 和 96 条扩展行为评测 prompt。注意：旧的 7 / 8 仍是 Stage 5/6
+pilot gate 结果，不能直接当作 Stage 8 扩展评测通过率。
+
 ## 一句话结论
 
 这个项目已经从环境验证、base 推理、public-SFT、自采集技术数据、

@@ -54,6 +54,8 @@ Qwen/Qwen2.5-0.5B-Instruct
 - Stage 5H prompt 7 修复数据和 expanded behavior gate 设计已完成：生成 278 条 train preference、55 条 held-out eval、24 题 expanded prompt suite，并新增 metadata-based scorer。
 - Stage 5I-5P prompt 7 修复循环已完成：v6 expanded gate 失败；DPO v7/v8 偏好 eval accuracy 都到 1.0 但固定 prompt 7 仍失败；Stage 5N/5O/5P 直接 SFT 探针也没有同时满足“prompt 7 通过且旧题不回归”。没有新的 adapter 被接受。
 - Stage 6 最终面试包已完成：整理最终叙事、before/after 示例、失败复盘、简历 bullet 和不要盲目继续 DPO 的边界。
+- Stage 8 技术数据扩容已完成：在旧 142 / 15 custom SFT 和 8 题 pilot gate 基础上，新增 1500 条 SFT train、160 条 SFT held-out eval、1500 条 DPO preference train、160 条 DPO preference eval，并构建 96 条扩展行为评测 prompt。注意：旧 checkpoint 的 7/8 仍是 pilot gate 结果，若要汇报 96 题通过率，需要重新训练或重新评测。
+- Stage 8 报告入口：`reports/stage8_expanded_data_report.md` 和 `reports/stage8_resume_data_scale_update_zh.md`。
 - 学习型 notebook 已更新：`notebooks/04_full_pipeline_learning.ipynb`。
 
 还没完成：
@@ -62,9 +64,14 @@ Qwen/Qwen2.5-0.5B-Instruct
 - 一个稳定的 prompt 7 修复 checkpoint：目前不是 prompt 7 仍弱，就是修 prompt 7 时旧题回归。
 - 多卡训练说明或实验。
 - Stage 7 安全敏感帮助能力闭环：评测集、1500 条左右 SFT 数据、DPO 偏好数据、训练和回归验收。
+- Stage 8 扩容数据的真实训练和 96 题行为评测：当前已生成数据和报告，但没有把旧 checkpoint 结果迁移成新评测通过率。
 
 下一阶段计划：
 
+- 技术微调项目如果继续推进，先读
+  `reports/stage8_expanded_data_report.md`，用 Stage 8 数据重新跑 SFT/DPO
+  或至少重新跑 96 条 behavior suite；不要把旧 7/8 pilot 结果直接写成
+  Stage 8 通过率。
 - 主题：安全敏感场景下的大模型帮助能力提升，从过度拒答到有边界地提供有效帮助。
 - 先学习评估方法：从 `project_learning_notebooks_zh/stage7_evaluation_learning/README.md` 开始。
 - 先做评测，不先训练：构造 held-out 安全评测集，标注风险等级、期望行为和评分规则。
