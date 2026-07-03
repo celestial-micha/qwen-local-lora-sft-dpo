@@ -52,6 +52,12 @@ data/processed/*
 !data/processed/sft_stage5o_prompt7_exact_eval.jsonl
 !data/processed/custom_sft_expanded_train.jsonl
 !data/processed/custom_sft_expanded_eval.jsonl
+!data/processed/custom_sft_expanded_v2_train.jsonl
+!data/processed/custom_sft_expanded_v2_eval.jsonl
+!data/processed/custom_sft_expanded_v3_train.jsonl
+!data/processed/custom_sft_expanded_v3_eval.jsonl
+!data/processed/custom_sft_expanded_v4_targeted_train.jsonl
+!data/processed/custom_sft_expanded_v4_targeted_eval.jsonl
 !data/processed/dpo_expanded_train.jsonl
 !data/processed/dpo_expanded_eval.jsonl
 !data/samples/*.jsonl

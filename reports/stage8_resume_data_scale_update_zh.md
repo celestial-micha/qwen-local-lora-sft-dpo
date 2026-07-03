@@ -61,3 +61,27 @@ data/samples/custom_technical_prompts_stage8_expanded.jsonl
 data/references/stage8_expanded_source_registry.jsonl
 reports/stage8_expanded_data_report.md
 ```
+
+## 2026-07-04 重训后更新
+
+Stage 8 已经完成扩容后的重新训练与 96 题行为评测。现在简历口径应更新为：
+
+```text
+扩容后重新跑通 SFT / DPO 训练与 96 条行为评测。old custom-SFT v3 在
+expanded 透明规则 gate 上为 25/96；Stage 8 SFT-v2 提升到 48/96；
+DPO from v2 虽然 preference eval accuracy 达到 1.0，但 96 题行为为
+44/96 且人工抽查存在事实漂移，因此最终保留表现更稳定的 SFT-v2 checkpoint。
+```
+
+不要把 48/96 包装成生产级高准确率模型。这里真正适合写进简历的是：
+
+- 数据规模从 pilot 级别扩展到 1,500 / 160 SFT、1,500 / 160 DPO 和 96 条行为评测 prompt；
+- 完整重跑了 SFT、DPO、固定行为评测和 badcase 复查；
+- 能解释为什么拒绝 loss / preference accuracy 好看但行为不稳的 checkpoint；
+- 最终保留 `outputs/sft_lora_qwen05b_stage8_expanded_v2`。
+
+详细复盘：
+
+```text
+reports/stage8_retraining_final_report_zh.md
+```

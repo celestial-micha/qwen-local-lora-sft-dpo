@@ -1,0 +1,19 @@
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+sft_adapter_path: outputs/sft_lora_qwen05b_stage8_expanded_v2
+dpo_file: data/processed/dpo_expanded_train.jsonl
+eval_file: data/processed/dpo_expanded_eval.jsonl
+output_dir: outputs/dpo_lora_qwen05b_stage8_from_sft_v2
+max_length: 384
+max_prompt_length: 160
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-6
+num_train_epochs: 1
+beta: 0.08
+logging_steps: 10
+eval_steps: 150
+save_steps: 200
+separate_ref_model: true
+report_to: none
+# Stage 8 DPO retry from the best expanded SFT candidate.

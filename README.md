@@ -67,6 +67,8 @@ Completed:
 - Stage 6 final interview package completed. It summarizes the final narrative, before/after examples, failure review, resume bullets, and the boundary against blind DPO expansion.
 - Stage 8 technical-data scale-up completed. It adds 1,500 SFT train rows, 160 held-out SFT eval rows, 1,500 DPO preference train pairs, 160 held-out DPO eval pairs, and a 96-prompt expanded behavior suite. Boundary: the old 7/8 result still belongs to the pilot fixed-prompt gate until a new Stage 8 training/evaluation run is executed.
 - Stage 8 report entry points: `reports/stage8_expanded_data_report.md` and `reports/stage8_resume_data_scale_update_zh.md`.
+- Stage 8 retraining and evaluation loop completed. The expanded 96-prompt gate was rerun across old checkpoints, SFT v1/v2/v3/v4, and DPO from v2. The final Stage 8 accepted checkpoint is `outputs/sft_lora_qwen05b_stage8_expanded_v2`: it scored 48/96 on the transparent behavior gate, compared with 25/96 for old custom-SFT v3 and 44/96 for DPO from v2. v3, v4, and DPO from v2 are rejected because they either reduced the behavior score or introduced fact drift.
+- Stage 8 final retraining report: `reports/stage8_retraining_final_report_zh.md`.
 
 Not completed yet:
 
@@ -74,11 +76,10 @@ Not completed yet:
 - A stable prompt-7 repair that passes without old-prompt regression.
 - Multi-GPU notes or experiments.
 - Stage 7 safety-assistance data, evaluation, SFT, and DPO loop.
-- Stage 8 retraining and 96-prompt scoring. The expanded data exists, but the old checkpoint has not been re-scored as a Stage 8 pass rate.
 
 Planned next direction:
 
-- For the technical fine-tuning project, read `reports/stage8_expanded_data_report.md` before continuing. Do not present the old 7/8 pilot result as a score on the new 96-prompt suite.
+- For the technical fine-tuning project, read `reports/stage8_retraining_final_report_zh.md` before continuing. The old 7/8 pilot result and the Stage 8 48/96 expanded behavior result are different evaluation scopes.
 - Stage 7 will use a safety-sensitive but help-oriented task: improving the
   model's ability to provide bounded help instead of either refusing too much
   or giving unsafe details.
@@ -450,6 +451,7 @@ gradually.
 - [Stage 5J-5P prompt-7 repair report](reports/stage5j_to_5p_prompt7_repair_report.md)
 - [Final project summary zh](reports/final_project_summary_zh.md)
 - [Stage 6 final interview package](reports/stage6_final_interview_package.md)
+- [Stage 8 retraining final report zh](reports/stage8_retraining_final_report_zh.md)
 - [Next chat handoff after Stage 5G](reports/next_chat_handoff_stage5g.md)
 - [Stage 5 structured behavior score report](reports/stage5_structured_behavior_score_report.md)
 - [VRAM and DPO plan](reports/vram_and_dpo_plan.md)
@@ -467,12 +469,13 @@ loss-vs-behavior gate still did not pass in any accepted adapter:
 5. Review `reports/stage5j_to_5p_prompt7_repair_report.md`.
 6. Review `reports/final_project_summary_zh.md`.
 7. Review `reports/stage6_final_interview_package.md`.
-8. Keep `outputs/sft_lora_qwen05b_custom_v3_from_v1_patch` as the conservative recommended checkpoint.
-9. Treat DPO v6 as the best DPO artifact, not the default recommendation.
-10. Stop adding technical-task DPO/SFT steps until a broader prompt-7 curriculum is designed.
-11. Start Stage 7 by studying the evaluation learning notebooks.
-12. Then design the safety evaluation suite before generating training data.
-13. Build the first safety scorer and baseline report, then use the observed failures to construct SFT data.
+8. Review `reports/stage8_retraining_final_report_zh.md`.
+9. Keep `outputs/sft_lora_qwen05b_stage8_expanded_v2` as the accepted Stage 8 expanded-run checkpoint.
+10. Treat DPO from v2 as a rejected diagnostic artifact, not the default recommendation.
+11. Stop adding technical-task DPO/SFT steps unless a new evaluation design targets the remaining weak areas.
+12. Start Stage 7 by studying the evaluation learning notebooks.
+13. Then design the safety evaluation suite before generating training data.
+14. Build the first safety scorer and baseline report, then use the observed failures to construct SFT data.
 
 ## Next Chat
 
@@ -485,6 +488,7 @@ reports/stage5g_naive_dpo_v6_report.md
 reports/stage5j_to_5p_prompt7_repair_report.md
 reports/final_project_summary_zh.md
 reports/stage6_final_interview_package.md
+reports/stage8_retraining_final_report_zh.md
 reports/stage5_structured_behavior_score_report.md
 PROJECT_RUNBOOK.md
 notebooks/04_full_pipeline_learning.ipynb

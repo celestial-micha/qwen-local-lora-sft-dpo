@@ -129,10 +129,27 @@ Stage 8 expanded technical data files:
   `data/references/stage8_expanded_source_registry.jsonl`.
 - Report: `reports/stage8_expanded_data_report.md`.
 
-Important boundary: Stage 8 expands the data assets. It does not mean the old
-accepted checkpoint has already been retrained on the new rows. The old 7 / 8
-result remains a pilot fixed-gate result until a new Stage 8 training/eval run
-is executed.
+Stage 8 retraining follow-up files:
+
+- `custom_sft_expanded_v2_train.jsonl`: 1,500 rows. Balanced replay and
+  badcase patch after the first expanded SFT run failed to improve behavior.
+- `custom_sft_expanded_v2_eval.jsonl`: 160 held-out rows.
+- `custom_sft_expanded_v3_train.jsonl`: 1,500 rows. Fact-guard patch; useful
+  as a rejected diagnostic because the resulting checkpoint regressed.
+- `custom_sft_expanded_v3_eval.jsonl`: 160 held-out rows.
+- `custom_sft_expanded_v4_targeted_train.jsonl`: 1,500 rows. Narrow patch for
+  DPO-vs-SFT and public-SFT diagnostic weak areas; also rejected after behavior
+  scoring.
+- `custom_sft_expanded_v4_targeted_eval.jsonl`: 160 held-out rows.
+
+Final Stage 8 decision:
+
+- Accepted expanded-run checkpoint:
+  `outputs/sft_lora_qwen05b_stage8_expanded_v2`
+- Expanded 96-prompt transparent behavior gate: 48 / 96.
+- Rejected artifacts: Stage 8 SFT v1, SFT v3, SFT v4 targeted, and DPO from
+  v2.
+- Final report: `reports/stage8_retraining_final_report_zh.md`.
 
 Final project summary:
 
